@@ -1,0 +1,16 @@
+{
+    "name": "LunyScript",
+    "rootNamespace": "LunyScript",
+    "references": [
+        "GUID:6a86029aafb8ac242ae2ef290fccee00"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
