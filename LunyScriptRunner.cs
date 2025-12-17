@@ -12,31 +12,31 @@ namespace LunyScript
     {
         public void OnStartup()
         {
-            LunyLog.Info("[LunyScriptRunner] OnStartup()");
+            LunyLogger.LogInfo("[LunyScriptRunner] OnStartup()");
             // Initialize runner systems here (state machines, behavior trees, etc.)
         }
 
         public void OnUpdate(double deltaTime)
         {
             // Process per-frame logic
-            LunyLog.Info($"[LunyScriptRunner] OnUpdate(deltaTime={deltaTime:0.000})");
+            LunyLogger.LogInfo($"[LunyScriptRunner] OnUpdate(deltaTime={deltaTime:0.000})");
         }
 
         public void OnLateUpdate(Double deltaTime)
         {
-	        LunyLog.Info($"[LunyScriptRunner] OnLateUpdate(deltaTime={deltaTime:0.000})");
+	        LunyLogger.LogInfo($"[LunyScriptRunner] OnLateUpdate(deltaTime={deltaTime:0.000})");
         }
 
         public void OnFixedStep(double fixedDeltaTime)
         {
             // Process fixed timestep logic
-            LunyLog.Info($"[LunyScriptRunner] OnFixedStep(fixedDeltaTime={fixedDeltaTime:0.000})");
+            LunyLogger.LogInfo($"[LunyScriptRunner] OnFixedStep(fixedDeltaTime={fixedDeltaTime:0.000})");
         }
 
         public void OnShutdown()
         {
             // Cleanup runner systems
-            LunyLog.Info("[LunyScriptRunner] OnShutdown()");
+            LunyLogger.LogInfo("[LunyScriptRunner] OnShutdown()");
         }
     }
 }
