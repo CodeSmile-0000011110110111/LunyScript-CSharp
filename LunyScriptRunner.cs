@@ -6,9 +6,9 @@ namespace LunyScript
 	/// <summary>
 	/// Engine-agnostic script execution runner.
 	/// Implements the lifecycle contract and will be discovered/reflected by
-	/// the <see cref="Luny.EngineLifecycleDispatcher"/> at startup.
+	/// the <see cref="Luny.LunyEngine"/> at startup.
 	/// </summary>
-	public sealed class LunyScriptRunner : IEngineLifecycle
+	public sealed class LunyScriptRunner : IEngineLifecycleObserver
 	{
 		public void OnStartup() => LunyLogger.LogInfo("OnStartup()", this);
 
