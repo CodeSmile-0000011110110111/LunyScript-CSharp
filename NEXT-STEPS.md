@@ -31,6 +31,7 @@ Read .claude/context.md for chat instructions/settings
 7. **Variables in LunyScript/** - Not moved to Luny/, stays in LunyScript namespace.
 8. **Debug hooks in all lifecycles** - Placeholders in Update, FixedStep, LateUpdate. (maybe extend to startup/shutdown)
 9. LunyScript: exposes the user API, must not expose implementation details
+10. Blocks: should avoid Lambdas (code samples in this document still use them)
 
 ### File Structure
 ```
@@ -178,6 +179,10 @@ public object this[string key]
    - Call script.Initialize(context) with SAME context
    - Call script.Build() - repopulates runnables
 4. GlobalVariables unchanged (shared reference)
+5. Ask user about LunyScript callbacks for unload and reload - enabling users to make scripted hot reload changes (ie reset variables on hot reload). These should be blocks in the Build() method: OnBeforeReload(Log("unloading ..")), OnAfterReload(Log("loading .."))
+   - decision: OnBeforeReload() runs from within the existing runnable (modify variables before new instance's OnStartup runs)
+   - decision: OnAfterReload() runs after OnStartup() on the new instance
+   - decide: should hot reloading scripts run their OnStartup() and OnShutdown() runnables or not?
 
 **No state preservation attributes** - entire context recreated, all blocks replaced. Assume full invalidation.
 
@@ -246,6 +251,11 @@ public void TriggerHotReload<TScript>() where TScript : LunyScript
 ## Step 4: Composite Blocks & Conditionals
 
 **Goal:** More expressive script building with control flow
+
+### Notes
+
+- Not using lambdas!
+- decide: then/else pattern - parameters or functional calls or something else?
 
 ### Implementation
 
