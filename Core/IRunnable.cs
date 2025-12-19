@@ -11,7 +11,7 @@ namespace LunyScript
 	/// </summary>
 	public interface IRunnable : IBlock
 	{
-		SequenceID ID { get; }
+		RunnableID ID { get; }
 		IReadOnlyList<IBlock> Children { get; }
 	}
 }

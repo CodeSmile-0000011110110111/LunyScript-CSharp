@@ -9,7 +9,7 @@ namespace LunyScript.Runnables
 	/// </summary>
 	public sealed class RunnableSequence : IRunnable
 	{
-		public SequenceID ID { get; }
+		public RunnableID ID { get; }
 		public IReadOnlyList<IBlock> Children { get; }
 
 		public RunnableSequence(params IBlock[] blocks)
@@ -17,7 +17,7 @@ namespace LunyScript.Runnables
 			if (blocks == null || blocks.Length == 0)
 				throw new ArgumentException("Sequence must contain at least one block", nameof(blocks));
 
-			ID = SequenceID.Generate();
+			ID = RunnableID.Generate();
 			Children = blocks;
 		}
 
