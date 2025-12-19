@@ -1,4 +1,4 @@
-﻿using Luny;
+using Luny;
 using Luny.Providers;
 using System;
 using System.Diagnostics;
@@ -9,21 +9,23 @@ namespace LunyScript
 	/// Engine-agnostic script execution runner.
 	/// Implements the lifecycle contract and will be discovered/reflected by
 	/// the <see cref="Luny.LunyEngine"/> at startup.
-	/// Manages script discovery, object binding, and execution context lifecycle.
+	/// Manages script discovery, object binding, and run context lifecycle.
 	/// </summary>
 	public sealed class LunyScriptRunner : IEngineLifecycleObserver
 	{
 		private ScriptRegistry _scriptRegistry;
-		private ExecutionContextRegistry _contextRegistry;
+		private RunContextRegistry _contextRegistry;
 		private ScenePreprocessor _scenePreprocessor;
+		private Variables _globalVariables;
 
 		public void OnStartup()
 		{
 			LunyLogger.LogInfo("LunyScriptRunner starting up...", this);
 
-			// Initialize registries
+			// Initialize global variables and registries
+			_globalVariables = new Variables();
 			_scriptRegistry = new ScriptRegistry();
-			_contextRegistry = new ExecutionContextRegistry();
+			_contextRegistry = new RunContextRegistry();
 
 			// Discover all LunyScript subclasses via reflection
 			_scriptRegistry.DiscoverScripts();
@@ -37,12 +39,12 @@ namespace LunyScript
 			}
 
 			// Initialize scene preprocessor
-			_scenePreprocessor = new ScenePreprocessor(_scriptRegistry, _contextRegistry, sceneService);
+			_scenePreprocessor = new ScenePreprocessor(_scriptRegistry, _contextRegistry, sceneService, _globalVariables);
 
 			// Process current scene to bind scripts to objects
 			_scenePreprocessor.ProcessCurrentScene();
 
-			// Initialize all scripts by calling OnStartup()
+			// Initialize all scripts by calling Build()
 			ActivateScripts();
 
 			LunyLogger.LogInfo("LunyScriptRunner initialized successfully", this);
@@ -53,25 +55,56 @@ namespace LunyScript
 			// Remove any contexts for destroyed objects
 			_contextRegistry.RemoveInvalidContexts();
 
-			// TODO: Execute sequences/FSMs/BTs for each context
-			// For now, just log that we're processing contexts
-			var contexts = _contextRegistry.AllContexts;
-			if (contexts.Count > 0)
+			// Execute all Update runnables
+			foreach (var context in _contextRegistry.AllContexts)
 			{
-				LunyLogger.LogInfo($"OnUpdate: Processing {contexts.Count} execution context(s)", this);
+				foreach (var runnable in context.UpdateRunnables)
+				{
+					// TODO Step 2: Debug hooks
+					// context.DebugHooks.OnBlockExecute?.Invoke(runnable, context);
+
+					runnable.Execute(context);
+
+					// TODO Step 2: Debug hooks
+					// context.DebugHooks.OnBlockComplete?.Invoke(runnable, context);
+				}
 			}
 		}
 
 		public void OnLateUpdate(Double deltaTime)
 		{
+			// Execute all LateUpdate runnables
+			foreach (var context in _contextRegistry.AllContexts)
+			{
+				foreach (var runnable in context.LateUpdateRunnables)
+				{
+					// TODO Step 2: Debug hooks
+					// context.DebugHooks.OnBlockExecute?.Invoke(runnable, context);
 
-			// TODO: Execute late-update sequences
+					runnable.Execute(context);
+
+					// TODO Step 2: Debug hooks
+					// context.DebugHooks.OnBlockComplete?.Invoke(runnable, context);
+				}
+			}
 		}
 
 		public void OnFixedStep(Double fixedDeltaTime)
 		{
+			// Execute all FixedStep runnables
+			foreach (var context in _contextRegistry.AllContexts)
+			{
+				foreach (var runnable in context.FixedStepRunnables)
+				{
+					// TODO Step 2: Debug hooks
+					// context.DebugHooks.OnBlockExecute?.Invoke(runnable, context);
 
-			// TODO: Execute fixed-step sequences
+					runnable.Execute(context);
+
+					// TODO Step 2: Debug hooks
+					// context.DebugHooks.OnBlockComplete?.Invoke(runnable, context);
+				}
+			}
 		}
 
 		public void OnShutdown()
@@ -81,6 +114,7 @@ namespace LunyScript
 			// Cleanup
 			_contextRegistry?.Clear();
 			_scriptRegistry?.Clear();
+			_globalVariables?.Clear();
 			_scenePreprocessor = null;
 		}
 
@@ -88,7 +122,7 @@ namespace LunyScript
 		{
 			var sw = Stopwatch.StartNew();
 
-			var activatedScriptsCount = 0;
+			var activatedCount = 0;
 			var contexts = _contextRegistry.AllContexts;
 			foreach (var context in contexts)
 			{
@@ -101,11 +135,13 @@ namespace LunyScript
 						continue;
 					}
 
-					// Create script instance and call OnStartup()
+					// Create script instance, initialize with context, and call Build()
 					var scriptInstance = (LunyScript)Activator.CreateInstance(scriptDef.Type);
-					scriptInstance.OnStartup();
-					activatedScriptsCount++;
-					LunyLogger.LogInfo($"Initialized script: {scriptDef.Name} for object {context.Object}", this);
+					scriptInstance.Initialize(context);
+					scriptInstance.Build();
+					activatedCount++;
+
+					LunyLogger.LogInfo($"Built script: {scriptDef.Name} for {context.Object}", this);
 				}
 				catch (Exception ex)
 				{
@@ -116,7 +152,7 @@ namespace LunyScript
 			sw.Stop();
 
 			var ms = (Int32)Math.Round(sw.Elapsed.TotalMilliseconds, MidpointRounding.AwayFromZero);
-			LunyLogger.LogInfo($"Activated {activatedScriptsCount} LunyScript(s) in {ms} ms.", this);
+			LunyLogger.LogInfo($"Activated {activatedCount} script(s) in {ms} ms", this);
 		}
 	}
 }

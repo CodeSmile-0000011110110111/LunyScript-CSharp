@@ -7,19 +7,19 @@ using Luny.Core;
 namespace LunyScript
 {
 	/// <summary>
-	/// Manages execution contexts and their binding to objects.
+	/// Manages run contexts and their binding to objects.
 	/// Provides deterministic iteration order based on ObjectID.
 	/// </summary>
-	public sealed class ExecutionContextRegistry
+	public sealed class RunContextRegistry
 	{
-		private readonly Dictionary<ObjectID, ExecutionContext> _contextsByObjectID = new Dictionary<ObjectID, ExecutionContext>();
-		private ExecutionContext[] _sortedContexts = Array.Empty<ExecutionContext>();
+		private readonly Dictionary<ObjectID, RunContext> _contextsByObjectID = new Dictionary<ObjectID, RunContext>();
+		private RunContext[] _sortedContexts = Array.Empty<RunContext>();
 		private Boolean _needsSort = false;
 
 		/// <summary>
-		/// Gets all execution contexts in deterministic order (sorted by ObjectID).
+		/// Gets all run contexts in deterministic order (sorted by ObjectID).
 		/// </summary>
-		public IReadOnlyList<ExecutionContext> AllContexts
+		public IReadOnlyList<RunContext> AllContexts
 		{
 			get
 			{
@@ -37,9 +37,9 @@ namespace LunyScript
 		public Int32 Count => _contextsByObjectID.Count;
 
 		/// <summary>
-		/// Registers a new execution context.
+		/// Registers a new run context.
 		/// </summary>
-		public void Register(ExecutionContext context)
+		public void Register(RunContext context)
 		{
 			if (context == null)
 				throw new ArgumentNullException(nameof(context));
@@ -74,7 +74,7 @@ namespace LunyScript
 		/// <summary>
 		/// Gets a context by ObjectID.
 		/// </summary>
-		public ExecutionContext GetByObjectID(ObjectID objectID)
+		public RunContext GetByObjectID(ObjectID objectID)
 		{
 			_contextsByObjectID.TryGetValue(objectID, out var context);
 			return context;
@@ -115,7 +115,7 @@ namespace LunyScript
 		public void Clear()
 		{
 			_contextsByObjectID.Clear();
-			_sortedContexts = Array.Empty<ExecutionContext>();
+			_sortedContexts = Array.Empty<RunContext>();
 			_needsSort = false;
 		}
 

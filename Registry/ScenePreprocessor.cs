@@ -13,22 +13,25 @@ namespace LunyScript
 	public sealed class ScenePreprocessor
 	{
 		private readonly ScriptRegistry _scriptRegistry;
-		private readonly ExecutionContextRegistry _contextRegistry;
+		private readonly RunContextRegistry _contextRegistry;
 		private readonly ISceneServiceProvider _sceneService;
+		private readonly Variables _globalVariables;
 
 		public ScenePreprocessor(
 			ScriptRegistry scriptRegistry,
-			ExecutionContextRegistry contextRegistry,
-			ISceneServiceProvider sceneService)
+			RunContextRegistry contextRegistry,
+			ISceneServiceProvider sceneService,
+			Variables globalVariables)
 		{
 			_scriptRegistry = scriptRegistry ?? throw new ArgumentNullException(nameof(scriptRegistry));
 			_contextRegistry = contextRegistry ?? throw new ArgumentNullException(nameof(contextRegistry));
 			_sceneService = sceneService ?? throw new ArgumentNullException(nameof(sceneService));
+			_globalVariables = globalVariables ?? throw new ArgumentNullException(nameof(globalVariables));
 		}
 
 		/// <summary>
 		/// Processes the current scene, finding objects and binding them to scripts.
-		/// Creates execution contexts for matching object-script pairs.
+		/// Creates run contexts for matching object-script pairs.
 		/// </summary>
 		public void ProcessCurrentScene()
 		{
@@ -53,8 +56,8 @@ namespace LunyScript
 				var scriptDef = _scriptRegistry.GetByName(objectName);
 				if (scriptDef != null)
 				{
-					// Create execution context for this object-script pair
-					var context = new ExecutionContext(scriptDef.ScriptID, obj);
+					// Create run context for this object-script pair
+					var context = new RunContext(scriptDef.ScriptID, scriptDef.Type, obj, _globalVariables);
 					_contextRegistry.Register(context);
 					matchedCount++;
 
