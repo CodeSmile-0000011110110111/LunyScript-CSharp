@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using System.Diagnostics;
 using Luny;
 using Luny.Core;
-using System.Diagnostics;
+using Luny.Reflection;
 
 namespace LunyScript
 {
@@ -29,29 +28,11 @@ namespace LunyScript
 		{
 			var sw = Stopwatch.StartNew();
 
-			var lunyScriptType = typeof(LunyScript);
-			var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+			var scriptTypes = TypeDiscovery.FindAll<LunyScript>();
 
-			foreach (var assembly in assemblies)
+			foreach (var type in scriptTypes)
 			{
-				try
-				{
-					var scriptTypes = assembly.GetTypes()
-						.Where(t => t.IsClass && !t.IsAbstract && lunyScriptType.IsAssignableFrom(t));
-
-					foreach (var type in scriptTypes)
-					{
-						RegisterScript(type);
-					}
-				}
-				catch (ReflectionTypeLoadException ex)
-				{
-					LunyLogger.LogWarning($"Failed to load types from assembly {assembly.FullName}: {ex.Message}", this);
-				}
-				catch (Exception ex)
-				{
-					LunyLogger.LogException(ex);
-				}
+				RegisterScript(type);
 			}
 
 			sw.Stop();
