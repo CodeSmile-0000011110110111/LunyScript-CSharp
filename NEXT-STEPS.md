@@ -531,13 +531,162 @@ OnUpdate(
 
 ---
 
-## Step 7: Inspector Variables Integration (DEFERRED)
+## Step 7: Testing Infrastructure
+
+**Goal:** Comprehensive test coverage for architecture validation and regression prevention
+
+### Implementation Details
+
+**1. Test project structure:**
+- Create test assembly/project (NUnit for cross-platform, Unity Test Framework for Unity-specific)
+- Separate test categories: Unit, Integration, CrossEngine
+- Mock implementations for engine services (MockSceneProvider, MockInputProvider)
+
+**2. Core architecture tests:**
+```csharp
+// Script discovery and registration
+- Discovers all LunyScript subclasses
+- Registers scripts with unique ScriptIDs
+- Handles duplicate script names correctly
+
+// Scene preprocessing and object binding
+- Binds scripts to objects by exact name match
+- Handles multiple objects with same script
+- Handles objects with no matching script
+- Handles scripts with no matching objects
+- Case-sensitive name matching
+
+// Variables
+- Get/Set with type casting
+- Per-instance isolation (Variables)
+- Global sharing (GlobalVariables)
+- Inspector variables initialization
+- Has/Remove/Clear operations
+```
+
+**3. Block execution tests:**
+```csharp
+// Sequence execution
+- Blocks execute in registration order
+- Nested sequences execute depth-first
+- Empty sequences handled gracefully
+
+// Lifecycle separation
+- Update runnables only run in OnUpdate
+- FixedStep runnables only run in OnFixedStep
+- LateUpdate runnables only run in OnLateUpdate
+
+// Block types
+- LogMessageBlock logs correctly
+- ActionBlock executes lambda
+- Composite blocks (If, Repeat) after Step 4
+```
+
+**4. Lifecycle and context tests:**
+```csharp
+// Hot reload (after Step 3)
+- Variables preserved across reload
+- GlobalVariables unchanged
+- All runnables cleared and rebuilt
+- Script.Build() called on new instance
+
+// Invalid object cleanup
+- Contexts removed when object destroyed
+- No errors accessing destroyed objects
+- Sorted contexts rebuilt after removal
+
+// Service provider access
+- GetService<T> returns correct provider
+- Service providers auto-discovered
+- Missing service throws meaningful error
+```
+
+**5. Debug hooks tests (after Step 2):**
+```csharp
+- OnBlockExecute fires before execution
+- OnBlockComplete fires after execution
+- OnBlockError fires on exception
+- Execution traces recorded when enabled
+- Variable change events fire correctly
+```
+
+**6. Cross-engine validation:**
+```csharp
+// Run subset of tests against Unity implementation
+- LunyEngine lifecycle identical
+- Service provider discovery identical
+- Object proxies behave identically
+- Variables isolation/sharing identical
+```
+
+**7. Godot GUT integration (optional):**
+- Evaluate GUT for Godot-specific adapter tests
+- Parallel test structure in both engines
+
+### Files to Create
+- Create: `LunyScript/Tests/` directory structure
+- Create: `LunyScript/Tests/CoreArchitectureTests.cs`
+- Create: `LunyScript/Tests/BlockExecutionTests.cs`
+- Create: `LunyScript/Tests/LifecycleTests.cs`
+- Create: `LunyScript/Tests/VariablesTests.cs`
+- Create: `LunyScript/Tests/Mocks/` directory
+- Create: Mock service providers for testing
+
+**Estimated:** ~4-6 hours distributed across Steps 2-6
+
+---
+
+## Step 8: Block Extensibility (Optional - Evaluate After Step 6)
+
+**Goal:** Enable users to create custom reusable blocks without deep architecture knowledge
+
+### Approaches to Consider
+
+**Option 1: Documentation + Templates**
+- Clear tutorial on writing custom blocks
+- Template examples for common patterns
+- Service access patterns documented
+- Code snippets in docs
+
+**Option 2: Code Generator Tool**
+- CLI or editor tool
+- Input: Block specification (name, parameters, services, action)
+- Output: Block class + factory method in LunyScript.API.cs
+- Example:
+```
+Block: PlaySound
+Params: soundName (string), volume (float)
+Service: IAudioServiceProvider
+Action: provider.PlaySound(soundName, volume)
+```
+Generates complete block implementation.
+
+**Option 3: Builder/Fluent API**
+- Runtime block composition without new classes
+- Example:
+```csharp
+protected IBlock CustomBlock() => BlockBuilder
+    .RequireService<IAudioServiceProvider>()
+    .WithParams("soundName", "volume")
+    .Execute((audio, soundName, volume) => audio.PlaySound(soundName, volume))
+    .Build();
+```
+
+### Decision Point
+Evaluate after Steps 2-6 are complete and users start requesting custom blocks.
+Which pattern emerges from actual usage? What pain points do early adopters report?
+
+**Estimated:** TBD - depends on chosen approach (1-4 days)
+
+---
+
+## Step 9: Inspector Variables Integration (DEFERRED)
 
 **Goal:** Designer-set values in Unity/Godot inspector
 
 **Complexity:** High - requires engine-specific MonoBehaviour/Node bridges, preprocessing, attribute scanning
 
-**Defer until:** Steps 2-6 complete and stable
+**Defer until:** Steps 2-8 complete and stable
 
 ---
 
@@ -621,3 +770,170 @@ public class PlayerScript : LunyScript.LunyScript
 - Global state management
 
 **Ready for real game development!**
+
+---
+
+## 8-Week Development Plan (Pre-Funding Period)
+
+**Strategy:** Build foundation without consuming grant-funded milestones (FSM/BT, Godot adapters, samples, docs)
+
+### Weeks 1-2: Development Velocity Foundation
+**Focus:** Infrastructure that accelerates all future work
+
+- [ ] **Step 2:** Debug Hooks & Execution Tracing (~30 min)
+  - Event hooks: OnBlockExecute, OnBlockComplete, OnBlockError
+  - ExecutionTrace struct with timestamps
+  - Variables change tracking events
+
+- [ ] **Step 3:** Hot Reload Infrastructure (~30 min)
+  - ScriptReloader class
+  - Manual trigger API
+  - Variables preservation, runnables recreation
+
+- [ ] **Step 7a:** Core Testing Infrastructure Setup (~4 hours)
+  - NUnit/Unity Test Framework setup
+  - Test assembly structure (Unit, Integration, CrossEngine categories)
+  - Mock service providers (MockSceneProvider, MockInputProvider)
+
+- [ ] **Step 7b:** Tests for Step 1 Features (~4 hours)
+  - Script discovery and registration tests
+  - Scene preprocessing and binding tests
+  - Variables isolation and sharing tests
+  - Basic block execution tests
+
+**Deliverables:** Hot reload working, debug hooks functional, ~30 tests passing
+
+---
+
+### Weeks 3-4: Feature Completeness
+**Focus:** Complete Steps 4-6 to reach "basic game scripting" milestone
+
+- [ ] **Step 4:** Composite Blocks & Conditionals (~25 min)
+  - IfBlock (condition, then, else)
+  - RepeatBlock (count, block)
+  - Factory methods in LunyScript.API.cs
+
+- [ ] **Step 5:** Variable Blocks & Utilities (~20 min)
+  - SetVariableBlock, IncrementVariableBlock, LogVariableBlock
+  - Factory methods
+
+- [ ] **Step 7c:** Tests for Steps 2-5 (~3 hours)
+  - Debug hooks event firing tests
+  - Hot reload preservation tests
+  - Conditional block execution tests
+  - Variable utility block tests
+
+- [ ] **Step 6a:** Service Provider Interfaces (~2 hours)
+  - IInputServiceProvider interface
+  - IPhysicsServiceProvider interface
+  - Unity implementations (UnityInputServiceProvider, UnityPhysicsServiceProvider)
+  - RunContext.GetService<T>() helper
+
+**Deliverables:** Conditionals, variable utilities, service provider foundation, ~50 tests passing
+
+---
+
+### Weeks 5-6: Editor Integration & Developer Experience
+**Focus:** Tooling and polish NOT in grant milestones
+
+- [ ] **Unity Inspector Integration** (~8 hours)
+  - Custom inspector for Variables visualization
+  - Runtime variable editing support
+  - InspectorVariables population from Unity Inspector fields
+  - Attribute-based inspector configuration
+
+- [ ] **Godot Inspector Integration** (~4 hours)
+  - Explore Godot 4 .NET inspector customization
+  - Export variables to Godot Inspector
+  - Runtime variable synchronization
+
+- [ ] **Visual Debugging Overlays** (~4 hours)
+  - Execution flow visualization (which blocks executing)
+  - Variable watches (display variable values in-game)
+  - Performance profiling (block execution times)
+  - Toggle overlays via debug menu
+
+- [ ] **Error Handling & Display** (~2 hours)
+  - Graceful error recovery in block execution
+  - In-game error display (optional overlay)
+  - Meaningful exception messages with context
+
+- [ ] **Step 7d:** Inspector & Editor Integration Tests (~2 hours)
+  - Inspector variable population tests
+  - Editor integration smoke tests
+  - Overlay rendering tests (if feasible)
+
+**Deliverables:** Inspector integration in both engines, visual debugging tools, ~65 tests passing
+
+---
+
+### Weeks 7-8: Cross-Engine Validation & Documentation
+**Focus:** Foundation for grant deliverables, architectural documentation
+
+- [ ] **Step 6b:** Complete Event System Implementation (~1 hour)
+  - OnKeyPressedBlock (with state tracking)
+  - OnCollisionBlock (collision detection)
+  - Factory methods with service injection
+  - Example usage in ExampleLunyScript
+
+- [ ] **Cross-Engine Validation Test Suite** (~6 hours)
+  - Parallel test runs: Unity ↔ Godot
+  - LunyEngine lifecycle parity tests
+  - Service provider discovery parity tests
+  - Object proxy behavior parity tests
+  - Variables isolation/sharing parity tests
+  - Document cross-engine differences/limitations
+
+- [ ] **Architecture Documentation** (~6 hours)
+  - System architecture diagrams (layers, data flow)
+  - Service provider pattern documentation
+  - Block execution lifecycle diagrams
+  - Hot reload mechanism documentation
+  - Cross-engine abstraction strategy document
+
+- [ ] **API Behavior Specification** (~4 hours)
+  - Formal specifications for core behaviors
+  - Contract definitions for service providers
+  - Block execution guarantees
+  - Variables semantics and scope rules
+
+- [ ] **Step 7e:** Complete Test Coverage (~4 hours)
+  - Event system block tests
+  - Cross-engine validation tests passing
+  - Integration tests for all Steps 1-6
+  - Target: 80%+ code coverage
+
+**Deliverables:** Event system complete, cross-engine tests passing, architecture docs published, ~100+ tests
+
+---
+
+## Post 8-Week State
+
+**Technical Foundation:**
+✅ Steps 1-6 complete: Core architecture through event system
+✅ Hot reload and debug infrastructure working
+✅ Comprehensive test suite with cross-engine validation
+✅ Inspector integration for Unity and Godot
+✅ Visual debugging and developer tools
+
+**Documentation:**
+✅ Architecture and design documentation
+✅ API behavior specifications
+✅ Cross-engine strategy documented
+✅ Service provider contracts defined
+
+**Position for Grant Period (if funded):**
+- Design phase demonstrably complete
+- Architecture battle-tested with hot reload/debug infrastructure
+- Cross-engine validation suite proves portability
+- Ready for rapid execution of Milestones 3-5 (FSM/BT, Godot adapters, samples)
+- Enhanced developer tooling accelerates milestone delivery
+- Strong foundation enables scope expansion or early completion
+
+**Position if Not Funded:**
+- Technically complete foundation
+- Community-ready with polished developer experience
+- Alternative funding strengthened by progress and documentation
+- Momentum maintained, no gaps in development timeline
+
+---
