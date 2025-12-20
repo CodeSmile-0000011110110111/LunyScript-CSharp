@@ -86,15 +86,6 @@ public class PlayerScript : LunyScript.LunyScript
 
 ---
 
-## REFACTOR
-
-ScenePreprocessor currently loads scripts for existing objects.
-We should re-design this to always activate scripts even without context.
-For one, they might "instantiate themselves" via OnStartup event blocks ie OnStartup(Prefab.Spawn(nameof(TheScript)))
-If not that, then something else might spawn the corresponding object.
-
----
-
 ## Step 2: Complete Debug Hooks & Execution Tracing
 
 **Goal:** Full debugging infrastructure for execution visibility
@@ -175,6 +166,13 @@ public object this[string key]
 ## Step 3: Hot Reload Infrastructure
 
 **Goal:** Reload scripts without losing state (variables preserved, blocks recreated)
+
+### REFACTOR before implementation
+
+ScenePreprocessor currently loads scripts for existing objects.
+We should re-design this to always activate scripts even without context.
+For one, they might "instantiate themselves" via OnStartup event blocks ie OnStartup(Prefab.Spawn(nameof(TheScript)))
+If not that, then something else might spawn the corresponding object.
 
 ### Design
 

@@ -1,5 +1,6 @@
 using Luny;
 using Luny.Providers;
+using LunyScript.Debugging;
 using System;
 using System.Diagnostics;
 
@@ -17,10 +18,14 @@ namespace LunyScript
 		private RunContextRegistry _contextRegistry;
 		private ScenePreprocessor _scenePreprocessor;
 		private Variables _globalVariables;
+		private ITimeServiceProvider _timeService;
 
 		public void OnStartup()
 		{
 			LunyLogger.LogInfo("LunyScriptRunner starting up...", this);
+
+			// Get time service for debug hooks
+			_timeService = LunyEngine.Instance.GetService<ITimeServiceProvider>();
 
 			// Initialize global variables and registries
 			_globalVariables = new Variables();
@@ -60,13 +65,7 @@ namespace LunyScript
 			{
 				foreach (var runnable in context.UpdateRunnables)
 				{
-					// TODO Step 2: Debug hooks
-					// context.DebugHooks.OnBlockExecute?.Invoke(runnable, context);
-
-					runnable.Execute(context);
-
-					// TODO Step 2: Debug hooks
-					// context.DebugHooks.OnBlockComplete?.Invoke(runnable, context);
+					ExecuteRunnable(runnable, context);
 				}
 			}
 		}
@@ -78,13 +77,7 @@ namespace LunyScript
 			{
 				foreach (var runnable in context.LateUpdateRunnables)
 				{
-					// TODO Step 2: Debug hooks
-					// context.DebugHooks.OnBlockExecute?.Invoke(runnable, context);
-
-					runnable.Execute(context);
-
-					// TODO Step 2: Debug hooks
-					// context.DebugHooks.OnBlockComplete?.Invoke(runnable, context);
+					ExecuteRunnable(runnable, context);
 				}
 			}
 		}
@@ -96,13 +89,7 @@ namespace LunyScript
 			{
 				foreach (var runnable in context.FixedStepRunnables)
 				{
-					// TODO Step 2: Debug hooks
-					// context.DebugHooks.OnBlockExecute?.Invoke(runnable, context);
-
-					runnable.Execute(context);
-
-					// TODO Step 2: Debug hooks
-					// context.DebugHooks.OnBlockComplete?.Invoke(runnable, context);
+					ExecuteRunnable(runnable, context);
 				}
 			}
 		}
@@ -116,6 +103,36 @@ namespace LunyScript
 			_scriptRegistry?.Clear();
 			_globalVariables?.Clear();
 			_scenePreprocessor = null;
+		}
+
+		private void ExecuteRunnable(IRunnable runnable, RunContext context)
+		{
+			var blockType = runnable.GetType().Name;
+			var trace = new ExecutionTrace
+			{
+				FrameCount = _timeService?.FrameCount ?? -1,
+				ElapsedSeconds = _timeService?.ElapsedSeconds ?? -1.0,
+				RunnableID = runnable.ID,
+				BlockType = blockType,
+				BlockDescription = runnable.ToString()
+			};
+
+			context.DebugHooks.NotifyBlockExecute(trace);
+			context.BlockProfiler.BeginBlock(runnable.ID, blockType);
+
+			try
+			{
+				runnable.Execute(context);
+				context.BlockProfiler.EndBlock(runnable.ID, blockType);
+				context.DebugHooks.NotifyBlockComplete(trace);
+			}
+			catch (Exception ex)
+			{
+				context.BlockProfiler.RecordError(runnable.ID, ex);
+				trace.Error = ex;
+				context.DebugHooks.NotifyBlockError(trace);
+				LunyLogger.LogException(ex, context.Object);
+			}
 		}
 
 		private void ActivateScripts()

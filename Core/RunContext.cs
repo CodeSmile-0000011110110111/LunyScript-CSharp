@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using Luny.Core;
 using Luny.Proxies;
+using LunyScript.Debugging;
+using LunyScript.Diagnostics;
 
 namespace LunyScript
 {
@@ -48,6 +50,11 @@ namespace LunyScript
 		public DebugHooks DebugHooks { get; }
 
 		/// <summary>
+		/// Block-level profiler for tracking runnable performance.
+		/// </summary>
+		public BlockProfiler BlockProfiler { get; }
+
+		/// <summary>
 		/// Runnables registered to execute on Update.
 		/// </summary>
 		public List<IRunnable> UpdateRunnables { get; }
@@ -72,6 +79,7 @@ namespace LunyScript
 			Variables = new Variables();
 			InspectorVariables = new Variables();
 			DebugHooks = new DebugHooks();
+			BlockProfiler = new BlockProfiler();
 
 			UpdateRunnables = new List<IRunnable>();
 			FixedStepRunnables = new List<IRunnable>();

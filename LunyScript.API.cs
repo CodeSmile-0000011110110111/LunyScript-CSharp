@@ -12,7 +12,6 @@ namespace LunyScript
 		protected Variables InspectorVariables => _context.InspectorVariables;
 
 		// User-facing API: Block factory methods
-		protected static LogMessageBlock Log(String message) => new(message);
 		protected ActionBlock Do(Action action) => new(_ => action());
 
 		// User-facing API: Runnable registration
