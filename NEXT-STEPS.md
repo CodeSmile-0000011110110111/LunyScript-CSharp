@@ -85,83 +85,13 @@ public class PlayerScript : LunyScript.LunyScript
 ```
 
 ---
+## Step 1: Completed: Engine Services & Script Instantiation
 
-## Step 2: Complete Debug Hooks & Execution Tracing
+Goal: Discover script types, preprocess scene objects, instantiate and associate script if object/script name matches
 
-**Goal:** Full debugging infrastructure for execution visibility
+## Step 2: Completed: Debug Hooks & Execution Tracing
 
-### Implementation Details
-
-**1. Expand DebugHooks class:**
-```csharp
-public sealed class DebugHooks
-{
-    public event Action<IBlock, RunContext> OnBlockExecute;
-    public event Action<IBlock, RunContext> OnBlockComplete;
-    public event Action<IBlock, RunContext> OnBlockError;
-
-    public bool EnableTracing { get; set; }
-    public List<ExecutionTrace> Traces { get; }
-
-    internal void RecordTrace(ExecutionTrace trace)
-    {
-        if (EnableTracing)
-            Traces.Add(trace);
-    }
-}
-```
-
-**2. Create ExecutionTrace struct:**
-```csharp
-public struct ExecutionTrace
-{
-    public double Timestamp;
-    public RunnableID RunnableID;
-    public ObjectID ContextObject;
-    public string Action; // "Execute", "Complete", "Error"
-    public string BlockType; // For debugging
-}
-```
-
-**3. Uncomment hook invocations in LunyScriptRunner:**
-- In OnUpdate(), OnFixedStep(), OnLateUpdate()
-- Call OnBlockExecute before runnable.Execute()
-- Call OnBlockComplete after successful execution
-- Wrap in try/catch at runner level, call OnBlockError on exception
-
-**4. Add variable change tracking to Variables class:**
-```csharp
-public event Action<string, object> OnVariableChanged;
-
-public object this[string key]
-{
-    get => ...;
-    set
-    {
-        _vars[key] = value;
-        OnVariableChanged?.Invoke(key, value);
-    }
-}
-```
-
-**5. Wire DebugHooks.OnVariableChanged to Variables events in RunContext constructor**
-
-### Files to Modify/Create
-- Modify: `LunyScript/Debugging/DebugHooks.cs`
-- Create: `LunyScript/Debugging/ExecutionTrace.cs`
-- Modify: `LunyScript/Core/Variables.cs` (add events)
-- Modify: `LunyScript/LunyScriptRunner.cs` (uncomment hooks, add try/catch)
-
-### Testing
-- Enable tracing on a context
-- Run script with multiple blocks
-- Verify Traces list populated
-- Subscribe to OnBlockExecute, verify called
-- Change variable, verify OnVariableChanged fired
-
-**Estimated:** ~150 lines, 30 minutes
-
----
+Goal: debugging, tracing, and timing metrics
 
 ## Step 3: Hot Reload Infrastructure
 
@@ -170,7 +100,7 @@ public object this[string key]
 ### REFACTOR before implementation
 
 ScenePreprocessor currently loads scripts for existing objects.
-We should re-design this to always activate scripts even without context.
+We should re-design this to always instantiate scripts even without context.
 For one, they might "instantiate themselves" via OnStartup event blocks ie OnStartup(Prefab.Spawn(nameof(TheScript)))
 If not that, then something else might spawn the corresponding object.
 

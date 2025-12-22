@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Luny;
 using Luny.Providers;
-using Luny.Proxies;
 
 namespace LunyScript
 {
@@ -38,8 +37,7 @@ namespace LunyScript
 			var allObjects = _sceneService.GetAllObjects();
 			if (allObjects == null || allObjects.Count == 0)
 			{
-				LunyLogger.LogInfo("No objects found in current scene", this);
-				return;
+				throw new Exception($"No objects found in scene: {_sceneService.CurrentSceneName}");
 			}
 
 			var matchedCount = 0;
