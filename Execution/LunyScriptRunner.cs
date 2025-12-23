@@ -41,14 +41,7 @@ namespace LunyScript.Execution
 			_scriptRegistry.DiscoverScripts();
 
 			// Get scene service for object discovery
-			var sceneService = LunyEngine.Instance.GetService<ISceneServiceProvider>();
-			if (sceneService == null)
-			{
-				LunyLogger.LogWarning("ISceneServiceProvider not available, script-to-object binding disabled", this);
-				return;
-			}
-
-			// Initialize scene preprocessor
+			var sceneService = LunyEngine.SceneService;
 			_scenePreprocessor = new ScenePreprocessor(_scriptRegistry, _contextRegistry, sceneService, _globalVariables);
 
 			// Process current scene to bind scripts to objects
