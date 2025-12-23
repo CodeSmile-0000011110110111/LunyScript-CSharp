@@ -20,7 +20,8 @@ namespace LunyScript
 		protected static DebugLogBlock DebugLog(String message) => new(message);
 
 		/// <summary>
-		/// Triggers a debugger breakpoint. Completely stripped in release builds.
+		/// Triggers a debugger breakpoint (if debugger is attached).
+		/// Completely stripped in release builds.
 		/// Only breaks when DEBUG or LUNYSCRIPT_DEBUG is defined.
 		/// </summary>
 		protected static DebugBreakBlock DebugBreak(String message = null) => new(message);

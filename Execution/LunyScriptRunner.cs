@@ -1,4 +1,5 @@
 using Luny;
+using Luny.Diagnostics;
 using Luny.Interfaces;
 using Luny.Interfaces.Providers;
 using Luny.Proxies;
@@ -19,7 +20,7 @@ namespace LunyScript.Execution
 	internal sealed class LunyScriptRunner : IEngineLifecycleObserver
 	{
 		private ScriptRegistry _scriptRegistry;
-		private RunContextRegistry _contextRegistry;
+		private ScriptContextRegistry _contextRegistry;
 		private ScenePreprocessor _scenePreprocessor;
 		private Variables _globalVariables;
 		private ITimeServiceProvider _timeService;
@@ -29,12 +30,12 @@ namespace LunyScript.Execution
 			LunyLogger.LogInfo("LunyScriptRunner starting up...", this);
 
 			// Get time service for debug hooks
-			_timeService = LunyEngine.Instance.GetService<ITimeServiceProvider>();
+			_timeService = LunyEngine.TimeService;
 
 			// Initialize global variables and registries
 			_globalVariables = new Variables();
 			_scriptRegistry = new ScriptRegistry();
-			_contextRegistry = new RunContextRegistry();
+			_contextRegistry = new ScriptContextRegistry();
 
 			// Discover all LunyScript subclasses via reflection
 			_scriptRegistry.DiscoverScripts();
@@ -101,6 +102,7 @@ namespace LunyScript.Execution
 			_scriptRegistry?.Clear();
 			_globalVariables?.Clear();
 			_scenePreprocessor = null;
+			_timeService = null;
 		}
 
 		private void ExecuteRunnable(IRunnable runnable, ScriptContext context)

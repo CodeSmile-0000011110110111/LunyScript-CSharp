@@ -1,5 +1,5 @@
 using Luny;
-using Luny.Proxies;
+using Luny.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +10,11 @@ namespace LunyScript.Registries
 	/// Manages run contexts and their binding to objects.
 	/// Provides deterministic iteration order based on ObjectID.
 	/// </summary>
-	public sealed class RunContextRegistry
+	public sealed class ScriptContextRegistry
 	{
-		private readonly Dictionary<ObjectID, ScriptContext> _contextsByObjectID = new Dictionary<ObjectID, ScriptContext>();
+		private readonly Dictionary<ObjectID, ScriptContext> _contextsByObjectID = new();
 		private ScriptContext[] _sortedContexts = Array.Empty<ScriptContext>();
-		private Boolean _needsSort = false;
+		private Boolean _needsSort;
 
 		/// <summary>
 		/// Gets all run contexts in deterministic order (sorted by ObjectID).
@@ -24,9 +24,7 @@ namespace LunyScript.Registries
 			get
 			{
 				if (_needsSort)
-				{
 					RebuildSortedArray();
-				}
 				return _sortedContexts;
 			}
 		}
@@ -47,9 +45,7 @@ namespace LunyScript.Registries
 			var objectID = context.EngineObject.ID;
 
 			if (_contextsByObjectID.ContainsKey(objectID))
-			{
 				LunyLogger.LogWarning($"Context for object {context.EngineObject.Name} ({objectID}) already registered, replacing", this);
-			}
 
 			_contextsByObjectID[objectID] = context;
 			_needsSort = true;
@@ -96,9 +92,7 @@ namespace LunyScript.Registries
 				.ToList();
 
 			foreach (var id in invalidIDs)
-			{
 				_contextsByObjectID.Remove(id);
-			}
 
 			if (invalidIDs.Count > 0)
 			{

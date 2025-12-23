@@ -1,3 +1,4 @@
+using Luny.Diagnostics;
 using Luny.Interfaces.Providers;
 using Luny.Proxies;
 using System;
@@ -12,13 +13,13 @@ namespace LunyScript.Registries
 	public sealed class ScenePreprocessor
 	{
 		private readonly ScriptRegistry _scriptRegistry;
-		private readonly RunContextRegistry _contextRegistry;
+		private readonly ScriptContextRegistry _contextRegistry;
 		private readonly ISceneServiceProvider _sceneService;
 		private readonly Variables _globalVariables;
 
 		public ScenePreprocessor(
 			ScriptRegistry scriptRegistry,
-			RunContextRegistry contextRegistry,
+			ScriptContextRegistry contextRegistry,
 			ISceneServiceProvider sceneService,
 			Variables globalVariables)
 		{
