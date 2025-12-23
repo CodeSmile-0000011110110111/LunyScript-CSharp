@@ -1,5 +1,4 @@
 using Luny.Diagnostics;
-using Luny.Proxies;
 using LunyScript.Interfaces;
 using System;
 using System.Diagnostics;
@@ -14,15 +13,9 @@ namespace LunyScript.Blocks
 	{
 		private readonly String _message;
 
-		public DebugLogBlock(String message)
-		{
-			_message = message ?? throw new ArgumentNullException(nameof(message));
-		}
+		public DebugLogBlock(String message) => _message = message ?? throw new ArgumentNullException(nameof(message));
 
-		public void Execute(ScriptContext context)
-		{
-			DoLog(context);
-		}
+		public void Execute(ScriptContext context) => DoLog(context);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		private void DoLog(ScriptContext context)

@@ -1,5 +1,4 @@
 using Luny.Diagnostics;
-using Luny.Proxies;
 using LunyScript.Interfaces;
 using System;
 
