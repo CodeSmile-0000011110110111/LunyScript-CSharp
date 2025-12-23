@@ -11,7 +11,7 @@ namespace LunyScript
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered runnables.
 	/// </summary>
-	public sealed class RunContext
+	public sealed class ScriptContext
 	{
 		/// <summary>
 		/// The ID of the script definition this context executes.
@@ -26,7 +26,12 @@ namespace LunyScript
 		/// <summary>
 		/// The engine object/node this script operates on.
 		/// </summary>
-		public LunyObject Object { get; }
+		public LunyObject EngineObject { get; }
+
+		/// <summary>
+		/// Whether the underlying object is still valid (not destroyed).
+		/// </summary>
+		public Boolean IsEngineObjectValid => EngineObject.IsValid;
 
 		/// <summary>
 		/// Per-object variables for this script instance.
@@ -51,33 +56,28 @@ namespace LunyScript
 		/// <summary>
 		/// Block-level profiler for tracking runnable performance.
 		/// </summary>
-		public BlockProfiler BlockProfiler { get; }
-
-		/// <summary>
-		/// Runnables registered to execute on Update.
-		/// </summary>
-		public List<IRunnable> UpdateRunnables { get; }
+		internal BlockProfiler BlockProfiler { get; }
 
 		/// <summary>
 		/// Runnables registered to execute on FixedStep.
 		/// </summary>
-		public List<IRunnable> FixedStepRunnables { get; }
+		internal List<IRunnable> RunnablesScheduledInFixedStep { get; }
+
+		/// <summary>
+		/// Runnables registered to execute on Update.
+		/// </summary>
+		internal List<IRunnable> RunnablesScheduledInUpdate { get; }
 
 		/// <summary>
 		/// Runnables registered to execute on LateUpdate.
 		/// </summary>
-		public List<IRunnable> LateUpdateRunnables { get; }
+		internal List<IRunnable> RunnablesScheduledInLateUpdate { get; }
 
-		/// <summary>
-		/// Whether the underlying object is still valid (not destroyed).
-		/// </summary>
-		public Boolean IsValid => Object.IsValid;
-
-		public RunContext(ScriptID scriptID, Type scriptType, LunyObject obj, Variables globalVariables)
+		public ScriptContext(ScriptID scriptID, Type scriptType, LunyObject obj, Variables globalVariables)
 		{
 			ScriptID = scriptID;
 			ScriptType = scriptType ?? throw new ArgumentNullException(nameof(scriptType));
-			Object = obj ?? throw new ArgumentNullException(nameof(obj));
+			EngineObject = obj ?? throw new ArgumentNullException(nameof(obj));
 			GlobalVariables = globalVariables ?? throw new ArgumentNullException(nameof(globalVariables));
 
 			Variables = new Variables();
@@ -85,19 +85,19 @@ namespace LunyScript
 			DebugHooks = new DebugHooks();
 			BlockProfiler = new BlockProfiler();
 
-			UpdateRunnables = new List<IRunnable>();
-			FixedStepRunnables = new List<IRunnable>();
-			LateUpdateRunnables = new List<IRunnable>();
+			RunnablesScheduledInFixedStep = new List<IRunnable>();
+			RunnablesScheduledInUpdate = new List<IRunnable>();
+			RunnablesScheduledInLateUpdate = new List<IRunnable>();
 		}
 
 		public override String ToString()
 		{
 			var sb = new StringBuilder();
-			sb.AppendLine($"RunContext: {ScriptType.Name} ({ScriptID}) -> {Object}");
-			sb.AppendLine($"  Valid: {IsValid}");
-			sb.AppendLine($"  Update Runnables: {UpdateRunnables.Count}");
-			sb.AppendLine($"  FixedStep Runnables: {FixedStepRunnables.Count}");
-			sb.AppendLine($"  LateUpdate Runnables: {LateUpdateRunnables.Count}");
+			sb.AppendLine($"RunContext: {ScriptType.Name} ({ScriptID}) -> {EngineObject}");
+			sb.AppendLine($"  Valid: {IsEngineObjectValid}");
+			sb.AppendLine($"  FixedStep Runnables: {RunnablesScheduledInFixedStep.Count}");
+			sb.AppendLine($"  Update Runnables: {RunnablesScheduledInUpdate.Count}");
+			sb.AppendLine($"  LateUpdate Runnables: {RunnablesScheduledInLateUpdate.Count}");
 
 			if (Variables.Count > 0)
 				sb.Append($"  {Variables}");

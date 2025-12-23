@@ -88,12 +88,10 @@ namespace LunyScript
 			return sb.ToString();
 		}
 
-		[Conditional("DEBUG")]
-		[Conditional("LUNY_DEBUG")]
-		[Conditional("LUNYSCRIPT_DEBUG")]
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		private void NotifyVariableChanged(String key, Object oldValue, Object newValue)
 		{
-#if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG
 			OnVariableChanged?.Invoke(key, oldValue, newValue);
 #endif
 		}

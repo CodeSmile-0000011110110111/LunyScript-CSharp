@@ -8,7 +8,7 @@ namespace LunyScript.Blocks
 {
 	/// <summary>
 	/// Debug-only block that triggers a breakpoint when hit.
-	/// Completely stripped in release builds unless DEBUG/LUNY_DEBUG/LUNYSCRIPT_DEBUG defined.
+	/// Completely stripped in release builds unless DEBUG or LUNYSCRIPT_DEBUG defined.
 	/// </summary>
 	public sealed class DebugBreakBlock : IBlock
 	{
@@ -19,17 +19,17 @@ namespace LunyScript.Blocks
 			_message = message;
 		}
 
-		public void Execute(RunContext context)
+		public void Execute(ScriptContext context)
 		{
 			DoBreak(context);
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void DoBreak(RunContext context)
+		private void DoBreak(ScriptContext context)
 		{
-#if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG
 			if (_message != null)
-				LunyLogger.LogWarning($"DebugBreak: {_message}", context.Object);
+				LunyLogger.LogWarning($"DebugBreak: {_message}", context.EngineObject);
 
 			Debugger.Break();
 #endif

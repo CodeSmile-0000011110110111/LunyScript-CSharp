@@ -13,6 +13,6 @@ namespace LunyScript.Blocks
 
 		public LogMessageBlock(String message) => _message = message ?? throw new ArgumentNullException(nameof(message));
 
-		public void Execute(RunContext context) => LunyLogger.LogInfo(_message, this);
+		public void Execute(ScriptContext context) => LunyLogger.LogInfo(_message, this);
 	}
 }

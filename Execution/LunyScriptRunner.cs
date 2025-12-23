@@ -1,6 +1,6 @@
 using Luny;
 using Luny.Interfaces;
-using Luny.Providers;
+using Luny.Interfaces.Providers;
 using Luny.Proxies;
 using LunyScript.Diagnostics;
 using LunyScript.Interfaces;
@@ -8,7 +8,7 @@ using LunyScript.Registries;
 using System;
 using System.Diagnostics;
 
-namespace LunyScript
+namespace LunyScript.Execution
 {
 	/// <summary>
 	/// Engine-agnostic script execution runner.
@@ -67,7 +67,7 @@ namespace LunyScript
 			// Execute all Update runnables
 			foreach (var context in _contextRegistry.AllContexts)
 			{
-				foreach (var runnable in context.UpdateRunnables)
+				foreach (var runnable in context.RunnablesScheduledInUpdate)
 					ExecuteRunnable(runnable, context);
 			}
 		}
@@ -77,7 +77,7 @@ namespace LunyScript
 			// Execute all LateUpdate runnables
 			foreach (var context in _contextRegistry.AllContexts)
 			{
-				foreach (var runnable in context.LateUpdateRunnables)
+				foreach (var runnable in context.RunnablesScheduledInLateUpdate)
 					ExecuteRunnable(runnable, context);
 			}
 		}
@@ -87,7 +87,7 @@ namespace LunyScript
 			// Execute all FixedStep runnables
 			foreach (var context in _contextRegistry.AllContexts)
 			{
-				foreach (var runnable in context.FixedStepRunnables)
+				foreach (var runnable in context.RunnablesScheduledInFixedStep)
 					ExecuteRunnable(runnable, context);
 			}
 		}
@@ -103,7 +103,7 @@ namespace LunyScript
 			_scenePreprocessor = null;
 		}
 
-		private void ExecuteRunnable(IRunnable runnable, RunContext context)
+		private void ExecuteRunnable(IRunnable runnable, ScriptContext context)
 		{
 			var blockType = runnable.GetType().Name;
 			var trace = new ExecutionTrace
@@ -129,7 +129,7 @@ namespace LunyScript
 				context.BlockProfiler.RecordError(runnable.ID, ex);
 				trace.Error = ex;
 				context.DebugHooks.NotifyBlockError(trace);
-				LunyLogger.LogException(ex, context.Object);
+				LunyLogger.LogException(ex, context.EngineObject);
 			}
 		}
 
@@ -156,7 +156,7 @@ namespace LunyScript
 					scriptInstance.Build();
 					activatedCount++;
 
-					LunyLogger.LogInfo($"Built script: {scriptDef.Name} for {context.Object}", this);
+					LunyLogger.LogInfo($"Built script: {scriptDef.Name} for {context.EngineObject}", this);
 				}
 				catch (Exception ex)
 				{

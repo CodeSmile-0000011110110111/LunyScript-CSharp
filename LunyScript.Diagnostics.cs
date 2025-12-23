@@ -15,13 +15,13 @@ namespace LunyScript
 
 		/// <summary>
 		/// Logs a debug message that is completely stripped in release builds.
-		/// Only logs when DEBUG, LUNY_DEBUG, or LUNYSCRIPT_DEBUG is defined.
+		/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 		/// </summary>
 		protected static DebugLogBlock DebugLog(String message) => new(message);
 
 		/// <summary>
 		/// Triggers a debugger breakpoint. Completely stripped in release builds.
-		/// Only breaks when DEBUG, LUNY_DEBUG, or LUNYSCRIPT_DEBUG is defined.
+		/// Only breaks when DEBUG or LUNYSCRIPT_DEBUG is defined.
 		/// </summary>
 		protected static DebugBreakBlock DebugBreak(String message = null) => new(message);
 	}

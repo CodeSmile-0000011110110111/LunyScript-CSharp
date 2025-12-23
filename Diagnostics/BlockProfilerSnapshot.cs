@@ -12,7 +12,6 @@ namespace LunyScript.Diagnostics
 		public IReadOnlyList<BlockMetrics> BlockMetrics;
 		public DateTime Timestamp;
 
-		public override String ToString() =>
-			$"BlockProfilerSnapshot @ {Timestamp:HH:mm:ss.fff}: {BlockMetrics.Count} blocks";
+		public override String ToString() => $"BlockProfilerSnapshot @ {Timestamp:HH:mm:ss.fff}: {BlockMetrics.Count} blocks";
 	}
 }

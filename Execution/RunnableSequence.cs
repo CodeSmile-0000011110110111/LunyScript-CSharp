@@ -1,9 +1,8 @@
-using Luny;
 using LunyScript.Interfaces;
 using System;
 using System.Collections.Generic;
 
-namespace LunyScript.Runnables
+namespace LunyScript.Execution
 {
 	/// <summary>
 	/// Executes child blocks in sequential order.
@@ -22,7 +21,7 @@ namespace LunyScript.Runnables
 			Children = blocks;
 		}
 
-		public void Execute(RunContext context)
+		public void Execute(ScriptContext context)
 		{
 			foreach (var block in Children)
 			{

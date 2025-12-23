@@ -12,14 +12,14 @@ namespace LunyScript.Registries
 	/// </summary>
 	public sealed class RunContextRegistry
 	{
-		private readonly Dictionary<ObjectID, RunContext> _contextsByObjectID = new Dictionary<ObjectID, RunContext>();
-		private RunContext[] _sortedContexts = Array.Empty<RunContext>();
+		private readonly Dictionary<ObjectID, ScriptContext> _contextsByObjectID = new Dictionary<ObjectID, ScriptContext>();
+		private ScriptContext[] _sortedContexts = Array.Empty<ScriptContext>();
 		private Boolean _needsSort = false;
 
 		/// <summary>
 		/// Gets all run contexts in deterministic order (sorted by ObjectID).
 		/// </summary>
-		public IReadOnlyList<RunContext> AllContexts
+		public IReadOnlyList<ScriptContext> AllContexts
 		{
 			get
 			{
@@ -39,22 +39,22 @@ namespace LunyScript.Registries
 		/// <summary>
 		/// Registers a new run context.
 		/// </summary>
-		public void Register(RunContext context)
+		public void Register(ScriptContext context)
 		{
 			if (context == null)
 				throw new ArgumentNullException(nameof(context));
 
-			var objectID = context.Object.ID;
+			var objectID = context.EngineObject.ID;
 
 			if (_contextsByObjectID.ContainsKey(objectID))
 			{
-				LunyLogger.LogWarning($"Context for object {context.Object.Name} ({objectID}) already registered, replacing", this);
+				LunyLogger.LogWarning($"Context for object {context.EngineObject.Name} ({objectID}) already registered, replacing", this);
 			}
 
 			_contextsByObjectID[objectID] = context;
 			_needsSort = true;
 
-			LunyLogger.LogInfo($"Registered context: {context.ScriptID} -> {context.Object.Name} ({objectID})", this);
+			LunyLogger.LogInfo($"Registered context: {context.ScriptID} -> {context.EngineObject.Name} ({objectID})", this);
 		}
 
 		/// <summary>
@@ -74,7 +74,7 @@ namespace LunyScript.Registries
 		/// <summary>
 		/// Gets a context by ObjectID.
 		/// </summary>
-		public RunContext GetByObjectID(ObjectID objectID)
+		public ScriptContext GetByObjectID(ObjectID objectID)
 		{
 			_contextsByObjectID.TryGetValue(objectID, out var context);
 			return context;
@@ -91,7 +91,7 @@ namespace LunyScript.Registries
 		public Int32 RemoveInvalidContexts()
 		{
 			var invalidIDs = _contextsByObjectID
-				.Where(kvp => !kvp.Value.IsValid)
+				.Where(kvp => !kvp.Value.IsEngineObjectValid)
 				.Select(kvp => kvp.Key)
 				.ToList();
 
@@ -115,14 +115,14 @@ namespace LunyScript.Registries
 		public void Clear()
 		{
 			_contextsByObjectID.Clear();
-			_sortedContexts = Array.Empty<RunContext>();
+			_sortedContexts = Array.Empty<ScriptContext>();
 			_needsSort = false;
 		}
 
 		private void RebuildSortedArray()
 		{
 			_sortedContexts = _contextsByObjectID.Values
-				.OrderBy(ctx => ctx.Object.ID)
+				.OrderBy(ctx => ctx.EngineObject.ID)
 				.ToArray();
 			_needsSort = false;
 		}

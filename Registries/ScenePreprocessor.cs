@@ -1,4 +1,4 @@
-using Luny.Providers;
+using Luny.Interfaces.Providers;
 using Luny.Proxies;
 using System;
 using System.Collections.Generic;
@@ -55,7 +55,7 @@ namespace LunyScript.Registries
 				if (scriptDef != null)
 				{
 					// Create run context for this object-script pair
-					var context = new RunContext(scriptDef.ScriptID, scriptDef.Type, obj, _globalVariables);
+					var context = new ScriptContext(scriptDef.ScriptID, scriptDef.Type, obj, _globalVariables);
 					_contextRegistry.Register(context);
 					matchedCount++;
 

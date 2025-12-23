@@ -1,5 +1,5 @@
-﻿using LunyScript.Interfaces;
-using LunyScript.Runnables;
+﻿using LunyScript.Execution;
+using LunyScript.Interfaces;
 
 namespace LunyScript
 {
@@ -9,19 +9,19 @@ namespace LunyScript
 		protected void OnUpdate(params IBlock[] blocks)
 		{
 			var runnable = new RunnableSequence(blocks);
-			_context.UpdateRunnables.Add(runnable);
+			_context.RunnablesScheduledInUpdate.Add(runnable);
 		}
 
 		protected void OnFixedStep(params IBlock[] blocks)
 		{
 			var runnable = new RunnableSequence(blocks);
-			_context.FixedStepRunnables.Add(runnable);
+			_context.RunnablesScheduledInFixedStep.Add(runnable);
 		}
 
 		protected void OnLateUpdate(params IBlock[] blocks)
 		{
 			var runnable = new RunnableSequence(blocks);
-			_context.LateUpdateRunnables.Add(runnable);
+			_context.RunnablesScheduledInLateUpdate.Add(runnable);
 		}
 	}
 }

@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace LunyScript.Blocks
 {
 	/// <summary>
-	/// Debug-only logging block. Only logs when DEBUG/LUNY_DEBUG/LUNYSCRIPT_DEBUG is defined.
+	/// Debug-only logging block. Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 	/// Posts to both Luny internal log and engine logging.
 	/// </summary>
 	public sealed class DebugLogBlock : IBlock
@@ -18,16 +18,16 @@ namespace LunyScript.Blocks
 			_message = message ?? throw new ArgumentNullException(nameof(message));
 		}
 
-		public void Execute(RunContext context)
+		public void Execute(ScriptContext context)
 		{
 			DoLog(context);
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void DoLog(RunContext context)
+		private void DoLog(ScriptContext context)
 		{
-#if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG
-			LunyLogger.LogInfo(_message, context.Object);
+#if DEBUG || LUNYSCRIPT_DEBUG
+			LunyLogger.LogInfo(_message, context.EngineObject);
 #endif
 		}
 

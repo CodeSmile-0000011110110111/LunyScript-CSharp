@@ -1,3 +1,4 @@
+using Luny;
 using Luny.Proxies;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace LunyScript.Registries
 		{
 			var sw = Stopwatch.StartNew();
 
-			var scriptTypes = Luny.Registries.TypeDiscovery.FindAll<LunyScript>();
+			var scriptTypes = TypeDiscovery.FindAll<LunyScript>();
 
 			foreach (var type in scriptTypes)
 				RegisterScript(type);

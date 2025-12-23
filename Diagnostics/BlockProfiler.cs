@@ -1,4 +1,3 @@
-using Luny;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,12 +8,12 @@ namespace LunyScript.Diagnostics
 	/// <summary>
 	/// Concrete implementation of block-level profiling for LunyScript execution.
 	/// Tracks execution time for each runnable/block with configurable rolling average.
-	/// Public methods use [Conditional] attributes - completely stripped in release builds unless DEBUG/LUNY_DEBUG/LUNYSCRIPT_DEBUG defined.
+	/// Public methods use [Conditional] attributes - completely stripped in release builds unless DEBUG or LUNYSCRIPT_DEBUG defined.
 	/// </summary>
 	public sealed class BlockProfiler
 	{
-		private readonly Dictionary<RunnableID, BlockMetrics> _metrics = new Dictionary<RunnableID, BlockMetrics>();
-		private readonly Dictionary<RunnableID, Stopwatch> _activeBlocks = new Dictionary<RunnableID, Stopwatch>();
+		private readonly Dictionary<RunnableID, BlockMetrics> _metrics = new();
+		private readonly Dictionary<RunnableID, Stopwatch> _activeBlocks = new();
 		private Int32 _rollingAverageWindow = 60;
 
 		public Int32 RollingAverageWindow
@@ -23,12 +22,10 @@ namespace LunyScript.Diagnostics
 			set => _rollingAverageWindow = Math.Max(1, value); // Clamp to minimum 1
 		}
 
-		[Conditional("DEBUG")]
-		[Conditional("LUNY_DEBUG")]
-		[Conditional("LUNYSCRIPT_DEBUG")]
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		public void BeginBlock(RunnableID runnableID, String blockType)
 		{
-#if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG
 			if (!_activeBlocks.TryGetValue(runnableID, out var sw))
 			{
 				sw = new Stopwatch();
@@ -38,12 +35,10 @@ namespace LunyScript.Diagnostics
 #endif
 		}
 
-		[Conditional("DEBUG")]
-		[Conditional("LUNY_DEBUG")]
-		[Conditional("LUNYSCRIPT_DEBUG")]
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		public void EndBlock(RunnableID runnableID, String blockType)
 		{
-#if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG
 			if (!_activeBlocks.TryGetValue(runnableID, out var sw))
 				return;
 
@@ -55,7 +50,7 @@ namespace LunyScript.Diagnostics
 				metrics = new BlockMetrics
 				{
 					RunnableID = runnableID,
-					BlockType = blockType
+					BlockType = blockType,
 				};
 				_metrics[runnableID] = metrics;
 			}
@@ -64,12 +59,10 @@ namespace LunyScript.Diagnostics
 #endif
 		}
 
-		[Conditional("DEBUG")]
-		[Conditional("LUNY_DEBUG")]
-		[Conditional("LUNYSCRIPT_DEBUG")]
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		public void RecordError(RunnableID runnableID, Exception ex)
 		{
-#if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG
 			if (_metrics.TryGetValue(runnableID, out var metrics))
 				metrics.ErrorCount++;
 #endif
@@ -77,27 +70,21 @@ namespace LunyScript.Diagnostics
 
 		public BlockProfilerSnapshot TakeSnapshot()
 		{
-#if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG
 			return new BlockProfilerSnapshot
 			{
 				BlockMetrics = _metrics.Values.ToList(),
-				Timestamp = DateTime.UtcNow
+				Timestamp = DateTime.UtcNow,
 			};
 #else
-			return new BlockProfilerSnapshot
-			{
-				BlockMetrics = Array.Empty<BlockMetrics>(),
-				Timestamp = DateTime.UtcNow
-			};
+			return default;
 #endif
 		}
 
-		[Conditional("DEBUG")]
-		[Conditional("LUNY_DEBUG")]
-		[Conditional("LUNYSCRIPT_DEBUG")]
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		public void Reset()
 		{
-#if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG
 			_metrics.Clear();
 			_activeBlocks.Clear();
 #endif
@@ -110,9 +97,7 @@ namespace LunyScript.Diagnostics
 
 			// Rolling average: disabled if window <= 1
 			if (_rollingAverageWindow <= 1)
-			{
 				metrics.AverageMs = newSample; // No averaging, just use current sample
-			}
 			else
 			{
 				// Simple rolling average calculation
