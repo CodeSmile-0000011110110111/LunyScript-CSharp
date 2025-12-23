@@ -30,12 +30,12 @@ namespace LunyScript.Blocks
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			if (_message != null)
-				LunyLogger.LogWarning($"DebugBreak: {_message}", context.EngineObject);
+				LunyLogger.LogWarning($"{nameof(DebugBreakBlock)}: {_message}", context.EngineObject);
 
 			Debugger.Break();
 #endif
 		}
 
-		public override String ToString() => $"DebugBreak({_message ?? "no message"})";
+		public override String ToString() => $"{nameof(DebugBreakBlock)}({_message ?? string.Empty})";
 	}
 }

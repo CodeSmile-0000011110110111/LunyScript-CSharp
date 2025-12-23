@@ -23,14 +23,13 @@ namespace LunyScript.Execution
 		private ScriptContextRegistry _contextRegistry;
 		private ScenePreprocessor _scenePreprocessor;
 		private Variables _globalVariables;
-		private ITimeServiceProvider _timeService;
+
+		ILunyEngine _engine;
 
 		public void OnStartup(ILunyEngine engine)
 		{
 			LunyLogger.LogInfo("LunyScriptRunner starting up...", this);
-
-			// Get time service for debug hooks
-			_timeService = engine.Time;
+			_engine =  engine;
 
 			// Initialize global variables and registries
 			_globalVariables = new Variables();
@@ -95,21 +94,23 @@ namespace LunyScript.Execution
 			_scriptRegistry?.Clear();
 			_globalVariables?.Clear();
 			_scenePreprocessor = null;
-			_timeService = null;
+			_engine = null;
 		}
 
 		private void ExecuteRunnable(IRunnable runnable, ScriptContext context)
 		{
+			var timeService = _engine.Time;
 			var blockType = runnable.GetType().Name;
 			var trace = new ExecutionTrace
 			{
-				FrameCount = _timeService?.FrameCount ?? -1,
-				ElapsedSeconds = _timeService?.ElapsedSeconds ?? -1.0,
+				FrameCount = timeService?.FrameCount ?? -1,
+				ElapsedSeconds = timeService?.ElapsedSeconds ?? -1.0,
 				RunnableID = runnable.ID,
 				BlockType = blockType,
 				BlockDescription = runnable.ToString(),
 			};
 
+			context.Engine = _engine;
 			context.DebugHooks.NotifyBlockExecute(trace);
 			context.BlockProfiler.BeginBlock(runnable.ID, blockType);
 

@@ -1,3 +1,4 @@
+using Luny.Interfaces;
 using Luny.Proxies;
 using LunyScript.Diagnostics;
 using LunyScript.Interfaces;
@@ -22,6 +23,11 @@ namespace LunyScript
 		/// The C# Type of the script (for hot reload matching).
 		/// </summary>
 		public Type ScriptType { get; }
+
+		/// <summary>
+		/// The LunyEngine instance.
+		/// </summary>
+		public ILunyEngine Engine { get; set; }
 
 		/// <summary>
 		/// The engine object/node this script operates on.

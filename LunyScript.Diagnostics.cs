@@ -25,5 +25,10 @@ namespace LunyScript
 		/// Only breaks when DEBUG or LUNYSCRIPT_DEBUG is defined.
 		/// </summary>
 		protected static DebugBreakBlock DebugBreak(String message = null) => new(message);
+
+		/// <summary>
+		/// Pauses playmode. Editor only.
+		/// </summary>
+		protected static DebugPausePlayerBlock DebugPausePlayer(String message = null) => new(message);
 	}
 }
