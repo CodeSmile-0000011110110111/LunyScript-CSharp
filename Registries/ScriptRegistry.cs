@@ -1,6 +1,5 @@
 using Luny;
 using Luny.Diagnostics;
-using Luny.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +10,7 @@ namespace LunyScript.Registries
 	/// Discovers and manages LunyScript definitions.
 	/// Supports both reflection-based discovery and manual registration.
 	/// </summary>
-	public sealed class ScriptRegistry
+	internal sealed class ScriptRegistry
 	{
 		private readonly Dictionary<ScriptID, ScriptDefinition> _scriptsById = new();
 		private readonly Dictionary<String, ScriptDefinition> _scriptsByName = new();

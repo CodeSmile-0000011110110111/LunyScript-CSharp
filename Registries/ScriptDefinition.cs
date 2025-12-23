@@ -6,7 +6,7 @@ namespace LunyScript.Registries
 	/// Metadata for a discovered LunyScript type.
 	/// Represents the script definition/template, not an instance.
 	/// </summary>
-	public sealed class ScriptDefinition
+	internal sealed class ScriptDefinition
 	{
 		/// <summary>
 		/// Unique identifier for this script definition.

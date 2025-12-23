@@ -1,6 +1,5 @@
 using Luny.Diagnostics;
 using Luny.Interfaces.Providers;
-using Luny.Proxies;
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +9,7 @@ namespace LunyScript.Registries
 	/// Scans scenes at runtime to discover objects that should run LunyScripts.
 	/// Binds scripts to objects based on name matching (exact, case-sensitive).
 	/// </summary>
-	public sealed class ScenePreprocessor
+	internal sealed class ScenePreprocessor
 	{
 		private readonly ScriptRegistry _scriptRegistry;
 		private readonly ScriptContextRegistry _contextRegistry;
@@ -37,9 +36,7 @@ namespace LunyScript.Registries
 		{
 			var allObjects = _sceneService.GetAllObjects();
 			if (allObjects == null || allObjects.Count == 0)
-			{
 				throw new Exception($"No objects found in scene: {_sceneService.CurrentSceneName}");
-			}
 
 			var matchedCount = 0;
 			var processedNames = new HashSet<String>();

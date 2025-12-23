@@ -25,12 +25,12 @@ namespace LunyScript.Execution
 		private Variables _globalVariables;
 		private ITimeServiceProvider _timeService;
 
-		public void OnStartup()
+		public void OnStartup(ILunyEngine engine)
 		{
 			LunyLogger.LogInfo("LunyScriptRunner starting up...", this);
 
 			// Get time service for debug hooks
-			_timeService = LunyEngine.TimeService;
+			_timeService = engine.Time;
 
 			// Initialize global variables and registries
 			_globalVariables = new Variables();
@@ -41,7 +41,7 @@ namespace LunyScript.Execution
 			_scriptRegistry.DiscoverScripts();
 
 			// Get scene service for object discovery
-			var sceneService = LunyEngine.SceneService;
+			var sceneService = engine.Scene;
 			_scenePreprocessor = new ScenePreprocessor(_scriptRegistry, _contextRegistry, sceneService, _globalVariables);
 
 			// Process current scene to bind scripts to objects

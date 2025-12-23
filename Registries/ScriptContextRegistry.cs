@@ -10,7 +10,7 @@ namespace LunyScript.Registries
 	/// Manages run contexts and their binding to objects.
 	/// Provides deterministic iteration order based on ObjectID.
 	/// </summary>
-	public sealed class ScriptContextRegistry
+	internal sealed class ScriptContextRegistry
 	{
 		private readonly Dictionary<ObjectID, ScriptContext> _contextsByObjectID = new();
 		private ScriptContext[] _sortedContexts = Array.Empty<ScriptContext>();
