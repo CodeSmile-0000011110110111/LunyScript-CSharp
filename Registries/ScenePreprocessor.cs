@@ -1,9 +1,9 @@
+using Luny.Providers;
+using Luny.Proxies;
 using System;
 using System.Collections.Generic;
-using Luny;
-using Luny.Providers;
 
-namespace LunyScript
+namespace LunyScript.Registries
 {
 	/// <summary>
 	/// Scans scenes at runtime to discover objects that should run LunyScripts.

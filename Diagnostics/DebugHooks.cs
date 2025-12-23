@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace LunyScript.Debugging
+namespace LunyScript.Diagnostics
 {
 	/// <summary>
 	/// Debugging hooks for execution tracing and breakpoints.

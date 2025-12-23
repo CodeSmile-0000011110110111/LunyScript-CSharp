@@ -1,7 +1,6 @@
 using System;
-using Luny.Core;
 
-namespace LunyScript
+namespace LunyScript.Registries
 {
 	/// <summary>
 	/// Metadata for a discovered LunyScript type.

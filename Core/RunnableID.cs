@@ -1,6 +1,6 @@
 using System;
 
-namespace Luny.Core
+namespace LunyScript
 {
 	/// <summary>
 	/// Unique identifier for a runnable sequence/FSM/BT instance.

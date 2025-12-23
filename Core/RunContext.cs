@@ -1,10 +1,9 @@
+using Luny.Proxies;
+using LunyScript.Diagnostics;
+using LunyScript.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Luny.Core;
-using Luny.Proxies;
-using LunyScript.Debugging;
-using LunyScript.Diagnostics;
 
 namespace LunyScript
 {
@@ -69,6 +68,11 @@ namespace LunyScript
 		/// </summary>
 		public List<IRunnable> LateUpdateRunnables { get; }
 
+		/// <summary>
+		/// Whether the underlying object is still valid (not destroyed).
+		/// </summary>
+		public Boolean IsValid => Object.IsValid;
+
 		public RunContext(ScriptID scriptID, Type scriptType, LunyObject obj, Variables globalVariables)
 		{
 			ScriptID = scriptID;
@@ -85,11 +89,6 @@ namespace LunyScript
 			FixedStepRunnables = new List<IRunnable>();
 			LateUpdateRunnables = new List<IRunnable>();
 		}
-
-		/// <summary>
-		/// Whether the underlying object is still valid (not destroyed).
-		/// </summary>
-		public Boolean IsValid => Object.IsValid;
 
 		public override String ToString()
 		{

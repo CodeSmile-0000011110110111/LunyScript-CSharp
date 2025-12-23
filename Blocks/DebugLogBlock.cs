@@ -1,3 +1,5 @@
+using Luny.Proxies;
+using LunyScript.Interfaces;
 using System;
 using System.Diagnostics;
 
@@ -21,13 +23,11 @@ namespace LunyScript.Blocks
 			DoLog(context);
 		}
 
-		[Conditional("DEBUG")]
-		[Conditional("LUNY_DEBUG")]
-		[Conditional("LUNYSCRIPT_DEBUG")]
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		private void DoLog(RunContext context)
 		{
 #if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG
-			Luny.LunyLogger.LogInfo(_message, context.Object);
+			LunyLogger.LogInfo(_message, context.Object);
 #endif
 		}
 

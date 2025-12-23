@@ -1,7 +1,6 @@
-using Luny.Core;
 using System;
 
-namespace LunyScript.Debugging
+namespace LunyScript.Diagnostics
 {
 	/// <summary>
 	/// Captures execution information for a single block execution.

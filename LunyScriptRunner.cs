@@ -1,6 +1,10 @@
 using Luny;
+using Luny.Interfaces;
 using Luny.Providers;
-using LunyScript.Debugging;
+using Luny.Proxies;
+using LunyScript.Diagnostics;
+using LunyScript.Interfaces;
+using LunyScript.Registries;
 using System;
 using System.Diagnostics;
 
@@ -12,7 +16,7 @@ namespace LunyScript
 	/// the <see cref="Luny.LunyEngine"/> at startup.
 	/// Manages script discovery, object binding, and run context lifecycle.
 	/// </summary>
-	public sealed class LunyScriptRunner : IEngineLifecycleObserver
+	internal sealed class LunyScriptRunner : IEngineLifecycleObserver
 	{
 		private ScriptRegistry _scriptRegistry;
 		private RunContextRegistry _contextRegistry;
@@ -64,9 +68,7 @@ namespace LunyScript
 			foreach (var context in _contextRegistry.AllContexts)
 			{
 				foreach (var runnable in context.UpdateRunnables)
-				{
 					ExecuteRunnable(runnable, context);
-				}
 			}
 		}
 
@@ -76,9 +78,7 @@ namespace LunyScript
 			foreach (var context in _contextRegistry.AllContexts)
 			{
 				foreach (var runnable in context.LateUpdateRunnables)
-				{
 					ExecuteRunnable(runnable, context);
-				}
 			}
 		}
 
@@ -88,9 +88,7 @@ namespace LunyScript
 			foreach (var context in _contextRegistry.AllContexts)
 			{
 				foreach (var runnable in context.FixedStepRunnables)
-				{
 					ExecuteRunnable(runnable, context);
-				}
 			}
 		}
 
@@ -114,7 +112,7 @@ namespace LunyScript
 				ElapsedSeconds = _timeService?.ElapsedSeconds ?? -1.0,
 				RunnableID = runnable.ID,
 				BlockType = blockType,
-				BlockDescription = runnable.ToString()
+				BlockDescription = runnable.ToString(),
 			};
 
 			context.DebugHooks.NotifyBlockExecute(trace);

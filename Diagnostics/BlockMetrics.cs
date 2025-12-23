@@ -1,4 +1,4 @@
-using Luny.Core;
+using Luny;
 using System;
 
 namespace LunyScript.Diagnostics

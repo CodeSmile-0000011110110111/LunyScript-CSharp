@@ -1,10 +1,10 @@
+using Luny;
+using Luny.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Luny;
-using Luny.Core;
 
-namespace LunyScript
+namespace LunyScript.Registries
 {
 	/// <summary>
 	/// Manages run contexts and their binding to objects.

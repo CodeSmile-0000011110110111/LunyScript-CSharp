@@ -1,4 +1,5 @@
-using Luny.Core;
+using Luny;
+using LunyScript.Interfaces;
 using System;
 using System.Collections.Generic;
 

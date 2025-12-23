@@ -1,4 +1,6 @@
 using Luny;
+using Luny.Proxies;
+using LunyScript.Interfaces;
 using System;
 using System.Diagnostics;
 
@@ -22,9 +24,7 @@ namespace LunyScript.Blocks
 			DoBreak(context);
 		}
 
-		[Conditional("DEBUG")]
-		[Conditional("LUNY_DEBUG")]
-		[Conditional("LUNYSCRIPT_DEBUG")]
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		private void DoBreak(RunContext context)
 		{
 #if DEBUG || LUNY_DEBUG || LUNYSCRIPT_DEBUG

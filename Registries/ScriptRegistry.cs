@@ -1,11 +1,9 @@
+using Luny.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Luny;
-using Luny.Core;
-using Luny.Reflection;
 
-namespace LunyScript
+namespace LunyScript.Registries
 {
 	/// <summary>
 	/// Discovers and manages LunyScript definitions.
@@ -13,8 +11,8 @@ namespace LunyScript
 	/// </summary>
 	public sealed class ScriptRegistry
 	{
-		private readonly Dictionary<ScriptID, ScriptDefinition> _scriptsById = new Dictionary<ScriptID, ScriptDefinition>();
-		private readonly Dictionary<String, ScriptDefinition> _scriptsByName = new Dictionary<String, ScriptDefinition>();
+		private readonly Dictionary<ScriptID, ScriptDefinition> _scriptsById = new();
+		private readonly Dictionary<String, ScriptDefinition> _scriptsByName = new();
 
 		/// <summary>
 		/// Gets all registered script definitions.
@@ -28,12 +26,10 @@ namespace LunyScript
 		{
 			var sw = Stopwatch.StartNew();
 
-			var scriptTypes = TypeDiscovery.FindAll<LunyScript>();
+			var scriptTypes = Luny.Registries.TypeDiscovery.FindAll<LunyScript>();
 
 			foreach (var type in scriptTypes)
-			{
 				RegisterScript(type);
-			}
 
 			sw.Stop();
 
