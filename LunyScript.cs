@@ -1,5 +1,6 @@
 using Luny.Proxies;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LunyScript
 {
@@ -27,13 +28,13 @@ namespace LunyScript
 		/// ScriptID of the script for identification.
 		/// </summary>
 		protected ScriptID ScriptID => _context.ScriptID;
-		
+
 		/// <summary>
 		/// Reference to proxy for engine object.
 		/// Caution: native engine reference could be null.
 		/// Check EngineObject.IsValid before accessing.
 		/// </summary>
-		protected LunyObject EngineObject => _context.EngineObject;
+		[MaybeNull] protected LunyObject EngineObject => _context.EngineObject;
 
 		internal void Initialize(ScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 

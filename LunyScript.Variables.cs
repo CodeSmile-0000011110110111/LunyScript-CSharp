@@ -1,10 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace LunyScript
 {
 	public abstract partial class LunyScript
 	{
 		// User-facing API: Variables
-		protected Variables LocalVariables => _context.LocalVariables;
-		protected Variables GlobalVariables => ScriptContext.GlobalVariables;
-		protected Variables InspectorVariables => _context.InspectorVariables;
+		[NotNull] protected Variables LocalVariables => _context.LocalVariables;
+		[NotNull] protected Variables GlobalVariables => ScriptContext.GlobalVariables;
+		[NotNull] protected Variables InspectorVariables => _context.InspectorVariables;
 	}
 }
