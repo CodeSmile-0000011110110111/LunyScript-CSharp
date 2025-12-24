@@ -130,20 +130,15 @@ namespace LunyScript.Execution
 			{
 				try
 				{
-					var scriptDef = _scriptRegistry.GetByID(context.ScriptID);
-					if (scriptDef == null)
-					{
-						LunyLogger.LogWarning($"Script definition not found for {context.ScriptID}", this);
-						continue;
-					}
-
 					// Create script instance, initialize with context, and call Build()
+					var scriptDef = context.ScriptDef;
 					var scriptInstance = (LunyScript)Activator.CreateInstance(scriptDef.Type);
 					scriptInstance.Initialize(context);
 					scriptInstance.Build();
+					// script instance goes out of scope, they build runnables
 					activatedCount++;
 
-					LunyLogger.LogInfo($"Built script: {scriptDef.Name} for {context.EngineObject}", this);
+					LunyLogger.LogInfo($"Built: {scriptDef} for {context.EngineObject}", this);
 				}
 				catch (Exception ex)
 				{

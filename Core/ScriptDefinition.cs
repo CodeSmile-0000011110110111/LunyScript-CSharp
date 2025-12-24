@@ -4,7 +4,7 @@ namespace LunyScript
 {
 	/// <summary>
 	/// Metadata for a discovered LunyScript type.
-	/// Represents the script definition/template, not an instance.
+	/// Represents the script ID and associated Type, not an instance.
 	/// </summary>
 	public sealed class ScriptDefinition
 	{

@@ -14,22 +14,25 @@ namespace LunyScript
 	/// </summary>
 	public sealed class ScriptContext
 	{
-		private readonly ScriptDefinition _scriptDef;
-
 		/// <summary>
 		/// Reference to global variables shared across all scripts.
 		/// </summary>
 		public static Variables GlobalVariables { get; } = new();
 
 		/// <summary>
+		/// The script definition this context uses.
+		/// </summary>
+		public ScriptDefinition ScriptDef { get; }
+
+		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
-		public ScriptID ScriptID => _scriptDef.ScriptID;
+		public ScriptID ScriptID => ScriptDef.ScriptID;
 
 		/// <summary>
 		/// The C# Type of the script (for hot reload matching).
 		/// </summary>
-		public Type ScriptType => _scriptDef.Type;
+		public Type ScriptType => ScriptDef.Type;
 
 		/// <summary>
 		/// The LunyEngine instance.
@@ -78,7 +81,7 @@ namespace LunyScript
 
 		public ScriptContext(ScriptDefinition definition, LunyObject engineObject, ILunyEngine engine)
 		{
-			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
+			ScriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
 			EngineObject = engineObject ?? throw new ArgumentNullException(nameof(engineObject));
 			Engine = engine ?? throw new ArgumentNullException(nameof(engine));
 

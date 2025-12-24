@@ -55,7 +55,7 @@ namespace LunyScript.Registries
 					if (!processedNames.Contains(objectName))
 					{
 						processedNames.Add(objectName);
-						LunyLogger.LogInfo($"Bound script '{scriptDef.Name}' to object '{objectName}'", this);
+						LunyLogger.LogInfo($"Bound {scriptDef} to object '{objectName}'", this);
 					}
 				}
 			}

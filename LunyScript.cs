@@ -1,3 +1,4 @@
+using Luny.Proxies;
 using System;
 
 namespace LunyScript
@@ -21,6 +22,18 @@ namespace LunyScript
 	public abstract partial class LunyScript
 	{
 		private ScriptContext _context;
+
+		/// <summary>
+		/// ScriptID of the script for identification.
+		/// </summary>
+		protected ScriptID ScriptID => _context.ScriptID;
+		
+		/// <summary>
+		/// Reference to proxy for engine object.
+		/// Caution: native engine reference could be null.
+		/// Check EngineObject.IsValid before accessing.
+		/// </summary>
+		protected LunyObject EngineObject => _context.EngineObject;
 
 		internal void Initialize(ScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
