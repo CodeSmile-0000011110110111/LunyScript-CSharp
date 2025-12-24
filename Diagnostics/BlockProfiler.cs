@@ -23,9 +23,9 @@ namespace LunyScript.Diagnostics
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		public void BeginBlock(RunnableID runnableID, String blockType)
+		public void BeginBlock(RunnableID runnableID)
 		{
-#if DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
 			if (!_activeBlocks.TryGetValue(runnableID, out var sw))
 			{
 				sw = new Stopwatch();
@@ -35,10 +35,10 @@ namespace LunyScript.Diagnostics
 #endif
 		}
 
-		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		public void EndBlock(RunnableID runnableID, String blockType)
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")] [Conditional("LUNYSCRIPT_PROFILE")]
+		public void EndBlock(RunnableID runnableID, Type blockType)
 		{
-#if DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
 			if (!_activeBlocks.TryGetValue(runnableID, out var sw))
 				return;
 
@@ -59,10 +59,10 @@ namespace LunyScript.Diagnostics
 #endif
 		}
 
-		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")] [Conditional("LUNYSCRIPT_PROFILE")]
 		public void RecordError(RunnableID runnableID, Exception ex)
 		{
-#if DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
 			if (_metrics.TryGetValue(runnableID, out var metrics))
 				metrics.ErrorCount++;
 #endif
@@ -70,7 +70,7 @@ namespace LunyScript.Diagnostics
 
 		public BlockProfilerSnapshot TakeSnapshot()
 		{
-#if DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
 			return new BlockProfilerSnapshot
 			{
 				BlockMetrics = _metrics.Values.ToList(),
@@ -81,10 +81,10 @@ namespace LunyScript.Diagnostics
 #endif
 		}
 
-		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")] [Conditional("LUNYSCRIPT_PROFILE")]
 		public void Reset()
 		{
-#if DEBUG || LUNYSCRIPT_DEBUG
+#if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
 			_metrics.Clear();
 			_activeBlocks.Clear();
 #endif

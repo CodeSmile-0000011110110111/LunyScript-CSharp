@@ -24,9 +24,7 @@ namespace LunyScript.Execution
 		public void Execute(ScriptContext context)
 		{
 			foreach (var block in Children)
-			{
 				block.Execute(context);
-			}
 		}
 	}
 }

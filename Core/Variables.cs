@@ -7,18 +7,18 @@ namespace LunyScript
 {
 	/// <summary>
 	/// Dictionary-based variable storage for LunyScript contexts.
+	/// TODO: Consider restricting to number, bool and string values
 	/// TODO: Replace with LuaTable when Lua integration is added.
 	/// TODO: Optimize boxing/unboxing (consider variant type or generic storage).
 	/// </summary>
 	public sealed class Variables
 	{
-		private readonly Dictionary<String, Object> _vars = new Dictionary<String, Object>();
-
 		/// <summary>
 		/// Fired when a variable is changed. Only invoked in debug builds.
 		/// Parameters: (key, oldValue, newValue)
 		/// </summary>
 		public event Action<String, Object, Object> OnVariableChanged;
+		private readonly Dictionary<String, Object> _vars = new();
 
 		/// <summary>
 		/// Gets or sets a variable by name.
@@ -35,14 +35,14 @@ namespace LunyScript
 		}
 
 		/// <summary>
+		/// Gets the number of variables.
+		/// </summary>
+		public Int32 Count => _vars.Count;
+
+		/// <summary>
 		/// Gets a variable with type casting.
 		/// </summary>
-		public T Get<T>(String key)
-		{
-			if (_vars.TryGetValue(key, out var value))
-				return (T)value;
-			return default;
-		}
+		public T Get<T>(String key) => _vars.TryGetValue(key, out var value) && value is T t ? t : default;
 
 		/// <summary>
 		/// Sets a variable.
@@ -69,11 +69,6 @@ namespace LunyScript
 		/// </summary>
 		public void Clear() => _vars.Clear();
 
-		/// <summary>
-		/// Gets the number of variables.
-		/// </summary>
-		public Int32 Count => _vars.Count;
-
 		public override String ToString()
 		{
 			if (_vars.Count == 0)
@@ -82,9 +77,7 @@ namespace LunyScript
 			var sb = new StringBuilder();
 			sb.AppendLine($"Variables: ({_vars.Count})");
 			foreach (var kvp in _vars)
-			{
 				sb.AppendLine($"  {kvp.Key} = {kvp.Value ?? "null"}");
-			}
 			return sb.ToString();
 		}
 

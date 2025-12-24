@@ -91,7 +91,7 @@ namespace LunyScript.Execution
 		{
 			// TODO: avoid profiling overhead when not enabled
 			var timeService = _engine.Time;
-			var blockType = runnable.GetType().Name;
+			var blockType = runnable.GetType();
 			var trace = new ExecutionTrace
 			{
 				FrameCount = timeService?.FrameCount ?? -1,
@@ -100,8 +100,9 @@ namespace LunyScript.Execution
 				BlockType = blockType,
 				BlockDescription = runnable.ToString(),
 			};
+
 			context.DebugHooks.NotifyBlockExecute(trace);
-			context.BlockProfiler.BeginBlock(runnable.ID, blockType);
+			context.BlockProfiler.BeginBlock(runnable.ID);
 
 			try
 			{
@@ -128,10 +129,10 @@ namespace LunyScript.Execution
 			var activatedCount = 0;
 			foreach (var context in _contextRegistry.AllContexts)
 			{
+				var scriptDef = context.ScriptDef;
 				try
 				{
 					// Create script instance, initialize with context, and call Build()
-					var scriptDef = context.ScriptDef;
 					var scriptInstance = (LunyScript)Activator.CreateInstance(scriptDef.Type);
 					scriptInstance.Initialize(context);
 					scriptInstance.Build();
@@ -142,7 +143,7 @@ namespace LunyScript.Execution
 				}
 				catch (Exception ex)
 				{
-					LunyLogger.LogException(ex);
+					LunyLogger.LogError($"{scriptDef} failed to build: {ex.Message}\n{ex.StackTrace}", this);
 				}
 			}
 

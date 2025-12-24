@@ -42,7 +42,7 @@ namespace LunyScript.Diagnostics
 		public void ClearTraces() => _traces?.Clear();
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		internal void NotifyBlockExecute(ExecutionTrace trace)
+		internal void NotifyBlockExecute(in ExecutionTrace trace)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			RecordTrace(trace);
@@ -51,7 +51,7 @@ namespace LunyScript.Diagnostics
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		internal void NotifyBlockComplete(ExecutionTrace trace)
+		internal void NotifyBlockComplete(in ExecutionTrace trace)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			OnBlockComplete?.Invoke(trace);
@@ -59,14 +59,14 @@ namespace LunyScript.Diagnostics
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		internal void NotifyBlockError(ExecutionTrace trace)
+		internal void NotifyBlockError(in ExecutionTrace trace)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			OnBlockError?.Invoke(trace);
 #endif
 		}
 
-		private void RecordTrace(ExecutionTrace trace)
+		private void RecordTrace(in ExecutionTrace trace)
 		{
 			if (!EnableTracing)
 				return;

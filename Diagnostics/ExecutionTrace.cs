@@ -11,14 +11,14 @@ namespace LunyScript.Diagnostics
 		public Int64 FrameCount;
 		public Double ElapsedSeconds;
 		public RunnableID RunnableID;
-		public String BlockType;
+		public Type BlockType;
 		public String BlockDescription;
 		public Exception Error;
 
 		public override String ToString()
 		{
 			var errorSuffix = Error != null ? $" [ERROR: {Error.Message}]" : "";
-			return $"[Frame {FrameCount:D8}] [{ElapsedSeconds:F3}s] Runnable#{RunnableID} {BlockType}{errorSuffix}";
+			return $"[Frame {FrameCount:D8}] [{ElapsedSeconds:F3}s] Runnable#{RunnableID} {BlockType.Name}{errorSuffix}";
 		}
 	}
 }
