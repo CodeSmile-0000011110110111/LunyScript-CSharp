@@ -88,7 +88,7 @@ namespace LunyScript.Registries
 		{
 			// TODO: replace with traditional reverse iteration if LINQ proves to be slow
 			var invalidIDs = _contextsByObjectID
-				.Where(kvp => !kvp.Value.IsEngineObjectValid)
+				.Where(kvp => !kvp.Value.EngineObject.IsValid)
 				.Select(kvp => kvp.Key)
 				.ToList();
 
@@ -109,6 +109,7 @@ namespace LunyScript.Registries
 		/// </summary>
 		public void Clear()
 		{
+			ScriptContext.GlobalVariables.Clear();
 			_contextsByObjectID.Clear();
 			_sortedContexts = Array.Empty<ScriptContext>();
 			_needsSort = false;

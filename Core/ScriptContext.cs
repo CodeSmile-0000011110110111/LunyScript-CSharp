@@ -15,6 +15,11 @@ namespace LunyScript
 	public sealed class ScriptContext
 	{
 		/// <summary>
+		/// Reference to global variables shared across all scripts.
+		/// </summary>
+		public static Variables GlobalVariables { get; } = new();
+
+		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
 		public ScriptID ScriptID { get; }
@@ -35,19 +40,9 @@ namespace LunyScript
 		public LunyObject EngineObject { get; }
 
 		/// <summary>
-		/// Whether the underlying object is still valid (not destroyed).
-		/// </summary>
-		public Boolean IsEngineObjectValid => EngineObject.IsValid;
-
-		/// <summary>
 		/// Per-object variables for this script instance.
 		/// </summary>
 		public Variables LocalVariables { get; }
-
-		/// <summary>
-		/// Reference to global variables shared across all scripts.
-		/// </summary>
-		public Variables GlobalVariables { get; }
 
 		/// <summary>
 		/// Inspector-set variables (populated by engine-specific bridge).
@@ -79,7 +74,7 @@ namespace LunyScript
 		/// </summary>
 		internal List<IRunnable> RunnablesScheduledInLateUpdate { get; }
 
-		public ScriptContext(ScriptID scriptID, Type scriptType, ILunyEngine engine, LunyObject engineObject, Variables globalVariables)
+		public ScriptContext(ScriptID scriptID, Type scriptType, ILunyEngine engine, LunyObject engineObject)
 		{
 			// TODO: ScriptType is unnecessary?
 			ScriptID = scriptID;
@@ -87,7 +82,6 @@ namespace LunyScript
 			Engine = engine ?? throw new ArgumentNullException(nameof(engine));
 			EngineObject = engineObject ?? throw new ArgumentNullException(nameof(engineObject));
 
-			GlobalVariables = globalVariables ?? throw new ArgumentNullException(nameof(globalVariables));
 			LocalVariables = new Variables();
 			InspectorVariables = new Variables();
 
@@ -104,7 +98,7 @@ namespace LunyScript
 		{
 			var sb = new StringBuilder();
 			sb.AppendLine($"RunContext: {ScriptType.Name} ({ScriptID}) -> {EngineObject}");
-			sb.AppendLine($"  Valid: {IsEngineObjectValid}");
+			sb.AppendLine($"  Valid: {EngineObject.IsValid}");
 			sb.AppendLine($"  FixedStep Runnables: {RunnablesScheduledInFixedStep.Count}");
 			sb.AppendLine($"  Update Runnables: {RunnablesScheduledInUpdate.Count}");
 			sb.AppendLine($"  LateUpdate Runnables: {RunnablesScheduledInLateUpdate.Count}");

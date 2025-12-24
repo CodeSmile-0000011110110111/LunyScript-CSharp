@@ -48,7 +48,7 @@ namespace LunyScript.Registries
 				if (scriptDef != null)
 				{
 					// Create run context for this object-script pair
-					var context = new ScriptContext(scriptDef.ScriptID, scriptDef.Type, engine, sceneObject, _scriptRunner.GlobalVariables);
+					var context = new ScriptContext(scriptDef.ScriptID, scriptDef.Type, engine, sceneObject);
 					contexts.Register(context);
 					matchedCount++;
 

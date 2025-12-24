@@ -20,22 +20,17 @@ namespace LunyScript.Execution
 		private ScriptRegistry _scriptRegistry;
 		private ScriptContextRegistry _contextRegistry;
 		private ScenePreprocessor _scenePreprocessor;
-		private Variables _globalVariables;
 
 		internal ILunyEngine Engine => _engine;
 		internal ScriptRegistry Scripts => _scriptRegistry;
 		internal ScriptContextRegistry Contexts => _contextRegistry;
-
-		// TODO: make this a static in ScriptContext
-		internal Variables GlobalVariables => _globalVariables;
 
 		public void OnStartup(ILunyEngine engine)
 		{
 			LunyLogger.LogInfo("LunyScriptRunner starting up...", this);
 			_engine = engine;
 
-			// Initialize global variables and registries
-			_globalVariables = new Variables();
+			// Initialize registries
 			_scriptRegistry = new ScriptRegistry();
 			_contextRegistry = new ScriptContextRegistry();
 			_scenePreprocessor = new ScenePreprocessor(this);
@@ -88,7 +83,6 @@ namespace LunyScript.Execution
 			// Cleanup
 			_contextRegistry?.Clear();
 			_scriptRegistry?.Clear();
-			_globalVariables?.Clear();
 			_scenePreprocessor = null;
 			_engine = null;
 		}
