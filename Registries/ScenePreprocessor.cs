@@ -1,5 +1,6 @@
 using Luny.Diagnostics;
 using Luny.Interfaces.Providers;
+using LunyScript.Execution;
 using System;
 using System.Collections.Generic;
 
@@ -11,50 +12,44 @@ namespace LunyScript.Registries
 	/// </summary>
 	internal sealed class ScenePreprocessor
 	{
-		private readonly ScriptRegistry _scriptRegistry;
-		private readonly ScriptContextRegistry _contextRegistry;
-		private readonly ISceneServiceProvider _sceneService;
-		private readonly Variables _globalVariables;
+		private readonly LunyScriptRunner _scriptRunner;
 
-		public ScenePreprocessor(
-			ScriptRegistry scriptRegistry,
-			ScriptContextRegistry contextRegistry,
-			ISceneServiceProvider sceneService,
-			Variables globalVariables)
+		public ScenePreprocessor(LunyScriptRunner runner)
 		{
-			_scriptRegistry = scriptRegistry ?? throw new ArgumentNullException(nameof(scriptRegistry));
-			_contextRegistry = contextRegistry ?? throw new ArgumentNullException(nameof(contextRegistry));
-			_sceneService = sceneService ?? throw new ArgumentNullException(nameof(sceneService));
-			_globalVariables = globalVariables ?? throw new ArgumentNullException(nameof(globalVariables));
+			_scriptRunner = runner ?? throw new ArgumentNullException(nameof(runner));
 		}
 
 		/// <summary>
 		/// Processes the current scene, finding objects and binding them to scripts.
 		/// Creates run contexts for matching object-script pairs.
 		/// </summary>
-		public void ProcessCurrentScene()
+		public void ProcessSceneObjects()
 		{
-			var allObjects = _sceneService.GetAllObjects();
-			if (allObjects == null || allObjects.Count == 0)
-				throw new Exception($"No objects found in scene: {_sceneService.CurrentSceneName}");
+			var scene = _scriptRunner.Engine.Scene;
+			var allSceneObjects = scene.GetAllObjects();
+			if (allSceneObjects == null || allSceneObjects.Count == 0)
+				throw new Exception($"No objects found in scene: {scene.CurrentSceneName}");
 
 			var matchedCount = 0;
 			var processedNames = new HashSet<String>();
+			var scripts = _scriptRunner.Scripts;
+			var contexts = _scriptRunner.Contexts;
+			var engine = _scriptRunner.Engine;
 
-			foreach (var obj in allObjects)
+			foreach (var sceneObject in allSceneObjects)
 			{
-				if (obj == null || !obj.IsValid)
+				if (sceneObject == null || !sceneObject.IsValid)
 					continue;
 
-				var objectName = obj.Name;
+				var objectName = sceneObject.Name;
 
 				// Check if we have a script matching this object's name
-				var scriptDef = _scriptRegistry.GetByName(objectName);
+				var scriptDef = scripts.GetByName(objectName);
 				if (scriptDef != null)
 				{
 					// Create run context for this object-script pair
-					var context = new ScriptContext(scriptDef.ScriptID, scriptDef.Type, obj, _globalVariables);
-					_contextRegistry.Register(context);
+					var context = new ScriptContext(scriptDef.ScriptID, scriptDef.Type, engine, sceneObject, _scriptRunner.GlobalVariables);
+					contexts.Register(context);
 					matchedCount++;
 
 					if (!processedNames.Contains(objectName))
@@ -65,7 +60,7 @@ namespace LunyScript.Registries
 				}
 			}
 
-			LunyLogger.LogInfo($"Scene preprocessing complete: {matchedCount} context(s) created from {allObjects.Count} object(s)", this);
+			LunyLogger.LogInfo($"Scene preprocessing complete: {matchedCount} context(s) created from {allSceneObjects.Count} object(s)", this);
 		}
 
 		/// <summary>
@@ -74,8 +69,8 @@ namespace LunyScript.Registries
 		/// </summary>
 		public void ReprocessScene()
 		{
-			_contextRegistry.Clear();
-			ProcessCurrentScene();
+			_scriptRunner.Contexts.Clear();
+			ProcessSceneObjects();
 		}
 	}
 }

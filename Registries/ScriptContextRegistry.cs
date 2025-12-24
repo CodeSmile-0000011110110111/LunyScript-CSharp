@@ -86,6 +86,7 @@ namespace LunyScript.Registries
 		/// </summary>
 		public Int32 RemoveInvalidContexts()
 		{
+			// TODO: replace with traditional reverse iteration if LINQ proves to be slow
 			var invalidIDs = _contextsByObjectID
 				.Where(kvp => !kvp.Value.IsEngineObjectValid)
 				.Select(kvp => kvp.Key)

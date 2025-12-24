@@ -1,6 +1,6 @@
 using System;
 
-namespace LunyScript.Registries
+namespace LunyScript
 {
 	/// <summary>
 	/// Metadata for a discovered LunyScript type.
@@ -30,7 +30,7 @@ namespace LunyScript.Registries
 				throw new ArgumentNullException(nameof(type));
 
 			if (!typeof(LunyScript).IsAssignableFrom(type))
-				throw new ArgumentException($"Type {type.Name} does not inherit from LunyScript", nameof(type));
+				throw new ArgumentException($"Type {type.Name} does not inherit from {nameof(LunyScript)}", nameof(type));
 
 			ScriptID = ScriptID.Generate();
 			Type = type;

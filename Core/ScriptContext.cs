@@ -42,7 +42,7 @@ namespace LunyScript
 		/// <summary>
 		/// Per-object variables for this script instance.
 		/// </summary>
-		public Variables Variables { get; }
+		public Variables LocalVariables { get; }
 
 		/// <summary>
 		/// Reference to global variables shared across all scripts.
@@ -57,7 +57,7 @@ namespace LunyScript
 		/// <summary>
 		/// Debugging hooks for execution tracing and breakpoints.
 		/// </summary>
-		public DebugHooks DebugHooks { get; }
+		internal DebugHooks DebugHooks { get; }
 
 		/// <summary>
 		/// Block-level profiler for tracking runnable performance.
@@ -79,15 +79,19 @@ namespace LunyScript
 		/// </summary>
 		internal List<IRunnable> RunnablesScheduledInLateUpdate { get; }
 
-		public ScriptContext(ScriptID scriptID, Type scriptType, LunyObject obj, Variables globalVariables)
+		public ScriptContext(ScriptID scriptID, Type scriptType, ILunyEngine engine, LunyObject engineObject, Variables globalVariables)
 		{
+			// TODO: ScriptType is unnecessary?
 			ScriptID = scriptID;
 			ScriptType = scriptType ?? throw new ArgumentNullException(nameof(scriptType));
-			EngineObject = obj ?? throw new ArgumentNullException(nameof(obj));
-			GlobalVariables = globalVariables ?? throw new ArgumentNullException(nameof(globalVariables));
+			Engine = engine ?? throw new ArgumentNullException(nameof(engine));
+			EngineObject = engineObject ?? throw new ArgumentNullException(nameof(engineObject));
 
-			Variables = new Variables();
+			GlobalVariables = globalVariables ?? throw new ArgumentNullException(nameof(globalVariables));
+			LocalVariables = new Variables();
 			InspectorVariables = new Variables();
+
+			// TODO: don't create these unless enabled
 			DebugHooks = new DebugHooks();
 			BlockProfiler = new BlockProfiler();
 
@@ -105,8 +109,8 @@ namespace LunyScript
 			sb.AppendLine($"  Update Runnables: {RunnablesScheduledInUpdate.Count}");
 			sb.AppendLine($"  LateUpdate Runnables: {RunnablesScheduledInLateUpdate.Count}");
 
-			if (Variables.Count > 0)
-				sb.Append($"  {Variables}");
+			if (LocalVariables.Count > 0)
+				sb.Append($"  {LocalVariables}");
 
 			return sb.ToString();
 		}
