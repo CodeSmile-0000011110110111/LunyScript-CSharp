@@ -57,7 +57,7 @@ namespace LunyScript.Registries
 			_scriptsById[definition.ScriptID] = definition;
 			_scriptsByName[definition.Name] = definition;
 
-			LunyLogger.LogInfo($"Registered script: {definition.Name} ({definition.ScriptID})", this);
+			LunyLogger.LogInfo($"Registered {definition}", this);
 			return definition;
 		}
 

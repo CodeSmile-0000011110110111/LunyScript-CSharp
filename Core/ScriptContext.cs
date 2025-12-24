@@ -14,6 +14,8 @@ namespace LunyScript
 	/// </summary>
 	public sealed class ScriptContext
 	{
+		private readonly ScriptDefinition _scriptDef;
+
 		/// <summary>
 		/// Reference to global variables shared across all scripts.
 		/// </summary>
@@ -22,12 +24,12 @@ namespace LunyScript
 		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
-		public ScriptID ScriptID { get; }
+		public ScriptID ScriptID => _scriptDef.ScriptID;
 
 		/// <summary>
 		/// The C# Type of the script (for hot reload matching).
 		/// </summary>
-		public Type ScriptType { get; }
+		public Type ScriptType => _scriptDef.Type;
 
 		/// <summary>
 		/// The LunyEngine instance.
@@ -74,13 +76,11 @@ namespace LunyScript
 		/// </summary>
 		internal List<IRunnable> RunnablesScheduledInLateUpdate { get; }
 
-		public ScriptContext(ScriptID scriptID, Type scriptType, ILunyEngine engine, LunyObject engineObject)
+		public ScriptContext(ScriptDefinition definition, LunyObject engineObject, ILunyEngine engine)
 		{
-			// TODO: ScriptType is unnecessary?
-			ScriptID = scriptID;
-			ScriptType = scriptType ?? throw new ArgumentNullException(nameof(scriptType));
-			Engine = engine ?? throw new ArgumentNullException(nameof(engine));
+			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
 			EngineObject = engineObject ?? throw new ArgumentNullException(nameof(engineObject));
+			Engine = engine ?? throw new ArgumentNullException(nameof(engine));
 
 			LocalVariables = new Variables();
 			InspectorVariables = new Variables();

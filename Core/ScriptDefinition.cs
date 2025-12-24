@@ -6,7 +6,7 @@ namespace LunyScript
 	/// Metadata for a discovered LunyScript type.
 	/// Represents the script definition/template, not an instance.
 	/// </summary>
-	internal sealed class ScriptDefinition
+	public sealed class ScriptDefinition
 	{
 		/// <summary>
 		/// Unique identifier for this script definition.
@@ -22,7 +22,7 @@ namespace LunyScript
 		/// The name of the script (used for object binding).
 		/// Derived from the Type name by default.
 		/// </summary>
-		public String Name { get; }
+		public String Name => Type.Name;
 
 		public ScriptDefinition(Type type)
 		{
@@ -34,9 +34,8 @@ namespace LunyScript
 
 			ScriptID = ScriptID.Generate();
 			Type = type;
-			Name = type.Name;
 		}
 
-		public override String ToString() => $"ScriptDefinition: {Name} ({ScriptID}, {Type.FullName})";
+		public override String ToString() => $"Script: {Name} (ID:{ScriptID}, Type:{Type.FullName})";
 	}
 }
