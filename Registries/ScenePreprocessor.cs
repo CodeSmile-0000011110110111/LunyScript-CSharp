@@ -37,7 +37,7 @@ namespace LunyScript.Registries
 
 			foreach (var sceneObject in allSceneObjects)
 			{
-				if (sceneObject == null || !sceneObject.IsValid)
+				if (sceneObject == null || !sceneObject.IsValid || !sceneObject.Enabled)
 					continue;
 
 				var objectName = sceneObject.Name;
