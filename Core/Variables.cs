@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 
 namespace LunyScript
@@ -11,7 +12,7 @@ namespace LunyScript
 	/// TODO: Replace with LuaTable when Lua integration is added.
 	/// TODO: Optimize boxing/unboxing (consider variant type or generic storage).
 	/// </summary>
-	public sealed class Variables : IEnumerable<KeyValuePair<String, Object>>
+	public sealed class Variables : IEnumerable<KeyValuePair<String, Variable>>
 	{
 		/// <summary>
 		/// Fired when a variable is changed. Only invoked in debug builds.
@@ -19,23 +20,24 @@ namespace LunyScript
 		public event EventHandler<VariableChangedEventArgs> OnVariableChanged;
 
 		// TODO: replace with LuaTable
-		private readonly Dictionary<String, Object> _vars = new();
+		private readonly Dictionary<String, Variable> _vars = new();
 
-		public IEnumerator<KeyValuePair<String, Object>> GetEnumerator() => _vars.GetEnumerator();
+		public IEnumerator<KeyValuePair<String, Variable>> GetEnumerator() => _vars.GetEnumerator();
 
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 
 		/// <summary>
 		/// Gets or sets a variable by name.
 		/// </summary>
-		public Object this[String key]
+		public Variable this[String key]
 		{
-			get => _vars.TryGetValue(key, out var value) ? value : null;
+			get => _vars.TryGetValue(key, out var value) ? value : new Variable(key, null);
 			set
 			{
-				var oldValue = _vars.TryGetValue(key, out var existing) ? existing : null;
-				_vars[key] = value;
-				NotifyVariableChanged(key, oldValue, value);
+				var oldValue = _vars.TryGetValue(key, out var existing) ? existing : new Variable(key, null);
+				var newValue = new Variable(key, value.Value);
+				_vars[key] = newValue;
+				NotifyVariableChanged(key, oldValue, newValue);
 			}
 		}
 
@@ -47,7 +49,25 @@ namespace LunyScript
 		/// <summary>
 		/// Gets a variable with type casting.
 		/// </summary>
-		public T Get<T>(String key) => _vars.TryGetValue(key, out var value) && value is T t ? t : default;
+		public T Get<T>(String key)
+		{
+			if (!_vars.TryGetValue(key, out var variable))
+				return default;
+
+			var value = variable.Value;
+			if (value == null) return default;
+			if (value is T tValue) return tValue;
+
+			// Handle common conversions
+			if (typeof(T) == typeof(Double)) return (T)(Object)Convert.ToDouble(value, CultureInfo.InvariantCulture);
+			if (typeof(T) == typeof(Single)) return (T)(Object)Convert.ToSingle(value, CultureInfo.InvariantCulture);
+			if (typeof(T) == typeof(Int32)) return (T)(Object)Convert.ToInt32(value, CultureInfo.InvariantCulture);
+			if (typeof(T) == typeof(Boolean)) return (T)(Object)Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+			if (typeof(T) == typeof(String)) return (T)(Object)value.ToString();
+			if (typeof(T) == typeof(Luny.Number)) return (T)(Object)new Luny.Number(Convert.ToDouble(value, CultureInfo.InvariantCulture));
+
+			return default;
+		}
 
 		/// <summary>
 		/// Checks if a variable exists.
@@ -72,12 +92,12 @@ namespace LunyScript
 			var sb = new StringBuilder();
 			sb.AppendLine($"Variables: ({_vars.Count})");
 			foreach (var kvp in _vars)
-				sb.AppendLine($"  {kvp.Key} = {kvp.Value ?? "null"}");
+				sb.AppendLine($"  {kvp.Key} = {kvp.Value}");
 			return sb.ToString();
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void NotifyVariableChanged(String key, Object oldValue, Object newValue)
+		private void NotifyVariableChanged(String key, Variable oldValue, Variable newValue)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			OnVariableChanged?.Invoke(this, new VariableChangedEventArgs(key, oldValue, newValue));

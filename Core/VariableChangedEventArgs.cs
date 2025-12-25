@@ -5,10 +5,10 @@ namespace LunyScript
 	public sealed class VariableChangedEventArgs : EventArgs
 	{
 		public String Name { get; }
-		public Object OldValue { get; }
-		public Object NewValue { get; }
+		public Variable OldValue { get; }
+		public Variable NewValue { get; }
 
-		public VariableChangedEventArgs(String name, Object oldValue, Object newValue)
+		public VariableChangedEventArgs(String name, Variable oldValue, Variable newValue)
 		{
 			Name = name;
 			OldValue = oldValue;
