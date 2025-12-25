@@ -17,6 +17,7 @@ namespace LunyScript.Execution
 	internal sealed class LunyScriptRunner : IEngineLifecycleObserver
 	{
 		private ILunyEngine _engine;
+		private ILunyScriptEngine _scriptEngine;
 		private ScriptRegistry _scriptRegistry;
 		private ScriptContextRegistry _contextRegistry;
 		private ScenePreprocessor _scenePreprocessor;
@@ -34,6 +35,9 @@ namespace LunyScript.Execution
 			_scriptRegistry = new ScriptRegistry();
 			_contextRegistry = new ScriptContextRegistry();
 			_scenePreprocessor = new ScenePreprocessor(this);
+
+			// Instantiate public API singleton
+			_scriptEngine = new LunyScriptEngine(this);
 
 			// Process current scene to bind scripts to objects
 			_scriptRegistry.DiscoverScripts();
@@ -84,6 +88,8 @@ namespace LunyScript.Execution
 			_contextRegistry?.Clear();
 			_scriptRegistry?.Clear();
 			_scenePreprocessor = null;
+			(_scriptEngine as LunyScriptEngine).Shutdown();
+			_scriptEngine = null;
 			_engine = null;
 		}
 

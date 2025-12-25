@@ -70,10 +70,21 @@ namespace LunyScript.Registries
 		/// <summary>
 		/// Gets a context by ObjectID.
 		/// </summary>
-		public ScriptContext GetByObjectID(LunyID lunyID)
+		public ScriptContext GetByLunyID(LunyID lunyID)
 		{
 			_contextsByObjectID.TryGetValue(lunyID, out var context);
 			return context;
+		}
+
+		public ScriptContext GetByNativeID(NativeID nativeID)
+		{
+			foreach (var context in _contextsByObjectID.Values)
+			{
+				var engineObject = context.EngineObject;
+				if (engineObject.IsValid && engineObject.NativeID == nativeID)
+					return context;
+			}
+			return null;
 		}
 
 		/// <summary>
