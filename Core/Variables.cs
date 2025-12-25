@@ -11,14 +11,19 @@ namespace LunyScript
 	/// TODO: Replace with LuaTable when Lua integration is added.
 	/// TODO: Optimize boxing/unboxing (consider variant type or generic storage).
 	/// </summary>
-	public sealed class Variables
+	public sealed class Variables : IEnumerable<KeyValuePair<String, Object>>
 	{
 		/// <summary>
 		/// Fired when a variable is changed. Only invoked in debug builds.
-		/// Parameters: (key, oldValue, newValue)
 		/// </summary>
-		public event Action<String, Object, Object> OnVariableChanged;
+		public event EventHandler<VariableChangedEventArgs> OnVariableChanged;
+
+		// TODO: replace with LuaTable
 		private readonly Dictionary<String, Object> _vars = new();
+
+		public IEnumerator<KeyValuePair<String, Object>> GetEnumerator() => _vars.GetEnumerator();
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 
 		/// <summary>
 		/// Gets or sets a variable by name.
@@ -43,16 +48,6 @@ namespace LunyScript
 		/// Gets a variable with type casting.
 		/// </summary>
 		public T Get<T>(String key) => _vars.TryGetValue(key, out var value) && value is T t ? t : default;
-
-		/// <summary>
-		/// Sets a variable.
-		/// </summary>
-		public void Set<T>(String key, T value)
-		{
-			var oldValue = _vars.TryGetValue(key, out var existing) ? existing : null;
-			_vars[key] = value;
-			NotifyVariableChanged(key, oldValue, value);
-		}
 
 		/// <summary>
 		/// Checks if a variable exists.
@@ -85,7 +80,7 @@ namespace LunyScript
 		private void NotifyVariableChanged(String key, Object oldValue, Object newValue)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
-			OnVariableChanged?.Invoke(key, oldValue, newValue);
+			OnVariableChanged?.Invoke(this, new VariableChangedEventArgs(key, oldValue, newValue));
 #endif
 		}
 	}
