@@ -52,7 +52,7 @@ namespace LunyScript
 		/// <summary>
 		/// Inspector-set variables (populated by engine-specific bridge).
 		/// </summary>
-		public Variables InspectorVariables { get; }
+		internal Variables InspectorVariables { get; }
 
 		/// <summary>
 		/// Debugging hooks for execution tracing and breakpoints.

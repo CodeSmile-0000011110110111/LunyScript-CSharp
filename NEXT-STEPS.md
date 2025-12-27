@@ -39,7 +39,7 @@ LunyScript/
 ├── Core/
 │   ├── IBlock.cs - Base interface for all blocks
 │   ├── IRunnable.cs - Container blocks with ID and Children
-│   ├── RunContext.cs - Runtime context per object
+│   ├── ScriptContext.cs - Runtime context per object
 │   ├── ScriptID.cs - Sequential ID for script definitions
 │   ├── RunnableID.cs - Sequential ID for runnables
 │   └── Variables.cs - Dictionary-based storage (placeholder for LuaTable)
