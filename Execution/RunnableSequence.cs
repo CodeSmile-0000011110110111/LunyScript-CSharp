@@ -12,9 +12,9 @@ namespace LunyScript.Execution
 		public RunnableID ID { get; }
 		public IReadOnlyList<IBlock> Children { get; }
 
-		public RunnableSequence(params IBlock[] blocks)
+		public RunnableSequence(IReadOnlyList<IBlock> blocks)
 		{
-			if (blocks == null || blocks.Length == 0)
+			if (blocks == null || blocks.Count == 0)
 				throw new ArgumentException("Sequence must contain at least one block", nameof(blocks));
 
 			ID = RunnableID.Generate();

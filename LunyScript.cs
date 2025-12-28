@@ -1,4 +1,7 @@
+using Luny;
 using Luny.Proxies;
+using LunyScript.Blocks;
+using LunyScript.Interfaces;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -10,13 +13,14 @@ namespace LunyScript
 	/// Users inherit from this class and implement Build() to construct their script logic.
 	/// </summary>
 	/// <remarks>
-	/// Example script template (duplicate LunyScript.LunyScript avoids usings):
+	/// Example script template (duplicate LunyScript.LunyScript is correct):
 	///
-	///		public sealed class ExampleLunyScript : LunyScript.LunyScript
+	///		public class ExampleLunyScript : LunyScript.LunyScript
 	///		{
 	///			public override void Build()
 	///			{
 	///				// define behaviour using LunyScript API here ...
+	///				OnUpdate(Debug.Log("Hello, LunyScript!"));
 	///			}
 	///		}
 	/// </remarks>
@@ -28,14 +32,12 @@ namespace LunyScript
 		/// ScriptID of the script for identification.
 		/// </summary>
 		protected ScriptID ScriptID => _context.ScriptID;
-
 		/// <summary>
 		/// Reference to proxy for engine object.
 		/// Caution: native engine reference could be null.
 		/// Check EngineObject.IsValid before accessing.
 		/// </summary>
 		[MaybeNull] protected LunyObject EngineObject => _context.EngineObject;
-
 		// User-facing API: Variables
 		/// <summary>
 		/// Global variables which all objects and scripts can read/write.
@@ -47,7 +49,60 @@ namespace LunyScript
 		/// </summary>
 		[NotNull] protected IVariables LocalVariables => _context.LocalVariables;
 
+		/// <summary>
+		/// Logs a message that appears in both debug and release builds.
+		/// Posts to both Luny internal log (if enabled) and engine logging.
+		/// </summary>
+		protected static IBlock Log(String message) => new EngineLogBlock(message);
+
+		/// <summary>
+		/// Runs the contained method or lambda when this block executes. Meant for custom code and quick prototyping.
+		/// </summary>
+		/// <remarks>
+		/// Prefer to convert "Run" code into a custom IBlock class after its initial development and testing,
+		/// or at least prefer named methods over lambdas or assign lambdas to fields. Any of these makes that code
+		/// re-usable and more readable. Example:
+		///
+		///		// even a single-line lambda adds more noise (worse for multi-line lambdas):
+		/// 	OnUpdate(Run(() => LunyLogger.LogInfo("custom lambda runs")));
+		///
+		///		// a named method or lambda field (not shown) is cleaner, and re-usable in the same script:
+		///		OnUpdate(Run(MyCustomCode));
+		///
+		///		// a custom IBlock implementation is also clean, and re-usable in all scripts:
+		///		OnUpdate(new MyCustomCodeBlock());
+		///
+		///		// even better: create your own static factory class returning IBlock instances:
+		///		OnUpdate(MyBlocks.MyCustomCode());
+		///
+		///		// a LunyScript C# extension methods are also fine but require the 'this' prefix:
+		///		OnUpdate(this.MyCustomCode());
+		/// </remarks>
+		/// <param name="action"></param>
+		/// <returns></returns>
+		protected static IBlock Run(Action action) => new RunActionBlock(_ => action());
+
 		internal void Initialize(IScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
+
+		// User-facing API: Runnable registration
+		/// <summary>
+		/// Schedules blocks to run on fixed-rate updates.
+		/// Scheduling depends on engine and Time settings, but typically runs 30 or 50 times per second.
+		/// May run multiple times per frame and may not run in every frame.
+		/// It's therefore unsuitable for once-only events, such as Input.
+		/// </summary>
+		/// <param name="blocks"></param>
+		protected void OnFixedStep(params IBlock[] blocks) => Schedule(CreateSequence(blocks), ObjectLifecycleEvents.OnFixedStep);
+		/// <summary>
+		/// Schedules blocks to run on every-frame updates.
+		/// </summary>
+		/// <param name="blocks"></param>
+		protected void OnUpdate(params IBlock[] blocks) => Schedule(CreateSequence(blocks), ObjectLifecycleEvents.OnUpdate);
+		/// <summary>
+		/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
+		/// </summary>
+		/// <param name="blocks"></param>
+		protected void OnLateUpdate(params IBlock[] blocks) => Schedule(CreateSequence(blocks), ObjectLifecycleEvents.OnLateUpdate);
 
 		/// <summary>
 		/// Called once when the script is initialized.
@@ -55,5 +110,33 @@ namespace LunyScript
 		/// Users can use regular C# syntax (ie call methods, use loops) to construct complex and/or reusable blocks.
 		/// </summary>
 		public abstract void Build();
+
+		/// <summary>
+		/// Provides diagnostics blocks which are omitted from release builds,
+		/// unless the scripting symbol LUNYSCRIPT_DEBUG is defined.
+		/// </summary>
+		public static class Debug
+		{
+			/// <summary>
+			/// Logs a debug message that is completely stripped in release builds.
+			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
+			/// </summary>
+			public static IBlock Log(String message) => new DebugLogBlock(message);
+
+			/// <summary>
+			/// Triggers a debugger breakpoint (if debugger is attached).
+			/// Completely stripped in release builds.
+			/// Only breaks when DEBUG or LUNYSCRIPT_DEBUG is defined.
+			/// </summary>
+			public static IBlock Break(String message = null) => new DebugBreakBlock(message);
+		}
+
+		public static class Editor
+		{
+			/// <summary>
+			/// Pauses playmode. Editor only.
+			/// </summary>
+			public static IBlock PausePlayer(String message = null) => new EditorPausePlayerBlock(message);
+		}
 	}
 }

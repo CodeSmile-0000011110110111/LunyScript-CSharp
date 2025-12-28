@@ -1,3 +1,4 @@
+using Luny;
 using Luny.Diagnostics;
 using Luny.Interfaces;
 using Luny.Proxies;
@@ -117,6 +118,9 @@ namespace LunyScript
 
 		internal void ScheduleRunnable(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent)
 		{
+			if (runnable == null)
+				return;
+
 			switch (lifecycleEvent)
 			{
 				case ObjectLifecycleEvents.OnFixedStep:

@@ -7,11 +7,11 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Logs a message to the engine's logging system.
 	/// </summary>
-	internal sealed class LogMessageBlock : IBlock
+	internal sealed class EngineLogBlock : IBlock
 	{
 		private readonly String _message;
 
-		public LogMessageBlock(String message) => _message = message ?? throw new ArgumentNullException(nameof(message));
+		public EngineLogBlock(String message) => _message = message ?? throw new ArgumentNullException(nameof(message));
 
 		public void Execute(ScriptContext context) => LunyLogger.LogInfo(_message, this);
 	}
