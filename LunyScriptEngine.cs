@@ -10,6 +10,7 @@ namespace LunyScript
 	public interface ILunyScriptEngine
 	{
 		ScriptContext GetScriptContext(NativeID nativeID);
+		IVariables GlobalVariables { get; }
 	}
 
 	/// <summary>
@@ -36,5 +37,6 @@ namespace LunyScript
 		internal void Shutdown() => Instance = null;
 
 		public ScriptContext GetScriptContext(NativeID nativeID) => _runner.Contexts.GetByNativeID(nativeID);
+		public IVariables GlobalVariables => ScriptContext.GetGlobalVariables();
 	}
 }

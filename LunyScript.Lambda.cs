@@ -1,4 +1,5 @@
 using LunyScript.Blocks;
+using LunyScript.Interfaces;
 using System;
 
 namespace LunyScript
@@ -6,7 +7,7 @@ namespace LunyScript
 	public abstract partial class LunyScript
 	{
 		// User-facing API: Block factory methods
-		protected ActionBlock Do(Action action) => new(_ => action());
-		protected ActionBlock Is(Func<Boolean> condition) => new(_ => condition());
+		protected IBlock Do(Action action) => new ActionBlock(_ => action());
+		protected IBlock Is(Func<Boolean> condition) => new ActionBlock(_ => condition());
 	}
 }

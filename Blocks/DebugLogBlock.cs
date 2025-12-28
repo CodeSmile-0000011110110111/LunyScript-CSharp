@@ -9,7 +9,7 @@ namespace LunyScript.Blocks
 	/// Debug-only logging block. Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 	/// Posts to both Luny internal log and engine logging.
 	/// </summary>
-	public sealed class DebugLogBlock : IBlock
+	internal sealed class DebugLogBlock : IBlock
 	{
 		private readonly String _message;
 

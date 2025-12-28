@@ -120,7 +120,7 @@ namespace LunyScript.Registries
 		/// </summary>
 		public void Clear()
 		{
-			ScriptContext.GlobalVariables.Clear();
+			ScriptContext.ClearGlobalVariables();
 			_contextsByObjectID.Clear();
 			_sortedContexts = Array.Empty<ScriptContext>();
 			_needsSort = false;

@@ -1,3 +1,4 @@
+using Luny.Diagnostics;
 using Luny.Interfaces;
 using Luny.Proxies;
 using LunyScript.Diagnostics;
@@ -8,16 +9,29 @@ using System.Text;
 
 namespace LunyScript
 {
+	public interface IScriptContext
+	{
+		ScriptDefinition ScriptDef { get; }
+		ScriptID ScriptID { get; }
+		Type ScriptType { get; }
+		ILunyEngine Engine { get; }
+		LunyObject EngineObject { get; }
+		Variables GlobalVariables { get; }
+		Variables LocalVariables { get; }
+	}
+
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered runnables.
 	/// </summary>
-	public sealed class ScriptContext
+	public sealed class ScriptContext : IScriptContext
 	{
 		/// <summary>
 		/// Reference to global variables shared across all scripts.
 		/// </summary>
-		public static Variables GlobalVariables { get; } = new();
+		private static readonly Variables _GlobalVariables = new();
+
+		public Variables GlobalVariables { get; } = _GlobalVariables;
 
 		/// <summary>
 		/// The script definition this context uses.
@@ -79,6 +93,10 @@ namespace LunyScript
 		/// </summary>
 		internal List<IRunnable> RunnablesScheduledInLateUpdate { get; }
 
+		internal static void ClearGlobalVariables() => _GlobalVariables?.Clear();
+
+		internal static IVariables GetGlobalVariables() => _GlobalVariables;
+
 		public ScriptContext(ScriptDefinition definition, LunyObject engineObject, ILunyEngine engine)
 		{
 			ScriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
@@ -95,6 +113,31 @@ namespace LunyScript
 			RunnablesScheduledInFixedStep = new List<IRunnable>();
 			RunnablesScheduledInUpdate = new List<IRunnable>();
 			RunnablesScheduledInLateUpdate = new List<IRunnable>();
+		}
+
+		internal void ScheduleRunnable(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent)
+		{
+			switch (lifecycleEvent)
+			{
+				case ObjectLifecycleEvents.OnFixedStep:
+					RunnablesScheduledInFixedStep.Add(runnable);
+					break;
+				case ObjectLifecycleEvents.OnUpdate:
+					RunnablesScheduledInUpdate.Add(runnable);
+					break;
+				case ObjectLifecycleEvents.OnLateUpdate:
+					RunnablesScheduledInLateUpdate.Add(runnable);
+					break;
+
+				case ObjectLifecycleEvents.OnCreate:
+				case ObjectLifecycleEvents.OnDestroy:
+				case ObjectLifecycleEvents.OnEnable:
+				case ObjectLifecycleEvents.OnDisable:
+				case ObjectLifecycleEvents.OnReady:
+				default:
+					throw new ArgumentOutOfRangeException(nameof(lifecycleEvent), lifecycleEvent,
+						"Scheduling of this event type is not implemented yet");
+			}
 		}
 
 		public override String ToString()

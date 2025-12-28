@@ -1,4 +1,5 @@
-﻿using LunyScript.Execution;
+﻿using Luny.Diagnostics;
+using LunyScript.Execution;
 using LunyScript.Interfaces;
 
 namespace LunyScript
@@ -12,7 +13,7 @@ namespace LunyScript
 				return;
 
 			var runnable = new RunnableSequence(blocks);
-			_context.RunnablesScheduledInFixedStep.Add(runnable);
+			(_context as ScriptContext).ScheduleRunnable(runnable, ObjectLifecycleEvents.OnFixedStep);
 		}
 
 		protected void OnUpdate(params IBlock[] blocks)
@@ -21,7 +22,7 @@ namespace LunyScript
 				return;
 
 			var runnable = new RunnableSequence(blocks);
-			_context.RunnablesScheduledInUpdate.Add(runnable);
+			(_context as ScriptContext).ScheduleRunnable(runnable, ObjectLifecycleEvents.OnUpdate);
 		}
 
 		protected void OnLateUpdate(params IBlock[] blocks)
@@ -30,7 +31,7 @@ namespace LunyScript
 				return;
 
 			var runnable = new RunnableSequence(blocks);
-			_context.RunnablesScheduledInLateUpdate.Add(runnable);
+			(_context as ScriptContext).ScheduleRunnable(runnable, ObjectLifecycleEvents.OnLateUpdate);
 		}
 	}
 }

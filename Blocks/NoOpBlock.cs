@@ -1,4 +1,5 @@
 ﻿using LunyScript.Interfaces;
+using System.Diagnostics;
 
 namespace LunyScript.Blocks
 {

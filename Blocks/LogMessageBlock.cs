@@ -7,7 +7,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Logs a message to the engine's logging system.
 	/// </summary>
-	public sealed class LogMessageBlock : IBlock
+	internal sealed class LogMessageBlock : IBlock
 	{
 		private readonly String _message;
 

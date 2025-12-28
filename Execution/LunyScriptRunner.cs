@@ -1,3 +1,4 @@
+using Luny;
 using Luny.Diagnostics;
 using Luny.Interfaces;
 using LunyScript.Diagnostics;
@@ -16,35 +17,37 @@ namespace LunyScript.Execution
 	/// </summary>
 	internal sealed class LunyScriptRunner : IEngineLifecycleObserver
 	{
-		private ILunyEngine _engine;
 		private ILunyScriptEngine _scriptEngine;
 		private ScriptRegistry _scriptRegistry;
 		private ScriptContextRegistry _contextRegistry;
 		private ScenePreprocessor _scenePreprocessor;
 
-		internal ILunyEngine Engine => _engine;
 		internal ScriptRegistry Scripts => _scriptRegistry;
 		internal ScriptContextRegistry Contexts => _contextRegistry;
 
-		public void OnStartup(ILunyEngine engine)
+		public LunyScriptRunner()
 		{
-			LunyLogger.LogInfo("LunyScriptRunner starting up...", this);
-			_engine = engine;
+			LunyLogger.LogInfo($"{nameof(LunyScriptRunner)} ctor runs", this);
+
+			// Instantiate public API singleton
+			_scriptEngine = new LunyScriptEngine(this);
 
 			// Initialize registries
 			_scriptRegistry = new ScriptRegistry();
 			_contextRegistry = new ScriptContextRegistry();
 			_scenePreprocessor = new ScenePreprocessor(this);
+		}
 
-			// Instantiate public API singleton
-			_scriptEngine = new LunyScriptEngine(this);
+		public void OnStartup()
+		{
+			LunyLogger.LogInfo($"{nameof(LunyScriptRunner)} {nameof(OnStartup)}", this);
 
 			// Process current scene to bind scripts to objects
 			_scriptRegistry.DiscoverScripts();
 			_scenePreprocessor.ProcessSceneObjects();
 			ActivateScripts();
 
-			LunyLogger.LogInfo("LunyScriptRunner initialized successfully", this);
+			LunyLogger.LogInfo($"{nameof(LunyScriptRunner)} initialization complete", this);
 		}
 
 		public void OnFixedStep(Double fixedDeltaTime)
@@ -90,13 +93,12 @@ namespace LunyScript.Execution
 			_scenePreprocessor = null;
 			(_scriptEngine as LunyScriptEngine).Shutdown();
 			_scriptEngine = null;
-			_engine = null;
 		}
 
 		private void ExecuteRunnable(IRunnable runnable, ScriptContext context)
 		{
 			// TODO: avoid profiling overhead when not enabled
-			var timeService = _engine.Time;
+			var timeService = LunyEngine.Instance.Time;
 			var blockType = runnable.GetType();
 			var trace = new ExecutionTrace
 			{

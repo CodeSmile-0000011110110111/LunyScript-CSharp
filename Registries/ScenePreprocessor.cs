@@ -1,3 +1,4 @@
+using Luny;
 using Luny.Diagnostics;
 using LunyScript.Execution;
 using System;
@@ -24,16 +25,17 @@ namespace LunyScript.Registries
 		/// </summary>
 		public void ProcessSceneObjects()
 		{
-			var scene = _scriptRunner.Engine.Scene;
+			var engine = LunyEngine.Instance;
+			var scene = engine.Scene;
+			var scripts = _scriptRunner.Scripts;
+			var contexts = _scriptRunner.Contexts;
+
 			var allSceneObjects = scene.GetAllObjects();
 			if (allSceneObjects == null || allSceneObjects.Count == 0)
 				throw new Exception($"No objects found in scene: {scene.CurrentSceneName}");
 
 			var matchedCount = 0;
 			var processedNames = new HashSet<String>();
-			var scripts = _scriptRunner.Scripts;
-			var contexts = _scriptRunner.Contexts;
-			var engine = _scriptRunner.Engine;
 
 			foreach (var sceneObject in allSceneObjects)
 			{

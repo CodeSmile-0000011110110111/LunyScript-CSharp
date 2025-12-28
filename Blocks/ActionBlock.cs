@@ -7,7 +7,7 @@ namespace LunyScript.Blocks
 	/// Executes a custom action/lambda.
 	/// Useful for quick tests and one-off logic.
 	/// </summary>
-	public sealed class ActionBlock : IBlock
+	internal sealed class ActionBlock : IBlock
 	{
 		private readonly Action<ScriptContext> _action;
 
