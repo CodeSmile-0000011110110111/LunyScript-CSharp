@@ -26,6 +26,8 @@ namespace LunyScript
 	/// </remarks>
 	public abstract partial class LunyScript
 	{
+		// temporary 'singleton' for static subclasses (eg 'Every')
+		private static LunyScript _instance;
 		private IScriptContext _context;
 
 		/// <summary>
@@ -82,27 +84,17 @@ namespace LunyScript
 		/// <returns></returns>
 		protected static IBlock Run(Action action) => new RunActionBlock(_ => action());
 
-		internal void Initialize(IScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
+		internal void Initialize(IScriptContext context)
+		{
+			_instance = this;
+			_context = context ?? throw new ArgumentNullException(nameof(context));
+		}
 
-		// User-facing API: Runnable registration
-		/// <summary>
-		/// Schedules blocks to run on fixed-rate updates.
-		/// Scheduling depends on engine and Time settings, but typically runs 30 or 50 times per second.
-		/// May run multiple times per frame and may not run in every frame.
-		/// It's therefore unsuitable for once-only events, such as Input.
-		/// </summary>
-		/// <param name="blocks"></param>
-		protected void OnFixedStep(params IBlock[] blocks) => Schedule(CreateSequence(blocks), ObjectLifecycleEvents.OnFixedStep);
-		/// <summary>
-		/// Schedules blocks to run on every-frame updates.
-		/// </summary>
-		/// <param name="blocks"></param>
-		protected void OnUpdate(params IBlock[] blocks) => Schedule(CreateSequence(blocks), ObjectLifecycleEvents.OnUpdate);
-		/// <summary>
-		/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
-		/// </summary>
-		/// <param name="blocks"></param>
-		protected void OnLateUpdate(params IBlock[] blocks) => Schedule(CreateSequence(blocks), ObjectLifecycleEvents.OnLateUpdate);
+		internal void Shutdown()
+		{
+			_context = null;
+			_instance = null;
+		}
 
 		/// <summary>
 		/// Called once when the script is initialized.
@@ -131,12 +123,46 @@ namespace LunyScript
 			public static IBlock Break(String message = null) => new DebugBreakBlock(message);
 		}
 
+		/// <summary>
+		/// Provides Editor-only functionality.
+		/// In builds these blocks are ignored (no-op).
+		/// </summary>
 		public static class Editor
 		{
 			/// <summary>
-			/// Pauses playmode. Editor only.
+			/// Pauses playmode.
 			/// </summary>
 			public static IBlock PausePlayer(String message = null) => new EditorPausePlayerBlock(message);
+		}
+
+		/// <summary>
+		/// Provides scheduling of frequently repeating events.
+		/// </summary>
+		public static class Every
+		{
+			/// <summary>
+			/// Schedules blocks to run on fixed-rate updates.
+			/// Scheduling depends on engine and Time settings, but typically runs 30 or 50 times per second.
+			/// May run multiple times per frame and may not run in every frame.
+			/// It's therefore unsuitable for once-only events, such as Input.
+			/// </summary>
+			/// <param name="blocks"></param>
+			public static void FixedStep(params IBlock[] blocks) =>
+				_instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnFixedStep);
+
+			/// <summary>
+			/// Schedules blocks to run on every-frame updates.
+			/// </summary>
+			/// <param name="blocks"></param>
+			public static void Frame(params IBlock[] blocks) =>
+				_instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnUpdate);
+
+			/// <summary>
+			/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
+			/// </summary>
+			/// <param name="blocks"></param>
+			public static void FrameEnd(params IBlock[] blocks) =>
+				_instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnLateUpdate);
 		}
 	}
 }

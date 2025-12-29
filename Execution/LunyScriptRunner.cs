@@ -144,7 +144,7 @@ namespace LunyScript.Execution
 					var scriptInstance = (LunyScript)Activator.CreateInstance(scriptDef.Type);
 					scriptInstance.Initialize(context);
 					scriptInstance.Build();
-					// script instance goes out of scope, they build runnables
+					scriptInstance.Shutdown();
 					activatedCount++;
 
 					LunyLogger.LogInfo($"Built: {scriptDef} for {context.EngineObject}", this);
