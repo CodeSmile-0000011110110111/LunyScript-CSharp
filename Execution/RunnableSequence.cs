@@ -11,6 +11,7 @@ namespace LunyScript.Execution
 	{
 		public RunnableID ID { get; }
 		public IReadOnlyList<IBlock> Children { get; }
+		public Boolean IsEmpty => Children.Count == 0;
 
 		public RunnableSequence(IReadOnlyList<IBlock> blocks)
 		{

@@ -10,7 +10,7 @@ namespace LunyScript.Registries
 	/// Discovers and manages LunyScript definitions.
 	/// Supports both reflection-based discovery and manual registration.
 	/// </summary>
-	internal sealed class ScriptRegistry
+	internal sealed class ScriptDefinitionRegistry
 	{
 		private readonly Dictionary<ScriptID, ScriptDefinition> _scriptsById = new();
 		private readonly Dictionary<String, ScriptDefinition> _scriptsByName = new();

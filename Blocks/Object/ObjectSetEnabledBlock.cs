@@ -7,19 +7,6 @@
 	/// </summary>
 	internal sealed class ObjectSetEnabledBlock : IBlock
 	{
-		public void Execute(IScriptContext context)
-		{
-			var lunyObject = context.LunyObject;
-			if (!lunyObject.Enabled)
-			{
-				lunyObject.Enabled = true;
-				InvokeStateChangedEvent(context);
-			}
-		}
-
-		public static void InvokeStateChangedEvent(IScriptContext context)
-		{
-			// TODO:
-		}
+		public void Execute(IScriptContext context) => context.SetObjectEnabled(true);
 	}
 }

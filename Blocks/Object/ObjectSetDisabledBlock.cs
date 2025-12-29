@@ -7,14 +7,6 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class ObjectSetDisabledBlock : IBlock
 	{
-		public void Execute(IScriptContext context)
-		{
-			var lunyObject = context.LunyObject;
-			if (lunyObject.Enabled)
-			{
-				lunyObject.Enabled = false;
-				ObjectSetEnabledBlock.InvokeStateChangedEvent(context);
-			}
-		}
+		public void Execute(IScriptContext context) => context.SetObjectEnabled(false);
 	}
 }

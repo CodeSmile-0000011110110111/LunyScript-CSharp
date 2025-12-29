@@ -8,6 +8,15 @@ using System.Text;
 
 namespace LunyScript
 {
+	public sealed class VariableChangedEventArgs : EventArgs
+	{
+		public String Name { get; internal set; }
+		public Variable Variable { get; internal set; }
+		public Variable PreviousVariable { get; internal set; }
+
+		public override String ToString() => $"Variable '{Name}' changed: {PreviousVariable} -> {Variable}";
+	}
+
 	/// <summary>
 	/// Dictionary-based variable storage for LunyScript contexts.
 	/// </summary>
@@ -131,8 +140,8 @@ namespace LunyScript
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			CachedChangedEventArgs.Name = key;
-			CachedChangedEventArgs.OldValue = oldValue;
-			CachedChangedEventArgs.NewValue = newValue;
+			CachedChangedEventArgs.PreviousVariable = oldValue;
+			CachedChangedEventArgs.Variable = newValue;
 			OnVariableChanged?.Invoke(this, CachedChangedEventArgs);
 #endif
 		}

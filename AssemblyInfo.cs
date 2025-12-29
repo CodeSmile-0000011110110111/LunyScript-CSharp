@@ -6,6 +6,10 @@
 [assembly: InternalsVisibleTo(nameof(LunyScript) + ".Unity")]
 [assembly: InternalsVisibleTo(nameof(LunyScript) + ".UnityEditor")]
 
+// Rider can't handle 'nameof' generated strings apparently
+[assembly: InternalsVisibleTo("LunyScript.Unity")]
+[assembly: InternalsVisibleTo("LunyScript.UnityEditor")]
+
 // reserved namespaces for future C# engine implementations
 [assembly: InternalsVisibleTo(nameof(LunyScript) + ".Cocos")] // no C# support (yet)
 [assembly: InternalsVisibleTo(nameof(LunyScript) + ".CocosEditor")]

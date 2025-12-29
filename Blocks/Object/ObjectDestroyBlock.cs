@@ -11,6 +11,6 @@ namespace LunyScript.Blocks
 
 		public ObjectDestroyBlock(String name) => _objectName = name;
 
-		public void Execute(IScriptContext context) => throw new NotImplementedException();
+		public void Execute(IScriptContext context) => throw new NotImplementedException(nameof(ObjectDestroyBlock));
 	}
 }

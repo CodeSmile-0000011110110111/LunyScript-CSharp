@@ -11,5 +11,6 @@ namespace LunyScript
 	{
 		RunnableID ID { get; }
 		IReadOnlyList<IBlock> Children { get; }
+		bool IsEmpty { get; }
 	}
 }

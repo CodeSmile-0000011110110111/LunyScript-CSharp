@@ -1,7 +1,9 @@
 using Luny;
 using Luny.Proxies;
 using LunyScript.Diagnostics;
+using LunyScript.Exceptions;
 using LunyScript.Execution;
+using LunyScript.Registries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,9 @@ using System.Text;
 
 namespace LunyScript
 {
+	// alias required within LunyScript due to namespace/class clash
+	using ScriptEngine = LunyScriptEngine;
+
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered runnables.
@@ -18,9 +23,11 @@ namespace LunyScript
 		ScriptID ScriptID { get; }
 		Type ScriptType { get; }
 		ILunyEngine LunyEngine { get; }
+		ILunyScriptEngine LunyScriptEngine { get; }
 		ILunyObject LunyObject { get; }
 		IVariables GlobalVariables { get; }
 		IVariables LocalVariables { get; }
+		void SetObjectEnabled(Boolean enabled);
 	}
 
 	/// <summary>
@@ -30,16 +37,19 @@ namespace LunyScript
 	internal sealed class ScriptContext : IScriptContext
 	{
 		private static readonly Variables _GlobalVariables = new();
+		private static Boolean EnableDisableEventProcessingSafeguard;
 
 		private readonly IScriptDefinition _scriptDef;
-		private readonly ILunyObject _engineObject;
-		private readonly IVariables _localVariables;
+		private readonly ILunyObject _lunyObject;
+		//private readonly ScriptContextRegistry _contexts;
+
+		internal Boolean DidRunOnReady { get; set; }
+		internal Boolean DidRunOnDestroy { get; set; }
 
 		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
 		public ScriptID ScriptID => _scriptDef.ScriptID;
-
 		/// <summary>
 		/// The C# Type of the script (for hot reload matching).
 		/// </summary>
@@ -49,9 +59,13 @@ namespace LunyScript
 		/// </summary>
 		public ILunyEngine LunyEngine => Luny.LunyEngine.Instance;
 		/// <summary>
+		/// The LunyScriptEngine instance.
+		/// </summary>
+		public ILunyScriptEngine LunyScriptEngine => ScriptEngine.Instance;
+		/// <summary>
 		/// The engine object/node this script operates on.
 		/// </summary>
-		public ILunyObject LunyObject => _engineObject;
+		public ILunyObject LunyObject => _lunyObject;
 
 		/// <summary>
 		/// Global variables shared across all scripts.
@@ -60,7 +74,7 @@ namespace LunyScript
 		/// <summary>
 		/// Per-object variables for this script instance.
 		/// </summary>
-		public IVariables LocalVariables => _localVariables;
+		public IVariables LocalVariables { get; } = new Variables();
 
 		/// <summary>
 		/// Debugging hooks for execution tracing and breakpoints.
@@ -72,63 +86,96 @@ namespace LunyScript
 		/// </summary>
 		internal BlockProfiler BlockProfiler { get; }
 
-		/// <summary>
-		/// Runnables registered to execute on FixedStep.
-		/// </summary>
-		internal IList<IRunnable> RunnablesScheduledInFixedStep { get; }
-
-		/// <summary>
-		/// Runnables registered to execute on Update.
-		/// </summary>
-		internal IList<IRunnable> RunnablesScheduledInUpdate { get; }
-
-		/// <summary>
-		/// Runnables registered to execute on LateUpdate.
-		/// </summary>
-		internal IList<IRunnable> RunnablesScheduledInLateUpdate { get; }
+		internal IList<IRunnable> ScheduledOnCreate { get; private set; }
+		internal IList<IRunnable> ScheduledOnDestroy { get; private set; }
+		internal IList<IRunnable> ScheduledOnEnable { get; private set; }
+		internal IList<IRunnable> ScheduledOnDisable { get; private set; }
+		internal IList<IRunnable> ScheduledOnReady { get; private set; }
+		internal IList<IRunnable> ScheduledOnFixedStep { get; private set; }
+		internal IList<IRunnable> ScheduledOnUpdate { get; private set; }
+		internal IList<IRunnable> ScheduledOnLateUpdate { get; private set; }
 
 		internal static void ClearGlobalVariables() => _GlobalVariables?.Clear();
 
 		internal static IVariables GetGlobalVariables() => _GlobalVariables;
 
-		public ScriptContext(IScriptDefinition definition, ILunyObject engineObject)
+		public ScriptContext(IScriptDefinition definition, ILunyObject lunyObject, ScriptContextRegistry contexts)
 		{
 			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
-			_engineObject = engineObject ?? throw new ArgumentNullException(nameof(engineObject));
-
-			_localVariables = new Variables();
+			_lunyObject = lunyObject ?? throw new ArgumentNullException(nameof(lunyObject));
+			//_contexts = contexts ?? throw new ArgumentNullException(nameof(contexts));
 
 			// TODO: don't create these unless enabled
 			DebugHooks = new DebugHooks();
 			BlockProfiler = new BlockProfiler();
-
-			RunnablesScheduledInFixedStep = new List<IRunnable>();
-			RunnablesScheduledInUpdate = new List<IRunnable>();
-			RunnablesScheduledInLateUpdate = new List<IRunnable>();
 		}
 
-		internal void ScheduleRunnable(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent)
+		public void SetObjectEnabled(Boolean enabled)
 		{
-			if (runnable == null)
+			var objectEnabled = _lunyObject.Enabled;
+			if (enabled && !objectEnabled || !enabled && objectEnabled)
+			{
+				_lunyObject.Enabled = enabled;
+
+				if (EnableDisableEventProcessingSafeguard)
+				{
+					EnableDisableEventProcessingSafeguard = false;
+					throw new LunyScriptException(
+						$"Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed (infinite loop). Script: {this}");
+				}
+
+				EnableDisableEventProcessingSafeguard = true;
+				if (enabled)
+					LunyScriptRunner.RunObjectEnabled(this);
+				else
+					LunyScriptRunner.RunObjectDisabled(this);
+				EnableDisableEventProcessingSafeguard = false;
+			}
+		}
+
+		internal void Schedule(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent)
+		{
+			if (runnable == null || runnable.IsEmpty)
 				return;
 
 			switch (lifecycleEvent)
 			{
-				case ObjectLifecycleEvents.OnFixedStep:
-					RunnablesScheduledInFixedStep.Add(runnable);
+				case ObjectLifecycleEvents.OnCreate:
+					ScheduledOnCreate ??= new List<IRunnable>();
+					ScheduledOnCreate.Add(runnable);
 					break;
-				case ObjectLifecycleEvents.OnUpdate:
-					RunnablesScheduledInUpdate.Add(runnable);
-					break;
-				case ObjectLifecycleEvents.OnLateUpdate:
-					RunnablesScheduledInLateUpdate.Add(runnable);
+				case ObjectLifecycleEvents.OnDestroy:
+					ScheduledOnDestroy ??= new List<IRunnable>();
+					ScheduledOnDestroy.Add(runnable);
 					break;
 
-				case ObjectLifecycleEvents.OnCreate:
-				case ObjectLifecycleEvents.OnDestroy:
 				case ObjectLifecycleEvents.OnEnable:
+					ScheduledOnEnable ??= new List<IRunnable>();
+					ScheduledOnEnable.Add(runnable);
+					break;
 				case ObjectLifecycleEvents.OnDisable:
+					ScheduledOnDisable ??= new List<IRunnable>();
+					ScheduledOnDisable.Add(runnable);
+					break;
+
 				case ObjectLifecycleEvents.OnReady:
+					ScheduledOnReady ??= new List<IRunnable>();
+					ScheduledOnReady.Add(runnable);
+					break;
+
+				case ObjectLifecycleEvents.OnFixedStep:
+					ScheduledOnFixedStep ??= new List<IRunnable>();
+					ScheduledOnFixedStep.Add(runnable);
+					break;
+				case ObjectLifecycleEvents.OnUpdate:
+					ScheduledOnUpdate ??= new List<IRunnable>();
+					ScheduledOnUpdate.Add(runnable);
+					break;
+				case ObjectLifecycleEvents.OnLateUpdate:
+					ScheduledOnLateUpdate ??= new List<IRunnable>();
+					ScheduledOnLateUpdate.Add(runnable);
+					break;
+
 				default:
 					throw new ArgumentOutOfRangeException(nameof(lifecycleEvent), lifecycleEvent,
 						"Scheduling of this event type is not implemented yet");
@@ -138,11 +185,8 @@ namespace LunyScript
 		public override String ToString()
 		{
 			var sb = new StringBuilder();
-			sb.AppendLine($"RunContext: {ScriptType.Name} ({ScriptID}) -> {LunyObject}");
+			sb.AppendLine($"{nameof(ScriptContext)}: {ScriptType.Name} ({ScriptID}) -> {LunyObject}");
 			sb.AppendLine($"  Valid: {LunyObject.IsValid}");
-			sb.AppendLine($"  FixedStep Runnables: {RunnablesScheduledInFixedStep.Count}");
-			sb.AppendLine($"  Update Runnables: {RunnablesScheduledInUpdate.Count}");
-			sb.AppendLine($"  LateUpdate Runnables: {RunnablesScheduledInLateUpdate.Count}");
 
 			if (LocalVariables.Count() > 0)
 				sb.Append($"  {LocalVariables}");

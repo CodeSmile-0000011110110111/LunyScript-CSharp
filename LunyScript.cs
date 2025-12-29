@@ -35,7 +35,7 @@ namespace LunyScript
 	public abstract partial class LunyScript : ILunyScript
 	{
 		// temporary 'singleton' for static subclasses (eg 'Every')
-		private static LunyScript _lunyScript;
+		private static LunyScript _script;
 
 		private IScriptContext _context;
 
@@ -99,14 +99,14 @@ namespace LunyScript
 
 		internal void Initialize(IScriptContext context)
 		{
-			_lunyScript = this;
+			_script = this;
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
 		internal void Shutdown() =>
 			// FIXME: keep context - Lambdas capturing context would throw if they access LunyScript properties
 			// _context = null;
-			_lunyScript = null;
+			_script = null;
 
 		/// <summary>
 		/// Called once when the script is initialized.
@@ -144,7 +144,7 @@ namespace LunyScript
 			/// <summary>
 			/// Pauses playmode.
 			/// </summary>
-			public static IBlock PausePlayer(String message = null) => _lunyScript.IsEditor ? null : new EditorPausePlayerBlock(message);
+			public static IBlock PausePlayer(String message = null) => _script.IsEditor ? null : new EditorPausePlayerBlock(message);
 		}
 
 		/// <summary>
@@ -152,32 +152,32 @@ namespace LunyScript
 		/// </summary>
 		public static class Object
 		{
-			public static void SetEnabled() => new ObjectSetEnabledBlock();
-			public static void SetDisabled() => new ObjectSetDisabledBlock();
+			public static IBlock SetEnabled(String name = null) => new ObjectSetEnabledBlock();
+			public static IBlock SetDisabled(String name = null) => new ObjectSetDisabledBlock();
 
-			public static void CreateEmpty(String name) => new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Empty));
-			public static void CreateFrom(String prefabName) => new ObjectCreateBlock(new CreateObject(prefabName, ObjectCreateType.Prefab));
-			public static void CreateClone(String objectName) => new ObjectCreateBlock(new CreateObject(objectName, ObjectCreateType.Clone));
+			public static IBlock CreateEmpty(String name) => new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Empty));
+			public static IBlock CreatePrefab(String prefabName) => new ObjectCreateBlock(new CreateObject(prefabName, ObjectCreateType.Prefab));
+			public static IBlock CreateClone(String originalName) => new ObjectCreateBlock(new CreateObject(originalName, ObjectCreateType.Clone));
 
-			public static void CreateCube(String name) =>
+			public static IBlock CreateCube(String name = null) =>
 				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Cube));
 
-			public static void CreateSphere(String name) =>
+			public static IBlock CreateSphere(String name = null) =>
 				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Sphere));
 
-			public static void CreateCapsule(String name) =>
+			public static IBlock CreateCapsule(String name = null) =>
 				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Capsule));
 
-			public static void CreateCylinder(String name) =>
+			public static IBlock CreateCylinder(String name = null) =>
 				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Cylinder));
 
-			public static void CreatePlane(String name) =>
+			public static IBlock CreatePlane(String name = null) =>
 				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Plane));
 
-			public static void CreateQuad(String name) =>
+			public static IBlock CreateQuad(String name = null) =>
 				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Quad));
 
-			public static void Destroy(String name) => new ObjectDestroyBlock(name);
+			public static IBlock Destroy(String name = null) => new ObjectDestroyBlock(name);
 		}
 	}
 }

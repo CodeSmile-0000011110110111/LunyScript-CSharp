@@ -26,8 +26,8 @@ namespace LunyScript.Registries
 		public void ProcessSceneObjects()
 		{
 			var scene = LunyEngine.Instance.Scene;
-			var scripts = _scriptRunner.Scripts;
-			var contexts = _scriptRunner.Contexts;
+			var scriptRegistry = _scriptRunner.Scripts;
+			var contextRegistry = _scriptRunner.Contexts;
 
 			var allSceneObjects = scene.GetAllObjects();
 			if (allSceneObjects == null || allSceneObjects.Count == 0)
@@ -44,12 +44,12 @@ namespace LunyScript.Registries
 				var objectName = sceneObject.Name;
 
 				// Check if we have a script matching this object's name
-				var scriptDef = scripts.GetByName(objectName);
+				var scriptDef = scriptRegistry.GetByName(objectName);
 				if (scriptDef != null)
 				{
 					// Create run context for this object-script pair
-					var context = new ScriptContext(scriptDef, sceneObject);
-					contexts.Register(context);
+					var context = new ScriptContext(scriptDef, sceneObject, contextRegistry);
+					contextRegistry.Register(context);
 					matchedCount++;
 
 					if (!processedNames.Contains(objectName))
