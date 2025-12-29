@@ -10,10 +10,10 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class RunActionBlock : IBlock
 	{
-		private readonly Action<ScriptContext> _action;
+		private readonly Action<IScriptContext> _action;
 
-		public RunActionBlock(Action<ScriptContext> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
+		public RunActionBlock(Action<IScriptContext> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
 
-		public void Execute(ScriptContext context) => _action(context);
+		public void Execute(IScriptContext context) => _action(context);
 	}
 }

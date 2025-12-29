@@ -1,73 +1,66 @@
 using Luny;
-using Luny.Diagnostics;
-using Luny.Interfaces;
 using Luny.Proxies;
 using LunyScript.Diagnostics;
 using LunyScript.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace LunyScript
 {
+	/// <summary>
+	/// Runtime context for a LunyScript instance operating on a specific object.
+	/// Contains the script metadata, object reference, variables, and registered runnables.
+	/// </summary>
 	public interface IScriptContext
 	{
-		ScriptDefinition ScriptDef { get; }
 		ScriptID ScriptID { get; }
 		Type ScriptType { get; }
 		ILunyEngine Engine { get; }
-		LunyObject EngineObject { get; }
-		Variables GlobalVariables { get; }
-		Variables LocalVariables { get; }
+		ILunyObject EngineObject { get; }
+		IVariables GlobalVariables { get; }
+		IVariables LocalVariables { get; }
 	}
 
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered runnables.
 	/// </summary>
-	public sealed class ScriptContext : IScriptContext
+	internal sealed class ScriptContext : IScriptContext
 	{
-		/// <summary>
-		/// Reference to global variables shared across all scripts.
-		/// </summary>
 		private static readonly Variables _GlobalVariables = new();
 
-		public Variables GlobalVariables { get; } = _GlobalVariables;
-
-		/// <summary>
-		/// The script definition this context uses.
-		/// </summary>
-		public ScriptDefinition ScriptDef { get; }
+		private readonly IScriptDefinition _scriptDef;
+		private readonly ILunyObject _engineObject;
+		private readonly IVariables _localVariables;
 
 		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
-		public ScriptID ScriptID => ScriptDef.ScriptID;
+		public ScriptID ScriptID => _scriptDef.ScriptID;
 
 		/// <summary>
 		/// The C# Type of the script (for hot reload matching).
 		/// </summary>
-		public Type ScriptType => ScriptDef.Type;
-
+		public Type ScriptType => _scriptDef.Type;
 		/// <summary>
 		/// The LunyEngine instance.
 		/// </summary>
-		public ILunyEngine Engine { get; set; }
-
+		public ILunyEngine Engine => LunyEngine.Instance;
 		/// <summary>
 		/// The engine object/node this script operates on.
 		/// </summary>
-		public LunyObject EngineObject { get; }
+		public ILunyObject EngineObject => _engineObject;
 
+		/// <summary>
+		/// Global variables shared across all scripts.
+		/// </summary>
+		public IVariables GlobalVariables { get; } = _GlobalVariables;
 		/// <summary>
 		/// Per-object variables for this script instance.
 		/// </summary>
-		public Variables LocalVariables { get; }
-
-		/// <summary>
-		/// Inspector-set variables (populated by engine-specific bridge).
-		/// </summary>
-		internal Variables InspectorVariables { get; }
+		public IVariables LocalVariables => _localVariables;
 
 		/// <summary>
 		/// Debugging hooks for execution tracing and breakpoints.
@@ -82,30 +75,28 @@ namespace LunyScript
 		/// <summary>
 		/// Runnables registered to execute on FixedStep.
 		/// </summary>
-		internal List<IRunnable> RunnablesScheduledInFixedStep { get; }
+		internal IList<IRunnable> RunnablesScheduledInFixedStep { get; }
 
 		/// <summary>
 		/// Runnables registered to execute on Update.
 		/// </summary>
-		internal List<IRunnable> RunnablesScheduledInUpdate { get; }
+		internal IList<IRunnable> RunnablesScheduledInUpdate { get; }
 
 		/// <summary>
 		/// Runnables registered to execute on LateUpdate.
 		/// </summary>
-		internal List<IRunnable> RunnablesScheduledInLateUpdate { get; }
+		internal IList<IRunnable> RunnablesScheduledInLateUpdate { get; }
 
 		internal static void ClearGlobalVariables() => _GlobalVariables?.Clear();
 
 		internal static IVariables GetGlobalVariables() => _GlobalVariables;
 
-		public ScriptContext(ScriptDefinition definition, LunyObject engineObject, ILunyEngine engine)
+		public ScriptContext(IScriptDefinition definition, ILunyObject engineObject)
 		{
-			ScriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
-			EngineObject = engineObject ?? throw new ArgumentNullException(nameof(engineObject));
-			Engine = engine ?? throw new ArgumentNullException(nameof(engine));
+			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
+			_engineObject = engineObject ?? throw new ArgumentNullException(nameof(engineObject));
 
-			LocalVariables = new Variables();
-			InspectorVariables = new Variables();
+			_localVariables = new Variables();
 
 			// TODO: don't create these unless enabled
 			DebugHooks = new DebugHooks();
@@ -153,7 +144,7 @@ namespace LunyScript
 			sb.AppendLine($"  Update Runnables: {RunnablesScheduledInUpdate.Count}");
 			sb.AppendLine($"  LateUpdate Runnables: {RunnablesScheduledInLateUpdate.Count}");
 
-			if (LocalVariables.Count > 0)
+			if (LocalVariables.Count() > 0)
 				sb.Append($"  {LocalVariables}");
 
 			return sb.ToString();

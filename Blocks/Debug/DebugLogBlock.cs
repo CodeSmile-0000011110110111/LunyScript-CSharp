@@ -15,10 +15,10 @@ namespace LunyScript.Blocks
 
 		public DebugLogBlock(String message) => _message = message ?? throw new ArgumentNullException(nameof(message));
 
-		public void Execute(ScriptContext context) => DoLog(context);
+		public void Execute(IScriptContext context) => DoLog(context);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void DoLog(ScriptContext context)
+		private void DoLog(IScriptContext context)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			LunyLogger.LogInfo(_message, context.EngineObject);

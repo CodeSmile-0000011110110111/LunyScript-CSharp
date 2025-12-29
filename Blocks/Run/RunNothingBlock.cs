@@ -7,6 +7,6 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class RunNothingBlock : IBlock
 	{
-		public void Execute(ScriptContext context) {}
+		public void Execute(IScriptContext context) {}
 	}
 }

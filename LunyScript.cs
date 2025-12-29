@@ -7,6 +7,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace LunyScript
 {
+	public interface ILunyScript
+	{
+		ScriptID ScriptID { get; }
+		ILunyObject EngineObject { get; }
+		IVariables GlobalVariables { get; }
+		IVariables LocalVariables { get; }
+	}
+
 	/// <summary>
 	/// Abstract base class for all LunyScripts.
 	/// Provides the API interface for beginner-friendly visual scripting in C#.
@@ -24,32 +32,33 @@ namespace LunyScript
 	///			}
 	///		}
 	/// </remarks>
-	public abstract partial class LunyScript
+	public abstract partial class LunyScript : ILunyScript
 	{
 		// temporary 'singleton' for static subclasses (eg 'Every')
 		private static LunyScript _instance;
+
 		private IScriptContext _context;
 
 		/// <summary>
 		/// ScriptID of the script for identification.
 		/// </summary>
-		protected ScriptID ScriptID => _context.ScriptID;
+		public ScriptID ScriptID => _context.ScriptID;
 		/// <summary>
 		/// Reference to proxy for engine object.
 		/// Caution: native engine reference could be null.
 		/// Check EngineObject.IsValid before accessing.
 		/// </summary>
-		[MaybeNull] protected LunyObject EngineObject => _context.EngineObject;
+		[MaybeNull] public ILunyObject EngineObject => _context.EngineObject;
 		// User-facing API: Variables
 		/// <summary>
 		/// Global variables which all objects and scripts can read/write.
 		/// </summary>
-		[NotNull] protected IVariables GlobalVariables => _context.GlobalVariables;
+		[NotNull] public IVariables GlobalVariables => _context.GlobalVariables;
 		/// <summary>
 		/// Local variables the current object and script owns.
 		/// If multiple objects run the same script, each object has its own unique set of local variables.
 		/// </summary>
-		[NotNull] protected IVariables LocalVariables => _context.LocalVariables;
+		[NotNull] public IVariables LocalVariables => _context.LocalVariables;
 
 		/// <summary>
 		/// Logs a message that appears in both debug and release builds.
@@ -92,7 +101,9 @@ namespace LunyScript
 
 		internal void Shutdown()
 		{
-			_context = null;
+			// FIXME: keep context - Lambdas capturing context would throw if they access LunyScript properties
+			// _context = null;
+
 			_instance = null;
 		}
 

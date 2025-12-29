@@ -6,6 +6,6 @@ namespace LunyScript.Interfaces
 	/// </summary>
 	public interface IBlock
 	{
-		void Execute(ScriptContext context);
+		void Execute(IScriptContext context);
 	}
 }

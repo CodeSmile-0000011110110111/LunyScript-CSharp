@@ -1,6 +1,5 @@
 using Luny;
 using Luny.Diagnostics;
-using Luny.Interfaces;
 using LunyScript.Diagnostics;
 using LunyScript.Interfaces;
 using LunyScript.Registries;
@@ -17,7 +16,7 @@ namespace LunyScript.Execution
 	/// </summary>
 	internal sealed class LunyScriptRunner : IEngineLifecycleObserver
 	{
-		private ILunyScriptEngine _scriptEngine;
+		private LunyScriptEngine _scriptEngine;
 		private ScriptRegistry _scriptRegistry;
 		private ScriptContextRegistry _contextRegistry;
 		private ScenePreprocessor _scenePreprocessor;
@@ -91,7 +90,7 @@ namespace LunyScript.Execution
 			_contextRegistry?.Clear();
 			_scriptRegistry?.Clear();
 			_scenePreprocessor = null;
-			(_scriptEngine as LunyScriptEngine).Shutdown();
+			_scriptEngine.Shutdown();
 			_scriptEngine = null;
 		}
 
@@ -121,7 +120,7 @@ namespace LunyScript.Execution
 				context.BlockProfiler.RecordError(runnable.ID, ex);
 				trace.Error = ex;
 				context.DebugHooks.NotifyBlockError(trace);
-				LunyLogger.LogException(ex, context.EngineObject);
+				throw;
 			}
 			finally
 			{
@@ -137,21 +136,21 @@ namespace LunyScript.Execution
 			var activatedCount = 0;
 			foreach (var context in _contextRegistry.AllContexts)
 			{
-				var scriptDef = context.ScriptDef;
 				try
 				{
+					LunyLogger.LogInfo($"Building script {context.ScriptType} for {context.EngineObject}", this);
+
 					// Create script instance, initialize with context, and call Build()
-					var scriptInstance = (LunyScript)Activator.CreateInstance(scriptDef.Type);
+					var scriptInstance = (LunyScript)Activator.CreateInstance(context.ScriptType);
 					scriptInstance.Initialize(context);
 					scriptInstance.Build();
 					scriptInstance.Shutdown();
 					activatedCount++;
-
-					LunyLogger.LogInfo($"Built: {scriptDef} for {context.EngineObject}", this);
 				}
 				catch (Exception ex)
 				{
-					LunyLogger.LogError($"{scriptDef} failed to build: {ex.Message}\n{ex.StackTrace}", this);
+					LunyLogger.LogError($"{context.ScriptType} failed to build: {ex.Message}\n{ex.StackTrace}", this);
+					throw;
 				}
 			}
 

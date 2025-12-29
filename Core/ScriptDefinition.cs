@@ -6,7 +6,18 @@ namespace LunyScript
 	/// Metadata for a discovered LunyScript type.
 	/// Represents the script ID and associated Type, not an instance.
 	/// </summary>
-	public sealed class ScriptDefinition
+	public interface IScriptDefinition
+	{
+		ScriptID ScriptID { get; }
+		Type Type { get; }
+		String Name { get; }
+	}
+
+	/// <summary>
+	/// Metadata for a discovered LunyScript type.
+	/// Represents the script ID and associated Type, not an instance.
+	/// </summary>
+	internal sealed class ScriptDefinition : IScriptDefinition
 	{
 		/// <summary>
 		/// Unique identifier for this script definition.
@@ -24,7 +35,7 @@ namespace LunyScript
 		/// </summary>
 		public String Name => Type.Name;
 
-		public ScriptDefinition(Type type)
+		internal ScriptDefinition(Type type)
 		{
 			if (type == null)
 				throw new ArgumentNullException(nameof(type));

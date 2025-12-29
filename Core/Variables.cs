@@ -8,8 +8,16 @@ using System.Text;
 
 namespace LunyScript
 {
+	/// <summary>
+	/// Dictionary-based variable storage for LunyScript contexts.
+	/// </summary>
 	public interface IVariables : IEnumerable<KeyValuePair<String, Variable>>
 	{
+		/// <summary>
+		/// Sent when a variable changes.
+		/// Caution: The event args instance becomes invalid after the call, it will be re-used by the next event.
+		/// Copy the values if you want to keep them.
+		/// </summary>
 		event EventHandler<VariableChangedEventArgs> OnVariableChanged;
 		Variable this[String key] { get; set; }
 		T Get<T>(String key);
@@ -30,6 +38,8 @@ namespace LunyScript
 		/// Fired when a variable is changed. Only invoked in debug builds.
 		/// </summary>
 		public event EventHandler<VariableChangedEventArgs> OnVariableChanged;
+
+		private static readonly VariableChangedEventArgs CachedChangedEventArgs = new();
 
 		// TODO: replace with LuaTable
 		private readonly Dictionary<String, Variable> _vars = new();
@@ -120,7 +130,10 @@ namespace LunyScript
 		private void NotifyVariableChanged(String key, Variable oldValue, Variable newValue)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
-			OnVariableChanged?.Invoke(this, new VariableChangedEventArgs(key, oldValue, newValue));
+			CachedChangedEventArgs.Name = key;
+			CachedChangedEventArgs.OldValue = oldValue;
+			CachedChangedEventArgs.NewValue = newValue;
+			OnVariableChanged?.Invoke(this, CachedChangedEventArgs);
 #endif
 		}
 	}
