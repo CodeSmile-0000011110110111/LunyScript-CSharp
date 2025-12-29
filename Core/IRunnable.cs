@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace LunyScript.Interfaces
+namespace LunyScript
 {
 	/// <summary>
 	/// Container blocks that can be executed by LunyScriptRunner.

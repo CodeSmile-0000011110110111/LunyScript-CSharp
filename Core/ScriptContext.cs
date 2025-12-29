@@ -1,7 +1,7 @@
 using Luny;
 using Luny.Proxies;
 using LunyScript.Diagnostics;
-using LunyScript.Interfaces;
+using LunyScript.Execution;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +17,8 @@ namespace LunyScript
 	{
 		ScriptID ScriptID { get; }
 		Type ScriptType { get; }
-		ILunyEngine Engine { get; }
-		ILunyObject EngineObject { get; }
+		ILunyEngine LunyEngine { get; }
+		ILunyObject LunyObject { get; }
 		IVariables GlobalVariables { get; }
 		IVariables LocalVariables { get; }
 	}
@@ -47,11 +47,11 @@ namespace LunyScript
 		/// <summary>
 		/// The LunyEngine instance.
 		/// </summary>
-		public ILunyEngine Engine => LunyEngine.Instance;
+		public ILunyEngine LunyEngine => Luny.LunyEngine.Instance;
 		/// <summary>
 		/// The engine object/node this script operates on.
 		/// </summary>
-		public ILunyObject EngineObject => _engineObject;
+		public ILunyObject LunyObject => _engineObject;
 
 		/// <summary>
 		/// Global variables shared across all scripts.
@@ -138,8 +138,8 @@ namespace LunyScript
 		public override String ToString()
 		{
 			var sb = new StringBuilder();
-			sb.AppendLine($"RunContext: {ScriptType.Name} ({ScriptID}) -> {EngineObject}");
-			sb.AppendLine($"  Valid: {EngineObject.IsValid}");
+			sb.AppendLine($"RunContext: {ScriptType.Name} ({ScriptID}) -> {LunyObject}");
+			sb.AppendLine($"  Valid: {LunyObject.IsValid}");
 			sb.AppendLine($"  FixedStep Runnables: {RunnablesScheduledInFixedStep.Count}");
 			sb.AppendLine($"  Update Runnables: {RunnablesScheduledInUpdate.Count}");
 			sb.AppendLine($"  LateUpdate Runnables: {RunnablesScheduledInLateUpdate.Count}");

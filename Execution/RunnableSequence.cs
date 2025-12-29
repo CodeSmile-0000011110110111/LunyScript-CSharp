@@ -1,4 +1,4 @@
-using LunyScript.Interfaces;
+using LunyScript.Blocks;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +24,7 @@ namespace LunyScript.Execution
 		public void Execute(IScriptContext context)
 		{
 			foreach (var block in Children)
-				block.Execute(context);
+				block?.Execute(context);
 		}
 	}
 }

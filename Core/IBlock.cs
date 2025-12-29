@@ -1,4 +1,4 @@
-namespace LunyScript.Interfaces
+namespace LunyScript
 {
 	/// <summary>
 	/// Base interface for all executable blocks (leaf and container).

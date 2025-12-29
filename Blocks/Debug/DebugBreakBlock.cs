@@ -1,5 +1,4 @@
 using Luny.Diagnostics;
-using LunyScript.Interfaces;
 using System;
 using System.Diagnostics;
 
@@ -22,7 +21,7 @@ namespace LunyScript.Blocks
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			if (_message != null)
-				LunyLogger.LogInfo($"{nameof(DebugBreakBlock)}: {_message}", context.EngineObject);
+				LunyLogger.LogInfo($"{nameof(DebugBreakBlock)}: {_message}", context.LunyObject);
 
 			Debugger.Break();
 #endif

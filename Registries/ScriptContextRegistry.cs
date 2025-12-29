@@ -42,15 +42,15 @@ namespace LunyScript.Registries
 			if (context == null)
 				throw new ArgumentNullException(nameof(context));
 
-			var objectID = context.EngineObject.LunyID;
+			var objectID = context.LunyObject.LunyID;
 
 			if (_contextsByObjectID.ContainsKey(objectID))
-				LunyLogger.LogWarning($"Context for object {context.EngineObject.Name} ({objectID}) already registered, replacing", this);
+				LunyLogger.LogWarning($"Context for object {context.LunyObject.Name} ({objectID}) already registered, replacing", this);
 
 			_contextsByObjectID[objectID] = context;
 			_needsSort = true;
 
-			LunyLogger.LogInfo($"Registered context: {context.ScriptID} -> {context.EngineObject.Name} ({objectID})", this);
+			LunyLogger.LogInfo($"Registered context: {context.ScriptID} -> {context.LunyObject.Name} ({objectID})", this);
 		}
 
 		/// <summary>
@@ -80,7 +80,7 @@ namespace LunyScript.Registries
 		{
 			foreach (var context in _contextsByObjectID.Values)
 			{
-				var engineObject = context.EngineObject;
+				var engineObject = context.LunyObject;
 				if (engineObject.IsValid && engineObject.NativeID == nativeID)
 					return context;
 			}
@@ -99,7 +99,7 @@ namespace LunyScript.Registries
 		{
 			// TODO: replace with traditional reverse iteration if LINQ proves to be slow
 			var invalidIDs = _contextsByObjectID
-				.Where(kvp => !kvp.Value.EngineObject.IsValid)
+				.Where(kvp => !kvp.Value.LunyObject.IsValid)
 				.Select(kvp => kvp.Key)
 				.ToList();
 
@@ -129,7 +129,7 @@ namespace LunyScript.Registries
 		private void RebuildSortedArray()
 		{
 			_sortedContexts = _contextsByObjectID.Values
-				.OrderBy(ctx => ctx.EngineObject.LunyID)
+				.OrderBy(ctx => ctx.LunyObject.LunyID)
 				.ToArray();
 			_needsSort = false;
 		}

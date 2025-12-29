@@ -1,5 +1,4 @@
 using Luny.Diagnostics;
-using LunyScript.Interfaces;
 using System;
 using System.Diagnostics;
 
@@ -21,7 +20,7 @@ namespace LunyScript.Blocks
 		private void DoLog(IScriptContext context)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
-			LunyLogger.LogInfo(_message, context.EngineObject);
+			LunyLogger.LogInfo(_message, context.LunyObject);
 #endif
 		}
 

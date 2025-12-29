@@ -1,7 +1,6 @@
 using Luny;
 using Luny.Proxies;
 using LunyScript.Blocks;
-using LunyScript.Interfaces;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -13,6 +12,7 @@ namespace LunyScript
 		ILunyObject EngineObject { get; }
 		IVariables GlobalVariables { get; }
 		IVariables LocalVariables { get; }
+		Boolean IsEditor { get; }
 	}
 
 	/// <summary>
@@ -35,7 +35,7 @@ namespace LunyScript
 	public abstract partial class LunyScript : ILunyScript
 	{
 		// temporary 'singleton' for static subclasses (eg 'Every')
-		private static LunyScript _instance;
+		private static LunyScript _lunyScript;
 
 		private IScriptContext _context;
 
@@ -48,7 +48,7 @@ namespace LunyScript
 		/// Caution: native engine reference could be null.
 		/// Check EngineObject.IsValid before accessing.
 		/// </summary>
-		[MaybeNull] public ILunyObject EngineObject => _context.EngineObject;
+		[MaybeNull] public ILunyObject EngineObject => _context.LunyObject;
 		// User-facing API: Variables
 		/// <summary>
 		/// Global variables which all objects and scripts can read/write.
@@ -59,6 +59,10 @@ namespace LunyScript
 		/// If multiple objects run the same script, each object has its own unique set of local variables.
 		/// </summary>
 		[NotNull] public IVariables LocalVariables => _context.LocalVariables;
+		/// <summary>
+		/// True if the script runs within the engine's editor (play mode). False in builds.
+		/// </summary>
+		public Boolean IsEditor => LunyEngine.Instance.Application.IsEditor;
 
 		/// <summary>
 		/// Logs a message that appears in both debug and release builds.
@@ -95,17 +99,14 @@ namespace LunyScript
 
 		internal void Initialize(IScriptContext context)
 		{
-			_instance = this;
+			_lunyScript = this;
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		internal void Shutdown()
-		{
+		internal void Shutdown() =>
 			// FIXME: keep context - Lambdas capturing context would throw if they access LunyScript properties
 			// _context = null;
-
-			_instance = null;
-		}
+			_lunyScript = null;
 
 		/// <summary>
 		/// Called once when the script is initialized.
@@ -143,37 +144,40 @@ namespace LunyScript
 			/// <summary>
 			/// Pauses playmode.
 			/// </summary>
-			public static IBlock PausePlayer(String message = null) => new EditorPausePlayerBlock(message);
+			public static IBlock PausePlayer(String message = null) => _lunyScript.IsEditor ? null : new EditorPausePlayerBlock(message);
 		}
 
 		/// <summary>
-		/// Provides scheduling of frequently repeating events.
+		/// Provides operations for objects.
 		/// </summary>
-		public static class Every
+		public static class Object
 		{
-			/// <summary>
-			/// Schedules blocks to run on fixed-rate updates.
-			/// Scheduling depends on engine and Time settings, but typically runs 30 or 50 times per second.
-			/// May run multiple times per frame and may not run in every frame.
-			/// It's therefore unsuitable for once-only events, such as Input.
-			/// </summary>
-			/// <param name="blocks"></param>
-			public static void FixedStep(params IBlock[] blocks) =>
-				_instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnFixedStep);
+			public static void SetEnabled() => new ObjectSetEnabledBlock();
+			public static void SetDisabled() => new ObjectSetDisabledBlock();
 
-			/// <summary>
-			/// Schedules blocks to run on every-frame updates.
-			/// </summary>
-			/// <param name="blocks"></param>
-			public static void Frame(params IBlock[] blocks) =>
-				_instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnUpdate);
+			public static void CreateEmpty(String name) => new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Empty));
+			public static void CreateFrom(String prefabName) => new ObjectCreateBlock(new CreateObject(prefabName, ObjectCreateType.Prefab));
+			public static void CreateClone(String objectName) => new ObjectCreateBlock(new CreateObject(objectName, ObjectCreateType.Clone));
 
-			/// <summary>
-			/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
-			/// </summary>
-			/// <param name="blocks"></param>
-			public static void FrameEnd(params IBlock[] blocks) =>
-				_instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnLateUpdate);
+			public static void CreateCube(String name) =>
+				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Cube));
+
+			public static void CreateSphere(String name) =>
+				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Sphere));
+
+			public static void CreateCapsule(String name) =>
+				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Capsule));
+
+			public static void CreateCylinder(String name) =>
+				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Cylinder));
+
+			public static void CreatePlane(String name) =>
+				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Plane));
+
+			public static void CreateQuad(String name) =>
+				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Quad));
+
+			public static void Destroy(String name) => new ObjectDestroyBlock(name);
 		}
 	}
 }

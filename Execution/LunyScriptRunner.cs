@@ -1,7 +1,6 @@
 using Luny;
 using Luny.Diagnostics;
 using LunyScript.Diagnostics;
-using LunyScript.Interfaces;
 using LunyScript.Registries;
 using System;
 using System.Diagnostics;
@@ -138,7 +137,7 @@ namespace LunyScript.Execution
 			{
 				try
 				{
-					LunyLogger.LogInfo($"Building script {context.ScriptType} for {context.EngineObject}", this);
+					LunyLogger.LogInfo($"Building script {context.ScriptType} for {context.LunyObject}", this);
 
 					// Create script instance, initialize with context, and call Build()
 					var scriptInstance = (LunyScript)Activator.CreateInstance(context.ScriptType);
