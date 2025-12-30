@@ -9,8 +9,11 @@ namespace LunyScript.Blocks
 	{
 		private String _objectName;
 
-		public ObjectDestroyBlock(String name) => _objectName = name;
+		internal ObjectDestroyBlock(String name) => _objectName = name;
 
-		public void Execute(IScriptContext context) => throw new NotImplementedException(nameof(ObjectDestroyBlock));
+		public void Execute(IScriptContext context)
+		{
+			throw new NotImplementedException(nameof(ObjectDestroyBlock));
+		}
 	}
 }

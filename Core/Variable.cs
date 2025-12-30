@@ -15,9 +15,9 @@ namespace LunyScript
 			Value = value;
 		}
 
-		public Boolean AsBoolean() => Value is Boolean b ? b : false;
-		public Number AsNumber() => Value is Number n ? n : default;
-		public String AsString() => Value is String s ? s : default;
+		public Boolean Boolean() => Value is Boolean b ? b : false;
+		public Number Number() => Value is Number n ? n : default;
+		public String String() => Value is String s ? s : default;
 
 		public static implicit operator Variable(Int32 v) => new(null, v);
 		public static implicit operator Variable(Single v) => new(null, v);

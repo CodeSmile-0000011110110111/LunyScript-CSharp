@@ -1,4 +1,6 @@
-﻿namespace LunyScript.Blocks
+﻿using System;
+
+namespace LunyScript.Blocks
 {
 	/// <summary>
 	/// Changes enabled state of an object.
@@ -7,6 +9,16 @@
 	/// </summary>
 	internal sealed class ObjectSetEnabledBlock : IBlock
 	{
-		public void Execute(IScriptContext context) => context.SetObjectEnabled(true);
+		private readonly String _name;
+
+		internal ObjectSetEnabledBlock(String name) => _name = name;
+
+		public void Execute(IScriptContext context)
+		{
+			if (string.IsNullOrEmpty(_name))
+				context.SetObjectEnabled(true);
+			else
+				throw new NotImplementedException($"{nameof(ObjectSetEnabledBlock)} with name '{_name}' not implemented");
+		}
 	}
 }

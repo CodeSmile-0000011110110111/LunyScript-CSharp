@@ -9,7 +9,7 @@ namespace LunyScript
 	public interface ILunyScript
 	{
 		ScriptID ScriptID { get; }
-		ILunyObject EngineObject { get; }
+		ILunyObject LunyObject { get; }
 		IVariables GlobalVariables { get; }
 		IVariables LocalVariables { get; }
 		Boolean IsEditor { get; }
@@ -48,7 +48,7 @@ namespace LunyScript
 		/// Caution: native engine reference could be null.
 		/// Check EngineObject.IsValid before accessing.
 		/// </summary>
-		[MaybeNull] public ILunyObject EngineObject => _context.LunyObject;
+		[MaybeNull] public ILunyObject LunyObject => _context.LunyObject;
 		// User-facing API: Variables
 		/// <summary>
 		/// Global variables which all objects and scripts can read/write.
@@ -152,30 +152,18 @@ namespace LunyScript
 		/// </summary>
 		public static class Object
 		{
-			public static IBlock SetEnabled(String name = null) => new ObjectSetEnabledBlock();
-			public static IBlock SetDisabled(String name = null) => new ObjectSetDisabledBlock();
+			public static IBlock SetEnabled(String name = null) => new ObjectSetEnabledBlock(name);
+			public static IBlock SetDisabled(String name = null) => new ObjectSetDisabledBlock(name);
 
-			public static IBlock CreateEmpty(String name) => new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Empty));
-			public static IBlock CreatePrefab(String prefabName) => new ObjectCreateBlock(new CreateObject(prefabName, ObjectCreateType.Prefab));
-			public static IBlock CreateClone(String originalName) => new ObjectCreateBlock(new CreateObject(originalName, ObjectCreateType.Clone));
-
-			public static IBlock CreateCube(String name = null) =>
-				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Cube));
-
-			public static IBlock CreateSphere(String name = null) =>
-				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Sphere));
-
-			public static IBlock CreateCapsule(String name = null) =>
-				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Capsule));
-
-			public static IBlock CreateCylinder(String name = null) =>
-				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Cylinder));
-
-			public static IBlock CreatePlane(String name = null) =>
-				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Plane));
-
-			public static IBlock CreateQuad(String name = null) =>
-				new ObjectCreateBlock(new CreateObject(name, ObjectCreateType.Primitive, PrimitiveType.Quad));
+			public static IBlock CreateEmpty(String name) => ObjectCreateBlock.CreateEmpty(name);
+			public static IBlock CreateWithPrefab(String prefabName) => ObjectCreateBlock.CreateWithPrefab(prefabName);
+			public static IBlock CreateClone(String originalName) => ObjectCreateBlock.CreateClone(originalName);
+			public static IBlock CreateCube(String name = null) => ObjectCreateBlock.CreateCube(name);
+			public static IBlock CreateSphere(String name = null) => ObjectCreateBlock.CreateSphere(name);
+			public static IBlock CreateCapsule(String name = null) => ObjectCreateBlock.CreateCapsule(name);
+			public static IBlock CreateCylinder(String name = null) => ObjectCreateBlock.CreateCylinder(name);
+			public static IBlock CreatePlane(String name = null) => ObjectCreateBlock.CreatePlane(name);
+			public static IBlock CreateQuad(String name = null) => ObjectCreateBlock.CreateQuad(name);
 
 			public static IBlock Destroy(String name = null) => new ObjectDestroyBlock(name);
 		}

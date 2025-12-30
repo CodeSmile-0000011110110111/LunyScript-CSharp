@@ -6,12 +6,10 @@ namespace LunyScript.Execution
 {
 	/// <summary>
 	/// Schedules and manages runnables for various event types.
-	/// Uses optimized array storage for lifecycle events and typed dictionaries for other event categories.
 	/// </summary>
 	internal sealed class RunnableEventScheduler
 	{
 		// Fast array-based storage for lifecycle events (hot path)
-		// ObjectLifecycleEvents uses sequential indexing (0-7)
 		private List<IRunnable>[] _lifecycleRunnables;
 
 		// Future: Add typed dictionaries for other event categories
@@ -26,7 +24,12 @@ namespace LunyScript.Execution
 			if (runnable == null || runnable.IsEmpty)
 				return;
 
-			_lifecycleRunnables ??= new List<IRunnable>[8]; // 8 lifecycle events defined in enum
+			if (_lifecycleRunnables == null)
+			{
+				// TODO: consider pre-allocating only the frequently scheduled "update" methods
+				var lifecycleEventCount = Enum.GetNames(typeof(ObjectLifecycleEvents)).Length;
+				_lifecycleRunnables = new List<IRunnable>[lifecycleEventCount];
+			}
 
 			var index = (Int32)lifecycleEvent;
 			_lifecycleRunnables[index] ??= new List<IRunnable>();
