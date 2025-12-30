@@ -28,6 +28,7 @@ namespace LunyScript.Registries
 			var scene = LunyEngine.Instance.Scene;
 			var scriptRegistry = _scriptRunner.Scripts;
 			var contextRegistry = _scriptRunner.Contexts;
+			var lifecycleManager = _scriptRunner.LifecycleManager;
 
 			var allSceneObjects = scene.GetAllObjects();
 			if (allSceneObjects == null || allSceneObjects.Count == 0)
@@ -48,7 +49,7 @@ namespace LunyScript.Registries
 				if (scriptDef != null)
 				{
 					// Create run context for this object-script pair
-					var context = new ScriptContext(scriptDef, sceneObject, contextRegistry);
+					var context = new ScriptContext(scriptDef, sceneObject, lifecycleManager);
 					contextRegistry.Register(context);
 					matchedCount++;
 

@@ -19,10 +19,12 @@ namespace LunyScript.Execution
 		private LunyScriptEngine _scriptEngine;
 		private ScriptDefinitionRegistry _scriptRegistry;
 		private ScriptContextRegistry _contextRegistry;
+		private ObjectLifecycleManager _lifecycleManager;
 		private ScenePreprocessor _scenePreprocessor;
 
 		internal ScriptDefinitionRegistry Scripts => _scriptRegistry;
 		internal ScriptContextRegistry Contexts => _contextRegistry;
+		internal ObjectLifecycleManager LifecycleManager => _lifecycleManager;
 
 		internal static void RunObjectEnabled(ScriptContext context)
 		{
@@ -105,9 +107,10 @@ namespace LunyScript.Execution
 			// Instantiate public API singleton
 			_scriptEngine = new LunyScriptEngine(this);
 
-			// Initialize registries
+			// Initialize registries and lifecycle manager
 			_scriptRegistry = new ScriptDefinitionRegistry();
 			_contextRegistry = new ScriptContextRegistry();
+			_lifecycleManager = new ObjectLifecycleManager(_contextRegistry);
 			_scenePreprocessor = new ScenePreprocessor(this);
 		}
 
@@ -120,6 +123,7 @@ namespace LunyScript.Execution
 			_scenePreprocessor.ProcessSceneObjects();
 			ActivateScripts();
 
+			// TODO: replace this and route it through the lifecycle manager
 			// Run OnCreate and OnEnable
 			foreach (var context in _contextRegistry.AllContexts)
 				RunObjectCreated(context);
@@ -157,18 +161,24 @@ namespace LunyScript.Execution
 			foreach (var context in _contextRegistry.AllContexts)
 				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnLateUpdate), context);
 
-			// Remove any contexts for destroyed objects
-			_contextRegistry.RemoveInvalidContexts();
+			// Structural changes pass: destroy queued objects
+			_lifecycleManager.OnEndOfFrame();
 		}
 
 		public void OnShutdown()
 		{
 			foreach (var context in _contextRegistry.AllContexts)
-				RunObjectDestroyed(context);
+			{
+				if (!context.DidRunOnDestroy)
+					RunObjectDestroyed(context);
+
+				_lifecycleManager.UnregisterObject(context.LunyObject);
+			}
 
 			LunyLogger.LogInfo("LunyScriptRunner shutting down...", this);
 			_contextRegistry?.Clear();
 			_scriptRegistry?.Clear();
+			_lifecycleManager = null;
 			_scenePreprocessor = null;
 			_scriptEngine.Shutdown();
 			_scriptEngine = null;

@@ -16,7 +16,7 @@ namespace LunyScript.Blocks
 		public void Execute(IScriptContext context)
 		{
 			if (string.IsNullOrEmpty(_name))
-				context.SetObjectEnabled(false);
+				context.LunyObject.Enabled = false;
 			else
 				throw new NotImplementedException($"{nameof(ObjectSetDisabledBlock)} with name '{_name}' not implemented");
 

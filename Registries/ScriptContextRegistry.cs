@@ -93,29 +93,6 @@ namespace LunyScript.Registries
 		public Boolean HasContext(LunyID lunyID) => _contextsByObjectID.ContainsKey(lunyID);
 
 		/// <summary>
-		/// Removes all invalid contexts (where Object.IsValid == false).
-		/// </summary>
-		public Int32 RemoveInvalidContexts()
-		{
-			// TODO: replace with traditional reverse iteration if LINQ proves to be slow
-			var invalidIDs = _contextsByObjectID
-				.Where(kvp => !kvp.Value.LunyObject.IsValid)
-				.Select(kvp => kvp.Key)
-				.ToList();
-
-			foreach (var id in invalidIDs)
-				_contextsByObjectID.Remove(id);
-
-			if (invalidIDs.Count > 0)
-			{
-				_needsSort = true;
-				LunyLogger.LogInfo($"Removed {invalidIDs.Count} invalid context(s)", this);
-			}
-
-			return invalidIDs.Count;
-		}
-
-		/// <summary>
 		/// Clears all contexts.
 		/// </summary>
 		public void Clear()

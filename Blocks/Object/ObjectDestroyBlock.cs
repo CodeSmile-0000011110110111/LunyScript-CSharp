@@ -13,7 +13,10 @@ namespace LunyScript.Blocks
 
 		public void Execute(IScriptContext context)
 		{
-			throw new NotImplementedException(nameof(ObjectDestroyBlock));
+			if (String.IsNullOrEmpty(_objectName))
+				context.LunyObject.Destroy();
+			else
+				throw new NotImplementedException($"{nameof(ObjectDestroyBlock)} for {_objectName} is not implemented.");
 		}
 	}
 }
