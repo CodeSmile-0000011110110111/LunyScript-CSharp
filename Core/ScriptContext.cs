@@ -86,14 +86,10 @@ namespace LunyScript
 		/// </summary>
 		internal BlockProfiler BlockProfiler { get; }
 
-		internal IList<IRunnable> ScheduledOnCreate { get; private set; }
-		internal IList<IRunnable> ScheduledOnDestroy { get; private set; }
-		internal IList<IRunnable> ScheduledOnEnable { get; private set; }
-		internal IList<IRunnable> ScheduledOnDisable { get; private set; }
-		internal IList<IRunnable> ScheduledOnReady { get; private set; }
-		internal IList<IRunnable> ScheduledOnFixedStep { get; private set; }
-		internal IList<IRunnable> ScheduledOnUpdate { get; private set; }
-		internal IList<IRunnable> ScheduledOnLateUpdate { get; private set; }
+		/// <summary>
+		/// Event scheduler for managing runnables across all event types.
+		/// </summary>
+		internal RunnableEventScheduler Scheduler { get; }
 
 		internal static void ClearGlobalVariables() => _GlobalVariables?.Clear();
 
@@ -108,6 +104,7 @@ namespace LunyScript
 			// TODO: don't create these unless enabled
 			DebugHooks = new DebugHooks();
 			BlockProfiler = new BlockProfiler();
+			Scheduler = new RunnableEventScheduler();
 		}
 
 		public void SetObjectEnabled(Boolean enabled)
@@ -133,54 +130,8 @@ namespace LunyScript
 			}
 		}
 
-		internal void Schedule(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent)
-		{
-			if (runnable == null || runnable.IsEmpty)
-				return;
-
-			switch (lifecycleEvent)
-			{
-				case ObjectLifecycleEvents.OnCreate:
-					ScheduledOnCreate ??= new List<IRunnable>();
-					ScheduledOnCreate.Add(runnable);
-					break;
-				case ObjectLifecycleEvents.OnDestroy:
-					ScheduledOnDestroy ??= new List<IRunnable>();
-					ScheduledOnDestroy.Add(runnable);
-					break;
-
-				case ObjectLifecycleEvents.OnEnable:
-					ScheduledOnEnable ??= new List<IRunnable>();
-					ScheduledOnEnable.Add(runnable);
-					break;
-				case ObjectLifecycleEvents.OnDisable:
-					ScheduledOnDisable ??= new List<IRunnable>();
-					ScheduledOnDisable.Add(runnable);
-					break;
-
-				case ObjectLifecycleEvents.OnReady:
-					ScheduledOnReady ??= new List<IRunnable>();
-					ScheduledOnReady.Add(runnable);
-					break;
-
-				case ObjectLifecycleEvents.OnFixedStep:
-					ScheduledOnFixedStep ??= new List<IRunnable>();
-					ScheduledOnFixedStep.Add(runnable);
-					break;
-				case ObjectLifecycleEvents.OnUpdate:
-					ScheduledOnUpdate ??= new List<IRunnable>();
-					ScheduledOnUpdate.Add(runnable);
-					break;
-				case ObjectLifecycleEvents.OnLateUpdate:
-					ScheduledOnLateUpdate ??= new List<IRunnable>();
-					ScheduledOnLateUpdate.Add(runnable);
-					break;
-
-				default:
-					throw new ArgumentOutOfRangeException(nameof(lifecycleEvent), lifecycleEvent,
-						"Scheduling of this event type is not implemented yet");
-			}
-		}
+		internal void Schedule(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent) =>
+			Scheduler.Schedule(runnable, lifecycleEvent);
 
 		public override String ToString()
 		{

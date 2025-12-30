@@ -27,18 +27,18 @@ namespace LunyScript.Execution
 		internal static void RunObjectEnabled(ScriptContext context)
 		{
 			if (context.LunyObject.Enabled)
-				RunAll(context.ScheduledOnEnable, context);
+				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnEnable), context);
 		}
 
 		internal static void RunObjectDisabled(ScriptContext context)
 		{
 			if (!context.LunyObject.Enabled)
-				RunAll(context.ScheduledOnDisable, context);
+				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnDisable), context);
 		}
 
 		internal static void RunObjectDestroyed(ScriptContext context)
 		{
-			RunAll(context.ScheduledOnDestroy, context);
+			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnDestroy), context);
 			context.DidRunOnDestroy = true;
 		}
 
@@ -88,13 +88,13 @@ namespace LunyScript.Execution
 
 		private static void RunObjectCreated(ScriptContext context)
 		{
-			RunAll(context.ScheduledOnCreate, context);
+			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnCreate), context);
 			RunObjectEnabled(context);
 		}
 
 		private static void RunObjectReady(ScriptContext context)
 		{
-			RunAll(context.ScheduledOnReady, context);
+			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnReady), context);
 			context.DidRunOnReady = true;
 		}
 
@@ -135,7 +135,7 @@ namespace LunyScript.Execution
 				if (!context.DidRunOnReady)
 					RunObjectReady(context);
 
-				RunAll(context.ScheduledOnFixedStep, context);
+				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnFixedStep), context);
 			}
 		}
 
@@ -147,7 +147,7 @@ namespace LunyScript.Execution
 				if (!context.DidRunOnReady)
 					RunObjectReady(context);
 
-				RunAll(context.ScheduledOnUpdate, context);
+				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnUpdate), context);
 			}
 		}
 
@@ -155,7 +155,7 @@ namespace LunyScript.Execution
 		{
 			// Run all LateUpdate runnables
 			foreach (var context in _contextRegistry.AllContexts)
-				RunAll(context.ScheduledOnLateUpdate, context);
+				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnLateUpdate), context);
 
 			// Remove any contexts for destroyed objects
 			_contextRegistry.RemoveInvalidContexts();
