@@ -1,4 +1,6 @@
-﻿namespace LunyScript.Blocks
+﻿using LunyScript.Execution;
+
+namespace LunyScript.Blocks
 {
 	/// <summary>
 	/// Does nothing. Used as placeholder in case user leaves a runnable empty.

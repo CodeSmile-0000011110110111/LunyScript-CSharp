@@ -1,4 +1,4 @@
-using LunyScript.Blocks;
+using Luny.Diagnostics;
 using System;
 using System.Collections.Generic;
 
@@ -27,5 +27,7 @@ namespace LunyScript.Execution
 			foreach (var block in Children)
 				block?.Execute(context);
 		}
+
+		~RunnableSequence() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 	}
 }

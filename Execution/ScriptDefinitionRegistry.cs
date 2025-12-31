@@ -20,6 +20,9 @@ namespace LunyScript.Execution
 		/// </summary>
 		public IEnumerable<ScriptDefinition> AllScripts => _scriptsById.Values;
 
+		public ScriptDefinitionRegistry() => DiscoverScripts();
+		~ScriptDefinitionRegistry() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+
 		/// <summary>
 		/// Discovers all LunyScript subclasses via reflection and registers them.
 		/// </summary>
@@ -48,7 +51,7 @@ namespace LunyScript.Execution
 
 			if (_scriptsByName.ContainsKey(scriptType.Name))
 			{
-				LunyLogger.LogWarning($"Script {scriptType.Name} already registered, skipping duplicate", this);
+				LunyLogger.LogWarning($"{scriptType.Name} already registered, skipping duplicate", this);
 				return;
 			}
 
@@ -56,7 +59,7 @@ namespace LunyScript.Execution
 			_scriptsById[definition.ScriptID] = definition;
 			_scriptsByName[definition.Name] = definition;
 
-			LunyLogger.LogInfo($"Registered {definition}", this);
+			LunyLogger.LogInfo($"{definition} registered", this);
 		}
 
 		/// <summary>

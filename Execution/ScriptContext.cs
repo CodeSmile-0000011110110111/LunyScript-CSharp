@@ -1,12 +1,10 @@
 using Luny;
+using Luny.Diagnostics;
 using Luny.Proxies;
 using LunyScript.Diagnostics;
-using LunyScript.Execution;
 using System;
-using System.Linq;
-using System.Text;
 
-namespace LunyScript
+namespace LunyScript.Execution
 {
 	// alias required within LunyScript due to namespace/class clash
 	/// <summary>
@@ -71,7 +69,7 @@ namespace LunyScript
 		/// <summary>
 		/// Event scheduler for managing runnables across all event types.
 		/// </summary>
-		internal RunnableEventScheduler Scheduler { get; }
+		internal ScriptEventScheduler Scheduler { get; }
 
 		internal static void ClearGlobalVariables() => _GlobalVariables?.Clear();
 
@@ -85,23 +83,15 @@ namespace LunyScript
 			// TODO: don't create these unless enabled
 			DebugHooks = new DebugHooks();
 			BlockProfiler = new BlockProfiler();
-			Scheduler = new RunnableEventScheduler();
+			Scheduler = new ScriptEventScheduler();
 		}
+
+		~ScriptContext() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
 		internal void Activate() => ((LunyObject)_lunyObject).Activate();
 
 		internal void Schedule(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent) => Scheduler.Schedule(runnable, lifecycleEvent);
 
-		public override String ToString()
-		{
-			var sb = new StringBuilder();
-			sb.AppendLine($"{nameof(ScriptContext)}: {ScriptType.Name} ({ScriptID}) -> {LunyObject}");
-			sb.AppendLine($"  Valid: {LunyObject.IsValid}");
-
-			if (LocalVariables.Count() > 0)
-				sb.Append($"  {LocalVariables}");
-
-			return sb.ToString();
-		}
+		public override String ToString() => $"{nameof(ScriptContext)}: {ScriptID} -> {LunyObject}";
 	}
 }

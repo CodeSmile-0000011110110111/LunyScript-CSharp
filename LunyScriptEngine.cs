@@ -1,4 +1,5 @@
 ﻿using Luny;
+using Luny.Diagnostics;
 using LunyScript.Execution;
 using System;
 
@@ -9,8 +10,8 @@ namespace LunyScript
 	/// </summary>
 	public interface ILunyScriptEngine
 	{
-		IScriptContext GetScriptContext(NativeID nativeID);
 		IVariables GlobalVariables { get; }
+		IScriptContext GetScriptContext(NativeID nativeID);
 	}
 
 	/// <summary>
@@ -18,12 +19,13 @@ namespace LunyScript
 	/// </summary>
 	public sealed class LunyScriptEngine : ILunyScriptEngine
 	{
-		private ScriptRunner _runner;
+		private LunyScriptRunner _runner;
 		public static ILunyScriptEngine Instance { get; private set; }
+		public IVariables GlobalVariables => ScriptContext.GetGlobalVariables();
 
 		private LunyScriptEngine() {} // hide default ctor
 
-		internal LunyScriptEngine(ScriptRunner scriptRunner)
+		internal LunyScriptEngine(LunyScriptRunner scriptRunner)
 		{
 			if (Instance != null)
 				throw new InvalidOperationException($"{nameof(ILunyScriptEngine)} singleton duplication!");
@@ -32,11 +34,17 @@ namespace LunyScript
 
 			_runner = scriptRunner;
 			Instance = this;
+			LunyLogger.LogInfo("Initialized.", this);
 		}
 
-		internal void Shutdown() => Instance = null;
-
 		public IScriptContext GetScriptContext(NativeID nativeID) => _runner.Contexts.GetByNativeID(nativeID);
-		public IVariables GlobalVariables => ScriptContext.GetGlobalVariables();
+		~LunyScriptEngine() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+
+		internal void Shutdown()
+		{
+			Instance = null;
+			_runner = null;
+			LunyLogger.LogInfo($"{nameof(Shutdown)}.", this);
+		}
 	}
 }

@@ -1,6 +1,7 @@
 using Luny;
 using Luny.Diagnostics;
 using Luny.Proxies;
+using LunyScript.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +28,12 @@ namespace LunyScript.Execution
 		/// </summary>
 		public Int32 Count => _contextsByObjectID.Count;
 
+		~ScriptContextRegistry() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+
 		public ScriptContext CreateContext(ScriptDefinition scriptDef, ILunyObject sceneObject)
 		{
 			var context = new ScriptContext(scriptDef, sceneObject);
+			//LunyLogger.LogInfo($"{nameof(CreateContext)}: {context.ScriptID} -> {context.LunyObject}", this);
 			Register(context);
 			return context;
 		}
@@ -42,15 +46,12 @@ namespace LunyScript.Execution
 			if (context == null)
 				throw new ArgumentNullException(nameof(context));
 
-			var objectID = context.LunyObject.LunyID;
+			var lunyID = context.LunyObject.LunyID;
+			if (_contextsByObjectID.ContainsKey(lunyID))
+				throw new LunyScriptException($"Context for object {context.LunyObject.Name} ({lunyID}) already registered, replacing");
 
-			if (_contextsByObjectID.ContainsKey(objectID))
-				LunyLogger.LogWarning($"Context for object {context.LunyObject.Name} ({objectID}) already registered, replacing", this);
-
-			_contextsByObjectID[objectID] = context;
+			_contextsByObjectID[lunyID] = context;
 			_isSortedContextsDirty = true;
-
-			LunyLogger.LogInfo($"Registered context: {context.ScriptID} -> {context.LunyObject.Name} ({objectID})", this);
 		}
 
 		/// <summary>
@@ -62,7 +63,7 @@ namespace LunyScript.Execution
 			if (_contextsByObjectID.Remove(lunyID))
 			{
 				_isSortedContextsDirty = true;
-				LunyLogger.LogInfo($"Unregistered context for object {lunyID}", this);
+				LunyLogger.LogInfo($"Unregistered {context} ({context.GetHashCode()})", this);
 				return true;
 			}
 			return false;

@@ -1,6 +1,8 @@
 using Luny;
+using Luny.Diagnostics;
 using Luny.Proxies;
 using LunyScript.Blocks;
+using LunyScript.Execution;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -103,10 +105,9 @@ namespace LunyScript
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		internal void Shutdown() =>
-			// FIXME: keep context - Lambdas capturing context would throw if they access LunyScript properties
-			// _context = null;
-			_script = null;
+		~LunyScript() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+
+		internal void Shutdown() => _script = null; // temp singleton no longer needed
 
 		/// <summary>
 		/// Called once when the script is initialized.

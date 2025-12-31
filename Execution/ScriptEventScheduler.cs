@@ -1,4 +1,5 @@
 using Luny;
+using Luny.Diagnostics;
 using System;
 using System.Collections.Generic;
 
@@ -7,14 +8,16 @@ namespace LunyScript.Execution
 	/// <summary>
 	/// Schedules and manages runnables for various event types.
 	/// </summary>
-	internal sealed class RunnableEventScheduler
+	internal sealed class ScriptEventScheduler
 	{
 		// Fast array-based storage for lifecycle events (hot path)
-		private List<IRunnable>[] _lifecycleRunnables;
+		private List<IRunnable>[] _runnables;
 
 		// Future: Add typed dictionaries for other event categories
 		// private Dictionary<InputEventKey, List<IRunnable>> _inputRunnables;
 		// private Dictionary<CollisionEventKey, List<IRunnable>> _collisionRunnables;
+
+		~ScriptEventScheduler() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
 		/// <summary>
 		/// Schedules a runnable to execute on a specific lifecycle event.
@@ -24,28 +27,31 @@ namespace LunyScript.Execution
 			if (runnable == null || runnable.IsEmpty)
 				return;
 
-			if (_lifecycleRunnables == null)
+			if (_runnables == null)
 			{
 				// TODO: consider pre-allocating only the frequently scheduled "update" methods
 				var lifecycleEventCount = Enum.GetNames(typeof(ObjectLifecycleEvents)).Length;
-				_lifecycleRunnables = new List<IRunnable>[lifecycleEventCount];
+				_runnables = new List<IRunnable>[lifecycleEventCount];
 			}
 
 			var index = (Int32)lifecycleEvent;
-			_lifecycleRunnables[index] ??= new List<IRunnable>();
-			_lifecycleRunnables[index].Add(runnable);
+			_runnables[index] ??= new List<IRunnable>();
+			_runnables[index].Add(runnable);
 		}
 
 		/// <summary>
 		/// Gets all runnables scheduled for a specific lifecycle event.
 		/// </summary>
-		internal IEnumerable<IRunnable> GetScheduled(ObjectLifecycleEvents lifecycleEvent)
-		{
-			if (_lifecycleRunnables == null)
-				return null;
+		internal IEnumerable<IRunnable> GetScheduled(ObjectLifecycleEvents lifecycleEvent) =>
+			IsObserving(lifecycleEvent) ? _runnables[(Int32)lifecycleEvent] : null;
 
-			var index = (Int32)lifecycleEvent;
-			return _lifecycleRunnables[index];
+		internal Boolean IsObserving(ObjectLifecycleEvents lifecycleEvent)
+		{
+			if (_runnables == null)
+				return false;
+
+			var runnables = _runnables[(Int32)lifecycleEvent];
+			return runnables != null && runnables.Count > 0;
 		}
 	}
 }
