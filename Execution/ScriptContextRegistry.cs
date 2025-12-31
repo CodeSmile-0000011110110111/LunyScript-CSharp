@@ -1,10 +1,11 @@
 using Luny;
 using Luny.Diagnostics;
+using Luny.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LunyScript.Registries
+namespace LunyScript.Execution
 {
 	/// <summary>
 	/// Manages run contexts and their binding to objects.
@@ -14,30 +15,29 @@ namespace LunyScript.Registries
 	{
 		private readonly Dictionary<LunyID, ScriptContext> _contextsByObjectID = new();
 		private ScriptContext[] _sortedContexts = Array.Empty<ScriptContext>();
-		private Boolean _needsSort;
+		private Boolean _isSortedContextsDirty;
 
 		/// <summary>
 		/// Gets all run contexts in deterministic order (sorted by ObjectID).
 		/// </summary>
-		public IReadOnlyList<ScriptContext> AllContexts
-		{
-			get
-			{
-				if (_needsSort)
-					RebuildSortedArray();
-				return _sortedContexts;
-			}
-		}
+		public IReadOnlyList<ScriptContext> AllContexts => !_isSortedContextsDirty ? _sortedContexts : _sortedContexts = CreateSortedContexts();
 
 		/// <summary>
 		/// Gets the number of registered contexts.
 		/// </summary>
 		public Int32 Count => _contextsByObjectID.Count;
 
+		public ScriptContext CreateContext(ScriptDefinition scriptDef, ILunyObject sceneObject)
+		{
+			var context = new ScriptContext(scriptDef, sceneObject);
+			Register(context);
+			return context;
+		}
+
 		/// <summary>
 		/// Registers a new run context.
 		/// </summary>
-		public void Register(ScriptContext context)
+		private void Register(ScriptContext context)
 		{
 			if (context == null)
 				throw new ArgumentNullException(nameof(context));
@@ -48,7 +48,7 @@ namespace LunyScript.Registries
 				LunyLogger.LogWarning($"Context for object {context.LunyObject.Name} ({objectID}) already registered, replacing", this);
 
 			_contextsByObjectID[objectID] = context;
-			_needsSort = true;
+			_isSortedContextsDirty = true;
 
 			LunyLogger.LogInfo($"Registered context: {context.ScriptID} -> {context.LunyObject.Name} ({objectID})", this);
 		}
@@ -56,11 +56,12 @@ namespace LunyScript.Registries
 		/// <summary>
 		/// Unregisters a context by ObjectID.
 		/// </summary>
-		public Boolean Unregister(LunyID lunyID)
+		internal Boolean Unregister(ScriptContext context)
 		{
+			var lunyID = context.LunyObject.LunyID;
 			if (_contextsByObjectID.Remove(lunyID))
 			{
-				_needsSort = true;
+				_isSortedContextsDirty = true;
 				LunyLogger.LogInfo($"Unregistered context for object {lunyID}", this);
 				return true;
 			}
@@ -100,15 +101,15 @@ namespace LunyScript.Registries
 			ScriptContext.ClearGlobalVariables();
 			_contextsByObjectID.Clear();
 			_sortedContexts = Array.Empty<ScriptContext>();
-			_needsSort = false;
+			_isSortedContextsDirty = false;
 		}
 
-		private void RebuildSortedArray()
+		private ScriptContext[] CreateSortedContexts()
 		{
-			_sortedContexts = _contextsByObjectID.Values
+			_isSortedContextsDirty = false;
+			return _contextsByObjectID.Values
 				.OrderBy(ctx => ctx.LunyObject.LunyID)
 				.ToArray();
-			_needsSort = false;
 		}
 	}
 }

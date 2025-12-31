@@ -18,19 +18,19 @@ namespace LunyScript
 	/// </summary>
 	public sealed class LunyScriptEngine : ILunyScriptEngine
 	{
-		private LunyScriptRunner _runner;
+		private ScriptRunner _runner;
 		public static ILunyScriptEngine Instance { get; private set; }
 
 		private LunyScriptEngine() {} // hide default ctor
 
-		internal LunyScriptEngine(LunyScriptRunner lunyScriptRunner)
+		internal LunyScriptEngine(ScriptRunner scriptRunner)
 		{
 			if (Instance != null)
 				throw new InvalidOperationException($"{nameof(ILunyScriptEngine)} singleton duplication!");
-			if (lunyScriptRunner == null)
-				throw new ArgumentNullException(nameof(lunyScriptRunner));
+			if (scriptRunner == null)
+				throw new ArgumentNullException(nameof(scriptRunner));
 
-			_runner = lunyScriptRunner;
+			_runner = scriptRunner;
 			Instance = this;
 		}
 

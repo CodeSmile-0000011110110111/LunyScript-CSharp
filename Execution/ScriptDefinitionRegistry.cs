@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace LunyScript.Registries
+namespace LunyScript.Execution
 {
 	/// <summary>
 	/// Discovers and manages LunyScript definitions.
@@ -41,16 +41,15 @@ namespace LunyScript.Registries
 		/// <summary>
 		/// Manually registers a LunyScript type.
 		/// </summary>
-		public ScriptDefinition RegisterScript(Type scriptType)
+		public void RegisterScript(Type scriptType)
 		{
 			if (scriptType == null)
 				throw new ArgumentNullException(nameof(scriptType));
 
-			// Check if already registered by name
 			if (_scriptsByName.ContainsKey(scriptType.Name))
 			{
 				LunyLogger.LogWarning($"Script {scriptType.Name} already registered, skipping duplicate", this);
-				return _scriptsByName[scriptType.Name];
+				return;
 			}
 
 			var definition = new ScriptDefinition(scriptType);
@@ -58,7 +57,6 @@ namespace LunyScript.Registries
 			_scriptsByName[definition.Name] = definition;
 
 			LunyLogger.LogInfo($"Registered {definition}", this);
-			return definition;
 		}
 
 		/// <summary>

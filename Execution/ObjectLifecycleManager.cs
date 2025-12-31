@@ -1,8 +1,8 @@
 using Luny.Proxies;
 using LunyScript.Exceptions;
-using LunyScript.Registries;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace LunyScript.Execution
 {
@@ -23,14 +23,16 @@ namespace LunyScript.Execution
 		/// Registers lifecycle hooks on a LunyObject for the given context.
 		/// Called during ScriptContext construction.
 		/// </summary>
-		internal void RegisterObject(ILunyObject lunyObject, ScriptContext context)
+		internal void Register(ScriptContext context, ILunyObject lunyObject)
 		{
 			if (lunyObject is LunyObject lunyObjectImpl)
 			{
-				// TODO: OnCreate
-				lunyObjectImpl.OnEnable = () => HandleEnabledStateChanged(context, true);
-				lunyObjectImpl.OnDisable = () => HandleEnabledStateChanged(context, false);
-				lunyObjectImpl.OnDestroy = () => HandleDestroy(context);
+				// "update" events are handled by ScriptRunner
+				lunyObjectImpl.OnCreate = () => HandleCreateEvent(context);
+				lunyObjectImpl.OnDestroy = () => HandleDestroyEvent(context);
+				lunyObjectImpl.OnReady = () => HandleReadyEvent(context);
+				lunyObjectImpl.OnEnable = () => HandleOnEnableEvent(context);
+				lunyObjectImpl.OnDisable = () => HandleOnDisableEvent(context);
 			}
 		}
 
@@ -38,13 +40,15 @@ namespace LunyScript.Execution
 		/// Unregisters lifecycle hooks from a LunyObject.
 		/// Called during context cleanup or shutdown.
 		/// </summary>
-		internal void UnregisterObject(ILunyObject lunyObject)
+		internal void Unregister(ScriptContext context)
 		{
-			if (lunyObject is LunyObject lunyObjectImpl)
+			if (context.LunyObject is LunyObject lunyObjectImpl)
 			{
+				lunyObjectImpl.OnCreate = null;
+				lunyObjectImpl.OnDestroy = null;
+				lunyObjectImpl.OnReady = null;
 				lunyObjectImpl.OnEnable = null;
 				lunyObjectImpl.OnDisable = null;
-				lunyObjectImpl.OnDestroy = null;
 			}
 		}
 
@@ -55,7 +59,7 @@ namespace LunyScript.Execution
 		internal void QueueForDestruction(ScriptContext context)
 		{
 			_destroyQueue.Enqueue(context);
-			_contextRegistry.Unregister(context.LunyObject.LunyID);
+			_contextRegistry.Unregister(context);
 		}
 
 		/// <summary>
@@ -66,48 +70,63 @@ namespace LunyScript.Execution
 		{
 			while (_destroyQueue.Count > 0)
 			{
-				var lunyObject = (LunyObject)_destroyQueue.Dequeue().LunyObject;
-				if (lunyObject != null)
+				var context = _destroyQueue.Dequeue();
+				if (context != null)
 				{
+					var lunyObject = context.LunyObject;
 					if (lunyObject.IsValid)
-						throw new InvalidOperationException($"{lunyObject} queued for destruction but still valid");
+						throw new InvalidOperationException($"{context} queued for destruction but still valid");
 
-					lunyObject.DestroyNativeObject();
-					UnregisterObject(lunyObject);
+					((LunyObject)lunyObject).DestroyNativeObject();
+					Unregister(context);
 				}
 			}
 		}
 
-		private void HandleEnabledStateChanged(ScriptContext context, Boolean enabled)
+		private void HandleCreateEvent(ScriptContext context) => throw new NotImplementedException();
+
+		private void HandleDestroyEvent(ScriptContext context)
+		{
+			ScriptRunner.RunObjectDestroyed(context);
+			QueueForDestruction(context);
+		}
+
+		private void HandleReadyEvent(ScriptContext context) => throw new NotImplementedException();
+
+		private void HandleOnEnableEvent(ScriptContext context)
 		{
 			// TODO send this event down to children too ...
 
+			SafeguardAgainstInfiniteEnableDisableCycle(context);
+
+			_processingEnableDisable = true;
+			ScriptRunner.RunObjectEnabled(context);
+			_processingEnableDisable = false;
+		}
+
+		private void HandleOnDisableEvent(ScriptContext context)
+		{
+			// TODO send this event down to children too ...
+
+			SafeguardAgainstInfiniteEnableDisableCycle(context);
+
+			_processingEnableDisable = true;
+			ScriptRunner.RunObjectDisabled(context);
+			_processingEnableDisable = false;
+		}
+
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
+		private void SafeguardAgainstInfiniteEnableDisableCycle(ScriptContext context)
+		{
+#if DEBUG || LUNYSCRIPT_DEBUG
 			// Safeguard against infinite loops (OnEnable toggles to disabled, which triggers OnDisable, etc.)
 			if (_processingEnableDisable)
 			{
 				_processingEnableDisable = false;
-				throw new LunyScriptException(
-					$"Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed (infinite loop). Script: {context}");
+				throw new LunyScriptException("Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed " +
+				                              $"(would cause an infinite loop). Script: {context}");
 			}
-
-			_processingEnableDisable = true;
-			try
-			{
-				if (enabled)
-					LunyScriptRunner.RunObjectEnabled(context);
-				else
-					LunyScriptRunner.RunObjectDisabled(context);
-			}
-			finally
-			{
-				_processingEnableDisable = false;
-			}
-		}
-
-		private void HandleDestroy(ScriptContext context)
-		{
-			LunyScriptRunner.RunObjectDestroyed(context);
-			QueueForDestruction(context);
+#endif
 		}
 	}
 }

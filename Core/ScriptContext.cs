@@ -3,7 +3,6 @@ using Luny.Proxies;
 using LunyScript.Diagnostics;
 using LunyScript.Exceptions;
 using LunyScript.Execution;
-using LunyScript.Registries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,7 +81,7 @@ namespace LunyScript
 
 		internal static IVariables GetGlobalVariables() => _GlobalVariables;
 
-		public ScriptContext(IScriptDefinition definition, ILunyObject lunyObject, ObjectLifecycleManager lifecycleManager)
+		public ScriptContext(IScriptDefinition definition, ILunyObject lunyObject)
 		{
 			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
 			_lunyObject = lunyObject ?? throw new ArgumentNullException(nameof(lunyObject));
@@ -91,9 +90,6 @@ namespace LunyScript
 			DebugHooks = new DebugHooks();
 			BlockProfiler = new BlockProfiler();
 			Scheduler = new RunnableEventScheduler();
-
-			// Register lifecycle hooks
-			lifecycleManager.RegisterObject(lunyObject, this);
 		}
 
 		internal void Schedule(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent) =>
