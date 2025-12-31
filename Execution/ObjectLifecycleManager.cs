@@ -1,3 +1,4 @@
+using Luny.Diagnostics;
 using Luny.Proxies;
 using LunyScript.Exceptions;
 using System;
@@ -83,35 +84,48 @@ namespace LunyScript.Execution
 			}
 		}
 
-		private void HandleCreateEvent(ScriptContext context) => throw new NotImplementedException();
+		private void HandleCreateEvent(ScriptContext context)
+		{
+			LunyLogger.LogInfo($"{nameof(LunyObject.OnCreate)}: {context.LunyObject}", this);
+			ScriptRunner.RunAllOnCreateRunners(context);
+		}
 
 		private void HandleDestroyEvent(ScriptContext context)
 		{
-			ScriptRunner.RunObjectDestroyed(context);
+			LunyLogger.LogInfo($"{nameof(LunyObject.OnDestroy)}: {context.LunyObject}", this);
+			ScriptRunner.RunAllOnDestroyRunners(context);
 			QueueForDestruction(context);
 		}
 
-		private void HandleReadyEvent(ScriptContext context) => throw new NotImplementedException();
+		private void HandleReadyEvent(ScriptContext context)
+		{
+			LunyLogger.LogInfo($"{nameof(LunyObject.OnReady)}: {context.LunyObject}", this);
+			throw new NotImplementedException();
+		}
 
 		private void HandleOnEnableEvent(ScriptContext context)
 		{
+			LunyLogger.LogInfo($"{nameof(LunyObject.OnEnable)}: {context.LunyObject}", this);
+
 			// TODO send this event down to children too ...
 
 			SafeguardAgainstInfiniteEnableDisableCycle(context);
 
 			_processingEnableDisable = true;
-			ScriptRunner.RunObjectEnabled(context);
+			ScriptRunner.RunAllOnEnableRunners(context);
 			_processingEnableDisable = false;
 		}
 
 		private void HandleOnDisableEvent(ScriptContext context)
 		{
+			LunyLogger.LogInfo($"{nameof(LunyObject.OnDisable)}: {context.LunyObject}", this);
+
 			// TODO send this event down to children too ...
 
 			SafeguardAgainstInfiniteEnableDisableCycle(context);
 
 			_processingEnableDisable = true;
-			ScriptRunner.RunObjectDisabled(context);
+			ScriptRunner.RunAllOnDisableRunners(context);
 			_processingEnableDisable = false;
 		}
 

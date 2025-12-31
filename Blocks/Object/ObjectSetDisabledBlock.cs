@@ -15,11 +15,10 @@ namespace LunyScript.Blocks
 
 		public void Execute(IScriptContext context)
 		{
-			if (string.IsNullOrEmpty(_name))
-				context.LunyObject.Enabled = false;
+			if (String.IsNullOrEmpty(_name))
+				context.LunyObject.IsEnabled = false;
 			else
 				throw new NotImplementedException($"{nameof(ObjectSetDisabledBlock)} with name '{_name}' not implemented");
-
 		}
 	}
 }

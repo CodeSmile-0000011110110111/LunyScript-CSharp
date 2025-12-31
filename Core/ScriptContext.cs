@@ -1,18 +1,14 @@
 using Luny;
 using Luny.Proxies;
 using LunyScript.Diagnostics;
-using LunyScript.Exceptions;
 using LunyScript.Execution;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace LunyScript
 {
 	// alias required within LunyScript due to namespace/class clash
-	using ScriptEngine = LunyScriptEngine;
-
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered runnables.
@@ -92,8 +88,9 @@ namespace LunyScript
 			Scheduler = new RunnableEventScheduler();
 		}
 
-		internal void Schedule(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent) =>
-			Scheduler.Schedule(runnable, lifecycleEvent);
+		internal void Activate() => ((LunyObject)_lunyObject).Activate();
+
+		internal void Schedule(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent) => Scheduler.Schedule(runnable, lifecycleEvent);
 
 		public override String ToString()
 		{

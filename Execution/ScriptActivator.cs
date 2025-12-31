@@ -30,7 +30,7 @@ namespace LunyScript.Execution
 
 			foreach (var sceneObject in sceneObjects)
 			{
-				if (sceneObject == null || !sceneObject.IsValid || !sceneObject.Enabled)
+				if (sceneObject == null || !sceneObject.IsValid || !sceneObject.IsEnabled)
 					continue;
 
 				var objectName = sceneObject.Name;
@@ -52,7 +52,7 @@ namespace LunyScript.Execution
 				}
 			}
 
-			LunyLogger.LogInfo($"Scene preprocessing complete: {matchedCount} context(s) created from {sceneObjects.Count} object(s)",
+			LunyLogger.LogInfo($"{matchedCount} {nameof(ScriptContext)}s created from {sceneObjects.Count} {nameof(LunyObject)}s",
 				scriptRunner);
 		}
 
@@ -92,6 +92,10 @@ namespace LunyScript.Execution
 					Debugger.Break();
 				}
 			}
+
+			// sends initial OnCreate and (if enabled) OnEnable events
+			foreach (var context in scriptContexts)
+				context.Activate();
 
 			sw.Stop();
 

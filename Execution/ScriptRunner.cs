@@ -23,23 +23,26 @@ namespace LunyScript.Execution
 		internal ScriptContextRegistry Contexts => _contexts;
 		internal ObjectLifecycleManager LifecycleManager => _lifecycleManager;
 
-		internal static void RunObjectEnabled(ScriptContext context)
-		{
-			if (context.LunyObject.Enabled)
-				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnEnable), context);
-		}
+		internal static void RunAllOnCreateRunners(ScriptContext context) =>
+			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnCreate), context);
 
-		internal static void RunObjectDisabled(ScriptContext context)
-		{
-			if (!context.LunyObject.Enabled)
-				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnDisable), context);
-		}
-
-		internal static void RunObjectDestroyed(ScriptContext context)
+		internal static void RunAllOnDestroyRunners(ScriptContext context)
 		{
 			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnDestroy), context);
 			context.DidRunOnDestroy = true;
 		}
+
+		internal static void RunAllOnReadyRunners(ScriptContext context)
+		{
+			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnReady), context);
+			context.DidRunOnReady = true;
+		}
+
+		internal static void RunAllOnEnableRunners(ScriptContext context) =>
+			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnEnable), context);
+
+		internal static void RunAllOnDisableRunners(ScriptContext context) =>
+			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnDisable), context);
 
 		private static void RunAll(IEnumerable<IRunnable> runnables, ScriptContext context)
 		{
@@ -85,18 +88,6 @@ namespace LunyScript.Execution
 			}
 		}
 
-		private static void RunObjectCreated(ScriptContext context)
-		{
-			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnCreate), context);
-			RunObjectEnabled(context);
-		}
-
-		private static void RunObjectReady(ScriptContext context)
-		{
-			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnReady), context);
-			context.DidRunOnReady = true;
-		}
-
 		public ScriptRunner()
 		{
 			LunyLogger.LogInfo($"{nameof(ScriptRunner)} ctor runs", this);
@@ -119,11 +110,6 @@ namespace LunyScript.Execution
 			ScriptActivator.RegisterObjects(LunyEngine.Instance.Scene.GetAllObjects(), this);
 			ScriptActivator.BuildScripts(_contexts.AllContexts, this);
 
-			// TODO: replace this and route it through the lifecycle manager
-			// Run OnCreate and OnEnable
-			foreach (var context in _contexts.AllContexts)
-				RunObjectCreated(context);
-
 			LunyLogger.LogInfo($"{nameof(ScriptRunner)} initialization complete", this);
 		}
 
@@ -133,7 +119,7 @@ namespace LunyScript.Execution
 			foreach (var context in _contexts.AllContexts)
 			{
 				if (!context.DidRunOnReady)
-					RunObjectReady(context);
+					RunAllOnReadyRunners(context);
 
 				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnFixedStep), context);
 			}
@@ -145,7 +131,7 @@ namespace LunyScript.Execution
 			foreach (var context in _contexts.AllContexts)
 			{
 				if (!context.DidRunOnReady)
-					RunObjectReady(context);
+					RunAllOnReadyRunners(context);
 
 				RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnUpdate), context);
 			}
@@ -166,7 +152,7 @@ namespace LunyScript.Execution
 			foreach (var context in _contexts.AllContexts)
 			{
 				if (!context.DidRunOnDestroy)
-					RunObjectDestroyed(context);
+					RunAllOnDestroyRunners(context);
 
 				_lifecycleManager.Unregister(context);
 			}
