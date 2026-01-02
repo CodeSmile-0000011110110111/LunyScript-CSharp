@@ -37,7 +37,7 @@ namespace LunyScript
 	public abstract partial class LunyScript : ILunyScript
 	{
 		// temporary 'singleton' for static subclasses (eg 'Every')
-		private static LunyScript _script;
+		private static LunyScript s_Instance;
 
 		private IScriptContext _context;
 
@@ -101,13 +101,13 @@ namespace LunyScript
 
 		internal void Initialize(IScriptContext context)
 		{
-			_script = this;
+			s_Instance = this;
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
 		~LunyScript() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
-		internal void Shutdown() => _script = null; // temp singleton no longer needed
+		internal void Shutdown() => s_Instance = null; // temp singleton no longer needed
 
 		/// <summary>
 		/// Called once when the script is initialized.
@@ -145,7 +145,7 @@ namespace LunyScript
 			/// <summary>
 			/// Pauses playmode.
 			/// </summary>
-			public static IBlock PausePlayer(String message = null) => _script.IsEditor ? null : new EditorPausePlayerBlock(message);
+			public static IBlock PausePlayer(String message = null) => s_Instance.IsEditor ? null : new EditorPausePlayerBlock(message);
 		}
 
 		/// <summary>
