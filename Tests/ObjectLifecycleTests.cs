@@ -15,7 +15,10 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Created(Object.Destroy());
+			When.Created(
+				Debug.LogWarning("CREATED"),
+				Object.Destroy()
+			);
 			When.Destroyed(Run(AssertRanInFirstFrame));
 		}
 	}
@@ -46,7 +49,10 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Ready(Run(AssertRanInFirstFrame));
+			When.Ready(
+				Debug.LogWarning("READY"),
+				Run(AssertRanInFirstFrame)
+			);
 			//When.EveryFrameEnds(Object.Destroy());
 		}
 	}

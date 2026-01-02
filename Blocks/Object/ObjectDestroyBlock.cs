@@ -1,3 +1,4 @@
+using Luny.Diagnostics;
 using LunyScript.Execution;
 using System;
 
@@ -15,7 +16,10 @@ namespace LunyScript.Blocks
 		public void Execute(IScriptContext context)
 		{
 			if (String.IsNullOrEmpty(_objectName))
+			{
+				LunyLogger.LogInfo($"Destroying object: {context.LunyObject}", this);
 				context.LunyObject.Destroy();
+			}
 			else
 				throw new NotImplementedException($"{nameof(ObjectDestroyBlock)} for {_objectName} is not implemented.");
 		}

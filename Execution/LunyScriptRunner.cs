@@ -13,7 +13,7 @@ namespace LunyScript.Execution
 	/// the <see cref="Luny.LunyEngine"/> at startup.
 	/// Manages script discovery, object binding, and run context lifecycle.
 	/// </summary>
-	internal sealed class LunyScriptRunner : IEngineLifecycleObserver
+	internal sealed class LunyScriptRunner : IEngineObserver
 	{
 		private LunyScriptEngine _scriptEngine;
 		private ScriptDefinitionRegistry _scripts;

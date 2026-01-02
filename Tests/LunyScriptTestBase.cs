@@ -33,6 +33,10 @@ namespace LunyScript.Tests
 				GlobalVariables[name] = result;
 		}
 
-		public override void Build() => _firstFrame = LunyEngine.Instance.Time.FrameCount;
+		public override void Build() => When.Created(Run(() =>
+		{
+			_firstFrame = LunyEngine.Instance.Time.FrameCount;
+			//LunyLogger.LogInfo($"{GetType().Name}: _firstFrame = {_firstFrame}");
+		}));
 	}
 }

@@ -13,7 +13,7 @@ namespace LunyScript.Blocks
 		protected String _message;
 		private LogLevel _logLevel;
 
-		protected DebugLogBlockBase(String message, LogLevel logLevel)
+		protected DebugLogBlockBase(String message , LogLevel logLevel)
 		{
 			_message = message;
 			_logLevel = logLevel;
@@ -25,7 +25,7 @@ namespace LunyScript.Blocks
 		private void DoLog(IScriptContext context)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
-			LunyLogger.Log(_message, context, _logLevel);
+			LunyLogger.Log(_message, this, _logLevel);
 #endif
 		}
 
