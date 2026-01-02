@@ -53,5 +53,7 @@ namespace LunyScript.Execution
 			var runnables = _runnables[(Int32)lifecycleEvent];
 			return runnables != null && runnables.Count > 0;
 		}
+
+		public void Clear() => _runnables = null;
 	}
 }

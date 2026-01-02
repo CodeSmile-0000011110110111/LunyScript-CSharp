@@ -47,8 +47,7 @@ namespace LunyScript.Execution
 					}
 				}
 
-				// OnDestroy
-				if (context.Scheduler.IsObserving(ObjectLifecycleEvents.OnDestroy))
+				// OnDestroy (always observed for internal processing)
 				{
 					lunyObjectImpl.OnDestroy = OnDestroy;
 
@@ -127,6 +126,8 @@ namespace LunyScript.Execution
 		/// </summary>
 		internal void UnregisterCallbacks(ScriptContext context)
 		{
+			context.Scheduler.Clear();
+
 			if (context.LunyObject is LunyObject lunyObjectImpl)
 			{
 				lunyObjectImpl.OnCreate = null;

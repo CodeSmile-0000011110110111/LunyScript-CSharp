@@ -90,8 +90,6 @@ namespace LunyScript.Execution
 
 		internal void Activate() => ((LunyObject)_lunyObject).Activate();
 
-		internal void Schedule(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent) => Scheduler.Schedule(runnable, lifecycleEvent);
-
 		public override String ToString() => $"{nameof(ScriptContext)}: {ScriptID} -> {LunyObject}";
 	}
 }

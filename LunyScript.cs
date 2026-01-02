@@ -126,14 +126,54 @@ namespace LunyScript
 			/// Logs a debug message that is completely stripped in release builds.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 			/// </summary>
-			public static IBlock Log(String message) => new DebugLogBlock(message);
+			public static IBlock LogInfo(String message)
+			{
+#if DEBUG || LUNYSCRIPT_DEBUG
+				return new DebugLogInfoBlock(message);
+#else
+				return null;
+#endif
+			}
 
 			/// <summary>
-			/// Triggers a debugger breakpoint (if debugger is attached).
+			/// Logs a debug "warning" (yellow text) message.
+			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
+			/// </summary>
+			public static IBlock LogWarning(String message)
+			{
+#if DEBUG || LUNYSCRIPT_DEBUG
+				return new DebugLogWarningBlock(message);
+#else
+				return null;
+#endif
+			}
+
+			/// <summary>
+			/// Logs a debug "error" (red text) message.
+			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
+			/// </summary>
+			public static IBlock LogError(String message)
+			{
+#if DEBUG || LUNYSCRIPT_DEBUG
+				return new DebugLogErrorBlock(message);
+#else
+				return null;
+#endif
+			}
+
+			/// <summary>
+			/// Triggers a debugger breakpoint if debugger is attached by calling System.Diagnostics.Debugger.Break().
 			/// Completely stripped in release builds.
 			/// Only breaks when DEBUG or LUNYSCRIPT_DEBUG is defined.
 			/// </summary>
-			public static IBlock Break(String message = null) => new DebugBreakBlock(message);
+			public static IBlock Break(String message = null)
+			{
+#if DEBUG || LUNYSCRIPT_DEBUG
+				return new DebugBreakBlock(message);
+#else
+				return null;
+#endif
+			}
 		}
 
 		/// <summary>
@@ -145,7 +185,7 @@ namespace LunyScript
 			/// <summary>
 			/// Pauses playmode.
 			/// </summary>
-			public static IBlock PausePlayer(String message = null) => s_Instance.IsEditor ? null : new EditorPausePlayerBlock(message);
+			public static IBlock PausePlayer(String message = null) => s_Instance.IsEditor ? new EditorPausePlayerBlock(message) : null;
 		}
 
 		/// <summary>

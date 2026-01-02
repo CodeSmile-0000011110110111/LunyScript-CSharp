@@ -10,12 +10,12 @@ namespace LunyScript
 		private static RunnableSequence CreateSequence(IBlock[] blocks) => HasBlocks(blocks) ? new RunnableSequence(blocks) : null;
 
 		private void ScheduleRunnable(RunnableSequence sequence, ObjectLifecycleEvents eventType) =>
-			((ScriptContext)_context).Schedule(sequence, eventType);
+			((ScriptContext)_context).Scheduler.Schedule(sequence, eventType);
 
 		/// <summary>
-		/// Provides scheduling of frequently repeating events.
+		/// Handles events, ie Lifecycle, Input, Collision, Messages.
 		/// </summary>
-		public static class Every
+		public static class When
 		{
 			/// <summary>
 			/// Schedules blocks to run on fixed-rate updates.
@@ -24,29 +24,23 @@ namespace LunyScript
 			/// It's therefore unsuitable for once-only events, such as Input.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static void FixedStep(params IBlock[] blocks) =>
+			public static void EveryFixedStep(params IBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnFixedStep);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static void Frame(params IBlock[] blocks) =>
+			public static void EveryFrame(params IBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnUpdate);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static void FrameEnds(params IBlock[] blocks) =>
+			public static void EveryFrameEnds(params IBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnLateUpdate);
-		}
 
-		/// <summary>
-		/// Handles infrequently occuring events, ie Input, Collision, Messages.
-		/// </summary>
-		public static class When
-		{
 			/// <summary>
 			/// Runs once the moment when the object is instantiated.
 			/// </summary>
