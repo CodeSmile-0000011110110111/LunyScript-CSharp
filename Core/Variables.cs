@@ -132,6 +132,7 @@ namespace LunyScript
 			sb.AppendLine($"Variables: ({_vars.Count})");
 			foreach (var kvp in _vars)
 				sb.AppendLine($"  {kvp.Key} = {kvp.Value}");
+
 			return sb.ToString();
 		}
 

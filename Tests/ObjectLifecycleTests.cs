@@ -11,7 +11,7 @@ namespace LunyScript.Tests
 				GlobalVariables[name] = true;
 		}
 
-		public override void Build() => LunyLogger.LogInfo($"Building {GetType().Name}");
+		public override void Build() => LunyLogger.LogInfo($"Building {GetType().Name}", this);
 	}
 
 	public sealed class Assert_Runs_WhenCreated : LunyScriptTestBase
