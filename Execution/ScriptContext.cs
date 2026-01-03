@@ -30,7 +30,6 @@ namespace LunyScript.Execution
 		private readonly IScriptDefinition _scriptDef;
 		private readonly ILunyObject _lunyObject;
 
-		internal Boolean DidRunOnReady { get; set; }
 		internal Boolean DidRunOnDestroy { get; set; }
 
 		/// <summary>

@@ -92,12 +92,16 @@ namespace LunyScript.Execution
 
 		public void OnFixedStep(Double fixedDeltaTime)
 		{
+			_lifecycle.ProcessPendingReady();
+
 			foreach (var context in _contexts.AllContexts)
 				_lifecycle.OnFixedStep(fixedDeltaTime, context);
 		}
 
 		public void OnUpdate(Double deltaTime)
 		{
+			_lifecycle.ProcessPendingReady();
+
 			foreach (var context in _contexts.AllContexts)
 				_lifecycle.OnUpdate(deltaTime, context);
 		}
@@ -121,7 +125,7 @@ namespace LunyScript.Execution
 				context.LunyObject.Destroy();
 
 			// final cleanup of pending object destroy
-			_lifecycle.ProcessPendingDestroy();
+			_lifecycle.Shutdown();
 			_contexts?.Clear();
 			_scripts?.Clear();
 			_scriptEngine.Shutdown();
