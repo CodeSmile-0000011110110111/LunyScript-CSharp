@@ -6,13 +6,13 @@ namespace LunyScript.Tests
 {
 	public abstract class LunyScriptTestBase : LunyScript
 	{
-		private Int64 _firstFrame = -1;
+		private Int64 _firstFrame;
 		private Boolean _loggedOnce_NotInFirstFrame;
 
 		protected void AssertRanInFirstFrame()
 		{
 			var currentFrame = LunyEngine.Instance.Time.FrameCount;
-			if (currentFrame != _firstFrame)
+			if (currentFrame > _firstFrame)
 			{
 				if (!_loggedOnce_NotInFirstFrame)
 				{
@@ -33,10 +33,14 @@ namespace LunyScript.Tests
 				GlobalVariables[name] = result;
 		}
 
-		public override void Build() => When.Created(Run(() =>
+		public override void Build()
 		{
-			_firstFrame = LunyEngine.Instance.Time.FrameCount;
-			//LunyLogger.LogInfo($"{GetType().Name}: _firstFrame = {_firstFrame}");
-		}));
+			When.Created(Debug.LogInfo("CREATED"));
+			When.Destroyed(Debug.LogInfo("DESTROYED"));
+			When.Enabled(Debug.LogInfo("ENABLED"));
+			When.Disabled(Debug.LogInfo("DISABLED"));
+
+			When.Created(Run(() => _firstFrame = LunyEngine.Instance.Time.FrameCount));
+		}
 	}
 }

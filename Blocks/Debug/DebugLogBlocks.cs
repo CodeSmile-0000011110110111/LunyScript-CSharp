@@ -25,7 +25,7 @@ namespace LunyScript.Blocks
 		private void DoLog(IScriptContext context)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
-			LunyLogger.Log(_message, this, _logLevel);
+			LunyLogger.Log($"{_message} ({context})", this, _logLevel);
 #endif
 		}
 

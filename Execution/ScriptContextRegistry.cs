@@ -60,13 +60,11 @@ namespace LunyScript.Execution
 		internal Boolean Unregister(ScriptContext context)
 		{
 			var lunyID = context.LunyObject.LunyID;
-			if (_contextsByObjectID.Remove(lunyID))
-			{
-				_isSortedContextsDirty = true;
-				LunyLogger.LogInfo($"Unregistered {context} ({context.GetHashCode()})", this);
-				return true;
-			}
-			return false;
+			if (!_contextsByObjectID.Remove(lunyID))
+				return false;
+
+			_isSortedContextsDirty = true;
+			return true;
 		}
 
 		/// <summary>

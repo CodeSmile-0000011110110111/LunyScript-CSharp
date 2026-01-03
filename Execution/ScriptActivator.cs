@@ -39,27 +39,29 @@ namespace LunyScript.Execution
 					var context = contextRegistry.CreateContext(scriptDef, lunyObject);
 					createdContexts.Add(context);
 
-					LunyLogger.LogInfo($"{scriptDef} -> {lunyObject}", contextRegistry);
+					//LunyLogger.LogInfo($"{scriptDef} => {lunyObject}", contextRegistry);
 				}
 			}
 
-			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(ScriptContext)}s created from {lunyObjects.Count} {nameof(LunyObject)}s",
-				typeof(ScriptActivator));
+			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(ScriptContext)}s created from {lunyObjects.Count} {nameof(LunyObject)}s.",
+				nameof(ScriptActivator));
 
 			return createdContexts;
 		}
 
-		public static void BuildScripts(IReadOnlyList<ScriptContext> scriptContexts, ScriptLifecycle lifecycle)
+		public static void BuildAndActivateLunyScripts(IReadOnlyList<ILunyObject> sceneObjects, LunyScriptRunner scriptRunner)
 		{
 			var sw = Stopwatch.StartNew();
 
+			var scriptContexts = CreateContexts(sceneObjects, scriptRunner.Scripts, scriptRunner.Contexts);
+
+			var lifecycle = scriptRunner.Lifecycle;
 			var activatedCount = 0;
 			foreach (var context in scriptContexts)
 			{
 				try
 				{
-					LunyLogger.LogInfo($"{nameof(LunyScript)}.{nameof(LunyScript.Build)}() -> {context} ({context.GetHashCode()})",
-						typeof(ScriptActivator));
+					LunyLogger.LogInfo($"Building {context} ...", nameof(ScriptActivator));
 
 					// Create script instance, initialize with context, and call Build()
 					var scriptInstance = (LunyScript)Activator.CreateInstance(context.ScriptType);
@@ -71,15 +73,17 @@ namespace LunyScript.Execution
 				}
 				catch (Exception ex)
 				{
-					LunyLogger.LogError($"{context.ScriptType} failed to build: {ex}", typeof(ScriptActivator));
+					LunyLogger.LogError($"{context.ScriptType} failed to build: {ex}", nameof(ScriptActivator));
 					Debugger.Break();
 				}
 			}
 
+			ActivateScripts(scriptContexts);
+
 			sw.Stop();
 
 			var ms = (Int32)Math.Round(sw.Elapsed.TotalMilliseconds, MidpointRounding.AwayFromZero);
-			LunyLogger.LogInfo($"Built {activatedCount} script(s) in {ms} ms", typeof(ScriptActivator));
+			LunyLogger.LogInfo($"Built {activatedCount} script(s) in {ms} ms", nameof(ScriptActivator));
 		}
 
 		public static void ActivateScripts(IReadOnlyList<ScriptContext> contexts)

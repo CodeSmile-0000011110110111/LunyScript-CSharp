@@ -47,6 +47,6 @@ namespace LunyScript
 			Type = type;
 		}
 
-		public override String ToString() => $"Script: {Name} (ID:{ScriptID}, Type:{Type.FullName})";
+		public override String ToString() => $"{ScriptID} -> {Type.FullName}";
 	}
 }

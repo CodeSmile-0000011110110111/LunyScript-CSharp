@@ -1,6 +1,5 @@
 using Luny;
 using Luny.Diagnostics;
-using Luny.Exceptions;
 using Luny.Proxies;
 using LunyScript.Exceptions;
 using System;
@@ -34,16 +33,20 @@ namespace LunyScript.Execution
 			{
 				// setup receiving the lifecycle events for which the script has scheduled runnables
 
-				// OnCreate
-				if (context.Scheduler.IsObserving(ObjectLifecycleEvents.OnCreate))
+				// OnCreate (always observed for internal processing)
 				{
 					lunyObjectImpl.OnCreate = OnCreate;
 
 					void OnCreate()
 					{
-						LunyLogger.LogInfo($"{nameof(LunyObject.OnCreate)}: {context.LunyObject}", this);
 						var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnCreate);
-						LunyScriptRunner.RunAll(runnables, context);
+						if (runnables != null)
+						{
+							LunyLogger.LogInfo($"Running {nameof(LunyObject.OnCreate)}: {context} ...", this);
+							LunyScriptRunner.Run(runnables, context);
+						}
+
+						// TODO: enqueue in OnReady queue
 					}
 				}
 
@@ -54,11 +57,15 @@ namespace LunyScript.Execution
 					void OnDestroy()
 					{
 						if (context.DidRunOnDestroy)
-							throw new LunyScriptException($"{nameof(LunyObject.OnDestroy)} was invoked again: {context.LunyObject}");
+							throw new LunyScriptException($"{nameof(LunyObject.OnDestroy)} was invoked again: {context}");
 
-						LunyLogger.LogInfo($"{nameof(LunyObject.OnDestroy)}: {context.LunyObject}", this);
 						var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnDestroy);
-						LunyScriptRunner.RunAll(runnables, context);
+						if (runnables != null)
+						{
+							LunyLogger.LogInfo($"Running {nameof(LunyObject.OnDestroy)}: {context.LunyObject} ...", this);
+							LunyScriptRunner.Run(runnables, context);
+						}
+
 						QueueForDestruction(context);
 					}
 				}
@@ -71,11 +78,15 @@ namespace LunyScript.Execution
 					void OnReady()
 					{
 						if (context.DidRunOnReady)
-							throw new LunyScriptException($"{nameof(LunyObject.OnReady)} was invoked again: {context.LunyObject}");
+							throw new LunyScriptException($"{nameof(LunyObject.OnReady)} was invoked again: {context}");
 
-						LunyLogger.LogInfo($"{nameof(LunyObject.OnReady)}: {context.LunyObject}", this);
 						var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnReady);
-						LunyScriptRunner.RunAll(runnables, context);
+						if (runnables != null)
+						{
+							LunyLogger.LogInfo($"Running {nameof(LunyObject.OnReady)}: {context.LunyObject} ...", this);
+							LunyScriptRunner.Run(runnables, context);
+							context.Scheduler.Clear(ObjectLifecycleEvents.OnReady);
+						}
 					}
 				}
 
@@ -86,14 +97,16 @@ namespace LunyScript.Execution
 
 					void OnEnable()
 					{
-						LunyLogger.LogInfo($"{nameof(LunyObject.OnEnable)}: {context.LunyObject}", this);
-
 						// TODO send this event down to children too ...
 
 						SafeguardAgainstInfiniteEnableDisableCycle(context);
 						_processingEnableDisable = true;
 						var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnEnable);
-						LunyScriptRunner.RunAll(runnables, context);
+						if (runnables != null)
+						{
+							LunyLogger.LogInfo($"Running {nameof(LunyObject.OnEnable)}: {context} ...", this);
+							LunyScriptRunner.Run(runnables, context);
+						}
 						_processingEnableDisable = false;
 					}
 				}
@@ -105,15 +118,17 @@ namespace LunyScript.Execution
 
 					void OnDisable()
 					{
-						LunyLogger.LogInfo($"{nameof(LunyObject.OnDisable)}: {context.LunyObject}", this);
-
 						// TODO send this event down to children too ...
 
 						SafeguardAgainstInfiniteEnableDisableCycle(context);
 
 						_processingEnableDisable = true;
 						var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnDisable);
-						LunyScriptRunner.RunAll(runnables, context);
+						if (runnables != null)
+						{
+							LunyLogger.LogInfo($"Running {nameof(LunyObject.OnDisable)}: {context} ...", this);
+							LunyScriptRunner.Run(runnables, context);
+						}
 						_processingEnableDisable = false;
 					}
 				}
@@ -150,7 +165,8 @@ namespace LunyScript.Execution
 				InvokeOnReady(context);
 
 			var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnFixedStep);
-			LunyScriptRunner.RunAll(runnables, context);
+			if (runnables != null)
+				LunyScriptRunner.Run(runnables, context);
 		}
 
 		public void OnUpdate(Double deltaTime, ScriptContext context)
@@ -159,13 +175,15 @@ namespace LunyScript.Execution
 				InvokeOnReady(context);
 
 			var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnUpdate);
-			LunyScriptRunner.RunAll(runnables, context);
+			if (runnables != null)
+				LunyScriptRunner.Run(runnables, context);
 		}
 
 		public void OnLateUpdate(Double deltaTime, ScriptContext context)
 		{
 			var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnLateUpdate);
-			LunyScriptRunner.RunAll(runnables, context);
+			if (runnables != null)
+				LunyScriptRunner.Run(runnables, context);
 		}
 
 		/// <summary>
@@ -175,7 +193,8 @@ namespace LunyScript.Execution
 		internal void QueueForDestruction(ScriptContext context)
 		{
 			_pendingDestroy.Enqueue(context);
-			_contexts.Unregister(context);
+			if (!_contexts.Unregister(context))
+				LunyLogger.LogWarning($"{nameof(QueueForDestruction)} could not unregister: {context}", this);
 		}
 
 		/// <summary>
@@ -184,6 +203,9 @@ namespace LunyScript.Execution
 		/// </summary>
 		internal void ProcessPendingDestroy()
 		{
+			if (_pendingDestroy.Count > 0)
+				LunyLogger.LogInfo($"Processing destroy queue with {_pendingDestroy.Count} contexts ...");
+
 			while (_pendingDestroy.Count > 0)
 			{
 				var context = _pendingDestroy.Dequeue();
@@ -193,6 +215,7 @@ namespace LunyScript.Execution
 					if (lunyObject.IsValid)
 						throw new LunyScriptException($"{context} queued for destruction but still valid");
 
+					LunyLogger.LogInfo($"DESTROY pending: {context} ...");
 					UnregisterCallbacks(context);
 					((LunyObject)lunyObject).DestroyNativeObject();
 				}

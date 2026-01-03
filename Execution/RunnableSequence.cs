@@ -28,6 +28,6 @@ namespace LunyScript.Execution
 				block?.Execute(context);
 		}
 
-		~RunnableSequence() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		// ~RunnableSequence() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 	}
 }

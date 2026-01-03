@@ -22,18 +22,10 @@ namespace LunyScript.Execution
 
 		internal ScriptDefinitionRegistry Scripts => _scripts;
 		internal ScriptContextRegistry Contexts => _contexts;
+		public ScriptLifecycle Lifecycle => _lifecycle;
 
-		internal static void RunAllOnReadyRunners(ScriptContext context)
+		internal static void Run(IEnumerable<IRunnable> runnables, ScriptContext context)
 		{
-			RunAll(context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnReady), context);
-			context.DidRunOnReady = true;
-		}
-
-		internal static void RunAll(IEnumerable<IRunnable> runnables, ScriptContext context)
-		{
-			if (runnables == null || context == null)
-				return;
-
 			foreach (var runnable in runnables)
 				Run(runnable, context);
 		}
@@ -77,9 +69,9 @@ namespace LunyScript.Execution
 		{
 			LunyLogger.LogInfo("Initializing...", this);
 
-			// Instantiate public API singleton
-			_scriptEngine = new LunyScriptEngine(this);
-
+			ScriptID.Reset();
+			RunnableID.Reset();
+			_scriptEngine = new LunyScriptEngine(this); // public API interface (split to ensure users don't call OnStartup etc)
 			_scripts = new ScriptDefinitionRegistry(); // performs LunyScript type discovery
 			_contexts = new ScriptContextRegistry();
 			_lifecycle = new ScriptLifecycle(_contexts);
@@ -93,7 +85,7 @@ namespace LunyScript.Execution
 
 			// Process current scene to bind scripts to objects
 			var sceneObjects = LunyEngine.Instance.Scene.GetAllObjects();
-			BuildAndActivateLunyScriptObjects(sceneObjects);
+			ScriptActivator.BuildAndActivateLunyScripts(sceneObjects, this);
 
 			LunyLogger.LogInfo($"{nameof(OnStartup)} complete.", this);
 		}
@@ -129,24 +121,16 @@ namespace LunyScript.Execution
 				context.LunyObject.Destroy();
 
 			// final cleanup of pending object destroy
-			foreach (var _ in _contexts.AllContexts)
-				_lifecycle.ProcessPendingDestroy();
-
+			_lifecycle.ProcessPendingDestroy();
 			_contexts?.Clear();
 			_scripts?.Clear();
-			_lifecycle = null;
 			_scriptEngine.Shutdown();
+
 			_scriptEngine = null;
+			_lifecycle = null;
 			LunyLogger.LogInfo($"{nameof(OnShutdown)} complete.", this);
 		}
 
 		~LunyScriptRunner() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
-
-		private void BuildAndActivateLunyScriptObjects(IReadOnlyList<ILunyObject> sceneObjects)
-		{
-			var createdContexts = ScriptActivator.CreateContexts(sceneObjects, _scripts, _contexts);
-			ScriptActivator.BuildScripts(createdContexts, _lifecycle);
-			ScriptActivator.ActivateScripts(createdContexts);
-		}
 	}
 }

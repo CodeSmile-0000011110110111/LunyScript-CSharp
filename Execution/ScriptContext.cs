@@ -1,4 +1,3 @@
-using Luny;
 using Luny.Diagnostics;
 using Luny.Proxies;
 using LunyScript.Diagnostics;
@@ -86,10 +85,15 @@ namespace LunyScript.Execution
 			Scheduler = new ScriptEventScheduler();
 		}
 
-		~ScriptContext() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		// ~ScriptContext() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
-		internal void Activate() => ((LunyObject)_lunyObject).Activate();
+		internal void Activate()
+		{
+			var lunyObject = (LunyObject)_lunyObject;
+			//lunyObject.Name = lunyObject.ToString();
+			lunyObject.Activate();
+		}
 
-		public override String ToString() => $"{nameof(ScriptContext)}: {ScriptID} -> {LunyObject}";
+		public override String ToString() => $"{ScriptID} -> {LunyObject}";
 	}
 }

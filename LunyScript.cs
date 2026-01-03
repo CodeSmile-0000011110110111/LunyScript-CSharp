@@ -105,7 +105,7 @@ namespace LunyScript
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		~LunyScript() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		// ~LunyScript() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
 		internal void Shutdown() => s_Instance = null; // temp singleton no longer needed
 

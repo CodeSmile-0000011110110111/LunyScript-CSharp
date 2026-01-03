@@ -6,7 +6,6 @@
 		{
 			base.Build();
 			When.Created(Run(AssertRanInFirstFrame));
-			//When.EveryFrameEnds(Object.Destroy());
 		}
 	}
 
@@ -15,10 +14,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Created(
-				Debug.LogWarning("CREATED"),
-				Object.Destroy()
-			);
+			When.Created(Object.Destroy());
 			When.Destroyed(Run(AssertRanInFirstFrame));
 		}
 	}
@@ -29,7 +25,6 @@
 		{
 			base.Build();
 			When.Enabled(Run(AssertRanInFirstFrame));
-			//When.EveryFrameEnds(Object.Destroy());
 		}
 	}
 
@@ -40,7 +35,6 @@
 			base.Build();
 			When.Created(Object.SetDisabled());
 			When.Disabled(Run(AssertRanInFirstFrame));
-			//When.EveryFrameEnds(Object.Destroy());
 		}
 	}
 
@@ -49,11 +43,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Ready(
-				Debug.LogWarning("READY"),
-				Run(AssertRanInFirstFrame)
-			);
-			//When.EveryFrameEnds(Object.Destroy());
+			When.Ready(Run(AssertRanInFirstFrame));
 		}
 	}
 

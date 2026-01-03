@@ -15,11 +15,6 @@ namespace LunyScript.Execution
 		private readonly Dictionary<ScriptID, ScriptDefinition> _scriptsById = new();
 		private readonly Dictionary<String, ScriptDefinition> _scriptsByName = new();
 
-		/// <summary>
-		/// Gets all registered script definitions.
-		/// </summary>
-		public IEnumerable<ScriptDefinition> AllScripts => _scriptsById.Values;
-
 		public ScriptDefinitionRegistry() => DiscoverScripts();
 		~ScriptDefinitionRegistry() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 

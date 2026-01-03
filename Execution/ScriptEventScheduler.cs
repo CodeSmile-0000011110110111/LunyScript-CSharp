@@ -17,7 +17,7 @@ namespace LunyScript.Execution
 		// private Dictionary<InputEventKey, List<IRunnable>> _inputRunnables;
 		// private Dictionary<CollisionEventKey, List<IRunnable>> _collisionRunnables;
 
-		~ScriptEventScheduler() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		// ~ScriptEventScheduler() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
 		/// <summary>
 		/// Schedules a runnable to execute on a specific lifecycle event.
@@ -55,5 +55,13 @@ namespace LunyScript.Execution
 		}
 
 		public void Clear() => _runnables = null;
+
+		public void Clear(ObjectLifecycleEvents lifecycleEvent)
+		{
+			if (_runnables == null)
+				return;
+
+			_runnables[(Int32)lifecycleEvent] = null;
+		}
 	}
 }

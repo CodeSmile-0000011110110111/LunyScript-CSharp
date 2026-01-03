@@ -8,7 +8,9 @@ namespace LunyScript
 	/// </summary>
 	public readonly struct RunnableID : IEquatable<RunnableID>, IComparable<RunnableID>
 	{
-		private static Int32 s_NextID = 1;
+		private const Int32 StartID = 1;
+		private static Int32 s_NextID = StartID;
+		internal static void Reset() => s_NextID = StartID;
 
 		public readonly Int32 Value;
 
@@ -17,7 +19,7 @@ namespace LunyScript
 		/// <summary>
 		/// Generates a new unique SequenceID.
 		/// </summary>
-		public static RunnableID Generate() => new RunnableID(s_NextID++);
+		public static RunnableID Generate() => new(s_NextID++);
 
 		public Boolean Equals(RunnableID other) => Value == other.Value;
 		public override Boolean Equals(Object obj) => obj is RunnableID other && Equals(other);
