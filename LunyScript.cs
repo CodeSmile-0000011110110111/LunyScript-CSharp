@@ -69,7 +69,7 @@ namespace LunyScript
 		/// Logs a message that appears in both debug and release builds.
 		/// Posts to both Luny internal log (if enabled) and engine logging.
 		/// </summary>
-		protected static IBlock Log(String message) => new EngineLogBlock(message);
+		protected static ILunyScriptBlock Log(String message) => new EngineLogBlock(message);
 
 		/// <summary>
 		/// Runs the contained method or lambda when this block executes. Meant for custom code and quick prototyping.
@@ -96,7 +96,7 @@ namespace LunyScript
 		/// </remarks>
 		/// <param name="action"></param>
 		/// <returns></returns>
-		protected static IBlock Run(Action action) => new RunActionBlock(_ => action());
+		protected static ILunyScriptBlock Run(Action action) => new RunActionBlock(_ => action());
 
 		internal void Initialize(ILunyScriptContext context)
 		{
@@ -125,7 +125,7 @@ namespace LunyScript
 			/// Logs a debug message that is completely stripped in release builds.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 			/// </summary>
-			public static IBlock LogInfo(String message)
+			public static ILunyScriptBlock LogInfo(String message)
 			{
 #if DEBUG || LUNYSCRIPT_DEBUG
 				return new DebugLogInfoBlock(message);
@@ -138,7 +138,7 @@ namespace LunyScript
 			/// Logs a debug "warning" (yellow text) message.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
 			/// </summary>
-			public static IBlock LogWarning(String message)
+			public static ILunyScriptBlock LogWarning(String message)
 			{
 #if DEBUG || LUNYSCRIPT_DEBUG
 				return new DebugLogWarningBlock(message);
@@ -151,7 +151,7 @@ namespace LunyScript
 			/// Logs a debug "error" (red text) message.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
 			/// </summary>
-			public static IBlock LogError(String message)
+			public static ILunyScriptBlock LogError(String message)
 			{
 #if DEBUG || LUNYSCRIPT_DEBUG
 				return new DebugLogErrorBlock(message);
@@ -165,7 +165,7 @@ namespace LunyScript
 			/// Completely stripped in release builds.
 			/// Only breaks when DEBUG or LUNYSCRIPT_DEBUG is defined.
 			/// </summary>
-			public static IBlock Break(String message = null)
+			public static ILunyScriptBlock Break(String message = null)
 			{
 #if DEBUG || LUNYSCRIPT_DEBUG
 				return new DebugBreakBlock(message);
@@ -184,7 +184,7 @@ namespace LunyScript
 			/// <summary>
 			/// Pauses playmode.
 			/// </summary>
-			public static IBlock PausePlayer(String message = null) => s_Instance.IsEditor ? new EditorPausePlayerBlock(message) : null;
+			public static ILunyScriptBlock PausePlayer(String message = null) => s_Instance.IsEditor ? new EditorPausePlayerBlock(message) : null;
 		}
 
 		/// <summary>
@@ -192,20 +192,20 @@ namespace LunyScript
 		/// </summary>
 		public static class Object
 		{
-			public static IBlock SetEnabled(String name = null) => new ObjectSetEnabledBlock(name);
-			public static IBlock SetDisabled(String name = null) => new ObjectSetDisabledBlock(name);
+			public static ILunyScriptBlock SetEnabled(String name = null) => new ObjectSetEnabledBlock(name);
+			public static ILunyScriptBlock SetDisabled(String name = null) => new ObjectSetDisabledBlock(name);
 
-			public static IBlock CreateEmpty(String name) => ObjectCreateBlock.CreateEmpty(name);
-			public static IBlock CreateWithPrefab(String prefabName) => ObjectCreateBlock.CreateWithPrefab(prefabName);
-			public static IBlock CreateClone(String originalName) => ObjectCreateBlock.CreateClone(originalName);
-			public static IBlock CreateCube(String name = null) => ObjectCreateBlock.CreateCube(name);
-			public static IBlock CreateSphere(String name = null) => ObjectCreateBlock.CreateSphere(name);
-			public static IBlock CreateCapsule(String name = null) => ObjectCreateBlock.CreateCapsule(name);
-			public static IBlock CreateCylinder(String name = null) => ObjectCreateBlock.CreateCylinder(name);
-			public static IBlock CreatePlane(String name = null) => ObjectCreateBlock.CreatePlane(name);
-			public static IBlock CreateQuad(String name = null) => ObjectCreateBlock.CreateQuad(name);
+			public static ILunyScriptBlock CreateEmpty(String name) => ObjectCreateBlock.CreateEmpty(name);
+			public static ILunyScriptBlock CreateWithPrefab(String prefabName) => ObjectCreateBlock.CreateWithPrefab(prefabName);
+			public static ILunyScriptBlock CreateClone(String originalName) => ObjectCreateBlock.CreateClone(originalName);
+			public static ILunyScriptBlock CreateCube(String name = null) => ObjectCreateBlock.CreateCube(name);
+			public static ILunyScriptBlock CreateSphere(String name = null) => ObjectCreateBlock.CreateSphere(name);
+			public static ILunyScriptBlock CreateCapsule(String name = null) => ObjectCreateBlock.CreateCapsule(name);
+			public static ILunyScriptBlock CreateCylinder(String name = null) => ObjectCreateBlock.CreateCylinder(name);
+			public static ILunyScriptBlock CreatePlane(String name = null) => ObjectCreateBlock.CreatePlane(name);
+			public static ILunyScriptBlock CreateQuad(String name = null) => ObjectCreateBlock.CreateQuad(name);
 
-			public static IBlock Destroy(String name = null) => new ObjectDestroyBlock(name);
+			public static ILunyScriptBlock Destroy(String name = null) => new ObjectDestroyBlock(name);
 		}
 	}
 }

@@ -9,10 +9,10 @@ namespace LunyScript.Runnables
 	/// Runnables have IDs and can contain child blocks.
 	/// Examples: RunnableSequence, RunnableStateMachine, RunnableBehaviorTree.
 	/// </summary>
-	public interface IRunnable : IBlock
+	public interface IRunnable : ILunyScriptBlock
 	{
 		RunnableID ID { get; }
-		IReadOnlyList<IBlock> Children { get; }
+		IReadOnlyList<ILunyScriptBlock> Children { get; }
 		Boolean IsEmpty { get; }
 	}
 }

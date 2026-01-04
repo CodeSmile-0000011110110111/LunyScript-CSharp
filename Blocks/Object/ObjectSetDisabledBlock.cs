@@ -8,7 +8,7 @@ namespace LunyScript.Blocks
 	/// Enabled means the object is visible, receives update events, and participates in physics simulation (collisions).
 	/// Disable an object to take it out of the game loop temporarily without destroying it.
 	/// </summary>
-	internal sealed class ObjectSetDisabledBlock : IBlock
+	internal sealed class ObjectSetDisabledBlock : ILunyScriptBlock
 	{
 		private readonly String _name;
 
@@ -17,7 +17,7 @@ namespace LunyScript.Blocks
 		public void Execute(ILunyScriptContext context)
 		{
 			if (String.IsNullOrEmpty(_name))
-				context.LunyObject.IsEnabled = false;
+				context.LunyObject.Enabled = false;
 			else
 				throw new NotImplementedException($"{nameof(ObjectSetDisabledBlock)} with name '{_name}' not implemented");
 		}

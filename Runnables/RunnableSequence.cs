@@ -11,10 +11,10 @@ namespace LunyScript.Runnables
 	public sealed class RunnableSequence : IRunnable
 	{
 		public RunnableID ID { get; }
-		public IReadOnlyList<IBlock> Children { get; }
+		public IReadOnlyList<ILunyScriptBlock> Children { get; }
 		public Boolean IsEmpty => Children.Count == 0;
 
-		public RunnableSequence(IReadOnlyList<IBlock> blocks)
+		public RunnableSequence(IReadOnlyList<ILunyScriptBlock> blocks)
 		{
 			if (blocks == null || blocks.Count == 0)
 				throw new ArgumentException("Sequence must contain at least one block", nameof(blocks));

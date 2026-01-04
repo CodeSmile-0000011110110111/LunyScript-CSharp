@@ -6,7 +6,7 @@ namespace LunyScript.Blocks
 	/// Base interface for all executable blocks (leaf and container).
 	/// Leaf blocks contain logic but no child blocks.
 	/// </summary>
-	public interface IBlock
+	public interface ILunyScriptBlock
 	{
 		void Execute(ILunyScriptContext context);
 	}

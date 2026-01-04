@@ -6,7 +6,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Destroys an instance of an engine object.
 	/// </summary>
-	internal sealed class ObjectDestroyBlock : IBlock
+	internal sealed class ObjectDestroyBlock : ILunyScriptBlock
 	{
 		private String _objectName;
 

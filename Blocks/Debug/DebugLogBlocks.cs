@@ -8,7 +8,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Debug-only logging block base class.
 	/// </summary>
-	internal class DebugLogBlockBase : IBlock
+	internal class DebugLogBlockBase : ILunyScriptBlock
 	{
 		protected String _message;
 		private LogLevel _logLevel;

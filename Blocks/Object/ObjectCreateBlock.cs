@@ -35,34 +35,34 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Creates an instance of an engine object.
 	/// </summary>
-	internal sealed class ObjectCreateBlock : IBlock
+	internal sealed class ObjectCreateBlock : ILunyScriptBlock
 	{
 		private CreateObject _data;
 
-		internal static IBlock CreateEmpty(String name) => new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Empty));
+		internal static ILunyScriptBlock CreateEmpty(String name) => new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Empty));
 
-		internal static IBlock CreateWithPrefab(String prefabName) =>
+		internal static ILunyScriptBlock CreateWithPrefab(String prefabName) =>
 			new ObjectCreateBlock(new CreateObject(prefabName, CreateObject.Type.Prefab));
 
-		internal static IBlock CreateClone(String originalName) =>
+		internal static ILunyScriptBlock CreateClone(String originalName) =>
 			new ObjectCreateBlock(new CreateObject(originalName, CreateObject.Type.Clone));
 
-		internal static IBlock CreateCube(String name = null) =>
+		internal static ILunyScriptBlock CreateCube(String name = null) =>
 			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Cube));
 
-		internal static IBlock CreateSphere(String name = null) =>
+		internal static ILunyScriptBlock CreateSphere(String name = null) =>
 			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Sphere));
 
-		internal static IBlock CreateCapsule(String name = null) =>
+		internal static ILunyScriptBlock CreateCapsule(String name = null) =>
 			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Capsule));
 
-		internal static IBlock CreateCylinder(String name = null) =>
+		internal static ILunyScriptBlock CreateCylinder(String name = null) =>
 			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Cylinder));
 
-		internal static IBlock CreatePlane(String name = null) =>
+		internal static ILunyScriptBlock CreatePlane(String name = null) =>
 			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Plane));
 
-		internal static IBlock CreateQuad(String name = null) =>
+		internal static ILunyScriptBlock CreateQuad(String name = null) =>
 			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Quad));
 
 		internal ObjectCreateBlock(CreateObject data) => _data = data;

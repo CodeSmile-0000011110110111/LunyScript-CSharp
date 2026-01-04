@@ -86,11 +86,7 @@ namespace LunyScript.Execution
 
 		~LunyScriptContext() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
-		internal void Activate()
-		{
-			var lunyObject = (LunyObject)_lunyObject;
-			lunyObject.Activate();
-		}
+		internal void Activate() => _lunyObject.ActivateOnceBeforeUse();
 
 		public override String ToString() => $"{ScriptID} -> {LunyObject}";
 	}

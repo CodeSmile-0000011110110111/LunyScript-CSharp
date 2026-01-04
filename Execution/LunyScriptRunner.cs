@@ -129,6 +129,6 @@ namespace LunyScript.Execution
 			LunyLogger.LogInfo($"{nameof(OnShutdown)} complete.", this);
 		}
 
-		~LunyScriptRunner() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		//~LunyScriptRunner() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 	}
 }
