@@ -15,10 +15,10 @@ namespace LunyScript.Blocks
 
 		public EditorPausePlayerBlock(String message = null) => _message = message;
 
-		public void Execute(IScriptContext context) => DoPausePlayer(context);
+		public void Execute(ILunyScriptContext context) => DoPausePlayer(context);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void DoPausePlayer(IScriptContext context)
+		private void DoPausePlayer(ILunyScriptContext context)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			if (_message != null)

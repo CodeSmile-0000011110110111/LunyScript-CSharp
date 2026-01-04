@@ -7,11 +7,11 @@ namespace LunyScript.Diagnostics
 	/// Immutable snapshot of block profiler state at a specific point in time.
 	/// Useful for querying performance metrics without blocking the profiler.
 	/// </summary>
-	public sealed class BlockProfilerSnapshot
+	public sealed class LunyScriptBlockProfilerSnapshot
 	{
-		public IReadOnlyList<BlockMetrics> BlockMetrics;
+		public IReadOnlyList<LunyScriptBlockMetrics> BlockMetrics;
 		public DateTime Timestamp;
 
-		public override String ToString() => $"BlockProfilerSnapshot @ {Timestamp:HH:mm:ss.fff}: {BlockMetrics.Count} blocks";
+		public override String ToString() => $"LunyScriptBlockProfilerSnapshot @ {Timestamp:HH:mm:ss.fff}: {BlockMetrics.Count} blocks";
 	}
 }

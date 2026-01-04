@@ -12,7 +12,7 @@ namespace LunyScript.Blocks
 
 		internal ObjectDestroyBlock(String name) => _objectName = name;
 
-		public void Execute(IScriptContext context)
+		public void Execute(ILunyScriptContext context)
 		{
 			if (String.IsNullOrEmpty(_objectName))
 				context.LunyObject.Destroy();

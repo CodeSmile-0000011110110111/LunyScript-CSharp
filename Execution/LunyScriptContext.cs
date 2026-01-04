@@ -10,9 +10,9 @@ namespace LunyScript.Execution
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered runnables.
 	/// </summary>
-	public interface IScriptContext
+	public interface ILunyScriptContext
 	{
-		ScriptID ScriptID { get; }
+		LunyScriptID ScriptID { get; }
 		Type ScriptType { get; }
 		ILunyObject LunyObject { get; }
 		IVariables GlobalVariables { get; }
@@ -23,11 +23,11 @@ namespace LunyScript.Execution
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered runnables.
 	/// </summary>
-	internal sealed class ScriptContext : IScriptContext
+	internal sealed class LunyScriptContext : ILunyScriptContext
 	{
 		private static readonly Variables _GlobalVariables = new();
 
-		private readonly IScriptDefinition _scriptDef;
+		private readonly ILunyScriptDefinition _scriptDef;
 		private readonly ILunyObject _lunyObject;
 
 		internal Boolean DidRunOnDestroy { get; set; }
@@ -35,7 +35,7 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
-		public ScriptID ScriptID => _scriptDef.ScriptID;
+		public LunyScriptID ScriptID => _scriptDef.ScriptID;
 		/// <summary>
 		/// The C# Type of the script (for hot reload matching).
 		/// </summary>
@@ -57,34 +57,34 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Debugging hooks for execution tracing and breakpoints.
 		/// </summary>
-		internal DebugHooks DebugHooks { get; }
+		internal LunyScriptDebugHooks DebugHooks { get; }
 
 		/// <summary>
 		/// Block-level profiler for tracking runnable performance.
 		/// </summary>
-		internal BlockProfiler BlockProfiler { get; }
+		internal LunyScriptBlockProfiler BlockProfiler { get; }
 
 		/// <summary>
 		/// Event scheduler for managing runnables across all event types.
 		/// </summary>
-		internal ScriptEventScheduler Scheduler { get; }
+		internal LunyScriptEventScheduler Scheduler { get; }
 
 		internal static void ClearGlobalVariables() => _GlobalVariables?.Clear();
 
 		internal static IVariables GetGlobalVariables() => _GlobalVariables;
 
-		public ScriptContext(IScriptDefinition definition, ILunyObject lunyObject)
+		public LunyScriptContext(ILunyScriptDefinition definition, ILunyObject lunyObject)
 		{
 			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
 			_lunyObject = lunyObject ?? throw new ArgumentNullException(nameof(lunyObject));
 
 			// TODO: don't create these unless enabled
-			DebugHooks = new DebugHooks();
-			BlockProfiler = new BlockProfiler();
-			Scheduler = new ScriptEventScheduler();
+			DebugHooks = new LunyScriptDebugHooks();
+			BlockProfiler = new LunyScriptBlockProfiler();
+			Scheduler = new LunyScriptEventScheduler();
 		}
 
-		~ScriptContext() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		~LunyScriptContext() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
 		internal void Activate()
 		{

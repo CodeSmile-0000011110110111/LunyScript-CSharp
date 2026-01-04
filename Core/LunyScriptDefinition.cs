@@ -6,9 +6,9 @@ namespace LunyScript
 	/// Metadata for a discovered LunyScript type.
 	/// Represents the script ID and associated Type, not an instance.
 	/// </summary>
-	public interface IScriptDefinition
+	public interface ILunyScriptDefinition
 	{
-		ScriptID ScriptID { get; }
+		LunyScriptID ScriptID { get; }
 		Type Type { get; }
 		String Name { get; }
 	}
@@ -17,12 +17,12 @@ namespace LunyScript
 	/// Metadata for a discovered LunyScript type.
 	/// Represents the script ID and associated Type, not an instance.
 	/// </summary>
-	internal sealed class ScriptDefinition : IScriptDefinition
+	internal sealed class LunyScriptDefinition : ILunyScriptDefinition
 	{
 		/// <summary>
 		/// Unique identifier for this script definition.
 		/// </summary>
-		public ScriptID ScriptID { get; }
+		public LunyScriptID ScriptID { get; }
 
 		/// <summary>
 		/// The C# Type of the LunyScript subclass.
@@ -35,7 +35,7 @@ namespace LunyScript
 		/// </summary>
 		public String Name => Type.Name;
 
-		internal ScriptDefinition(Type type)
+		internal LunyScriptDefinition(Type type)
 		{
 			if (type == null)
 				throw new ArgumentNullException(nameof(type));
@@ -43,7 +43,7 @@ namespace LunyScript
 			if (!typeof(LunyScript).IsAssignableFrom(type))
 				throw new ArgumentException($"Type {type.Name} does not inherit from {nameof(LunyScript)}", nameof(type));
 
-			ScriptID = ScriptID.Generate();
+			ScriptID = LunyScriptID.Generate();
 			Type = type;
 		}
 

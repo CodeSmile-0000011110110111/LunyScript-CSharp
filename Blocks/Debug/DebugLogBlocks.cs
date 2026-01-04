@@ -19,10 +19,10 @@ namespace LunyScript.Blocks
 			_logLevel = logLevel;
 		}
 
-		public void Execute(IScriptContext context) => DoLog(context);
+		public void Execute(ILunyScriptContext context) => DoLog(context);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void DoLog(IScriptContext context)
+		private void DoLog(ILunyScriptContext context)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			LunyLogger.Log($"{_message} ({context})", this, _logLevel);

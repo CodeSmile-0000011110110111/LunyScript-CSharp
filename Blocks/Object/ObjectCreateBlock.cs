@@ -67,6 +67,6 @@ namespace LunyScript.Blocks
 
 		internal ObjectCreateBlock(CreateObject data) => _data = data;
 
-		public void Execute(IScriptContext context) => throw new NotImplementedException();
+		public void Execute(ILunyScriptContext context) => throw new NotImplementedException();
 	}
 }

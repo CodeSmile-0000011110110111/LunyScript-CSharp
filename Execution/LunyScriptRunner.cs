@@ -1,5 +1,4 @@
 using Luny;
-using Luny.Engine;
 using Luny.Engine.Registries;
 using LunyScript.Diagnostics;
 using LunyScript.Runnables;
@@ -15,29 +14,29 @@ namespace LunyScript.Execution
 	/// the <see cref="Luny.LunyEngine"/> at startup.
 	/// Manages script discovery, object binding, and run context lifecycle.
 	/// </summary>
-	internal sealed class LunyScriptRunner : IEngineObserver
+	internal sealed class LunyScriptRunner : ILunyEngineObserver
 	{
 		[NotNull] private LunyScriptEngine _scriptEngine;
-		[NotNull] private ScriptDefinitionRegistry _scripts;
-		[NotNull] private ScriptContextRegistry _contexts;
-		[NotNull] private ScriptLifecycle _lifecycle;
+		[NotNull] private LunyScriptDefinitionRegistry _scripts;
+		[NotNull] private LunyScriptContextRegistry _contexts;
+		[NotNull] private LunyScriptLifecycle _lifecycle;
 
-		internal ScriptDefinitionRegistry Scripts => _scripts;
-		internal ScriptContextRegistry Contexts => _contexts;
-		public ScriptLifecycle Lifecycle => _lifecycle;
+		internal LunyScriptDefinitionRegistry Scripts => _scripts;
+		internal LunyScriptContextRegistry Contexts => _contexts;
+		public LunyScriptLifecycle Lifecycle => _lifecycle;
 
-		internal static void Run(IEnumerable<IRunnable> runnables, ScriptContext context)
+		internal static void Run(IEnumerable<IRunnable> runnables, LunyScriptContext context)
 		{
 			foreach (var runnable in runnables)
 				Run(runnable, context);
 		}
 
-		private static void Run(IRunnable runnable, ScriptContext context)
+		private static void Run(IRunnable runnable, LunyScriptContext context)
 		{
 			// TODO: avoid profiling overhead when not enabled
 			var timeService = LunyEngine.Instance.Time;
 			var blockType = runnable.GetType();
-			var trace = new ExecutionTrace
+			var trace = new LunyScriptExecutionTrace
 			{
 				FrameCount = timeService?.FrameCount ?? -1,
 				ElapsedSeconds = timeService?.ElapsedSeconds ?? -1.0,
@@ -71,12 +70,12 @@ namespace LunyScript.Execution
 		{
 			LunyLogger.LogInfo("Initializing...", this);
 
-			ScriptID.Reset();
+			LunyScriptID.Reset();
 			RunnableID.Reset();
 			_scriptEngine = new LunyScriptEngine(this); // public API interface (split to ensure users don't call OnStartup etc)
-			_scripts = new ScriptDefinitionRegistry(); // performs LunyScript type discovery
-			_contexts = new ScriptContextRegistry();
-			_lifecycle = new ScriptLifecycle(_contexts);
+			_scripts = new LunyScriptDefinitionRegistry(); // performs LunyScript type discovery
+			_contexts = new LunyScriptContextRegistry();
+			_lifecycle = new LunyScriptLifecycle(_contexts);
 
 			LunyLogger.LogInfo("Initialization complete.", this);
 		}
@@ -87,7 +86,7 @@ namespace LunyScript.Execution
 
 			// Process current scene to bind scripts to objects
 			LunyEngine.Instance.Scene.GetAllObjects(); // triggers registration in LunyObjectRegistry
-			ScriptActivator.BuildAndActivateLunyScripts(this);
+			LunyScriptActivator.BuildAndActivateLunyScripts(this);
 
 			LunyLogger.LogInfo($"{nameof(OnStartup)} complete.", this);
 		}

@@ -15,10 +15,10 @@ namespace LunyScript.Blocks
 
 		public DebugBreakBlock(String message = null) => _message = message;
 
-		public void Execute(IScriptContext context) => DoBreak(context);
+		public void Execute(ILunyScriptContext context) => DoBreak(context);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void DoBreak(IScriptContext context)
+		private void DoBreak(ILunyScriptContext context)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			if (_message != null)

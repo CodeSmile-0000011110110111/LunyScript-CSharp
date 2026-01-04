@@ -14,7 +14,7 @@ namespace LunyScript.Blocks
 
 		internal ObjectSetEnabledBlock(String name) => _name = name;
 
-		public void Execute(IScriptContext context)
+		public void Execute(ILunyScriptContext context)
 		{
 			if (String.IsNullOrEmpty(_name))
 				context.LunyObject.IsEnabled = true;

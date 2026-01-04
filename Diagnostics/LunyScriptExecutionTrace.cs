@@ -6,7 +6,7 @@ namespace LunyScript.Diagnostics
 	/// Captures execution information for a single block execution.
 	/// Used by debug hooks to track execution flow with frame/time information.
 	/// </summary>
-	public struct ExecutionTrace
+	public struct LunyScriptExecutionTrace
 	{
 		public Int64 FrameCount;
 		public Double ElapsedSeconds;

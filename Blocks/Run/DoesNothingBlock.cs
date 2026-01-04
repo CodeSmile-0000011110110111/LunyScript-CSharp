@@ -7,6 +7,6 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DoesNothingBlock : IBlock
 	{
-		public void Execute(IScriptContext context) {}
+		public void Execute(ILunyScriptContext context) {}
 	}
 }

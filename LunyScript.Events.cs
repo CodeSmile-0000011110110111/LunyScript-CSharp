@@ -1,5 +1,4 @@
-﻿using Luny;
-using Luny.Engine.Events;
+﻿using Luny.Engine.Events;
 using LunyScript.Blocks;
 using LunyScript.Execution;
 using LunyScript.Runnables;
@@ -12,8 +11,8 @@ namespace LunyScript
 		private static Boolean HasBlocks(IBlock[] blocks) => blocks?.Length > 0;
 		private static RunnableSequence CreateSequence(IBlock[] blocks) => HasBlocks(blocks) ? new RunnableSequence(blocks) : null;
 
-		private void ScheduleRunnable(RunnableSequence sequence, ObjectLifecycleEvents eventType) =>
-			((ScriptContext)_context).Scheduler.Schedule(sequence, eventType);
+		private void ScheduleRunnable(RunnableSequence sequence, LunyObjectLifecycleEvents eventType) =>
+			((LunyScriptContext)_context).Scheduler.Schedule(sequence, eventType);
 
 		/// <summary>
 		/// Handles events, ie Lifecycle, Input, Collision, Messages.
@@ -28,21 +27,21 @@ namespace LunyScript
 			/// </summary>
 			/// <param name="blocks"></param>
 			public static void EveryFixedStep(params IBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnFixedStep);
+				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnFixedStep);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates.
 			/// </summary>
 			/// <param name="blocks"></param>
 			public static void EveryFrame(params IBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnUpdate);
+				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnUpdate);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
 			/// </summary>
 			/// <param name="blocks"></param>
 			public static void EveryFrameEnds(params IBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnLateUpdate);
+				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnLateUpdate);
 
 			/// <summary>
 			/// Runs once the moment when the object is instantiated.
@@ -50,7 +49,7 @@ namespace LunyScript
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
 			public static void Created(params IBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnCreate);
+				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnCreate);
 
 			/// <summary>
 			/// Runs once when the object gets destroyed. The object is already disabled, the native engine instance still exists.
@@ -58,7 +57,7 @@ namespace LunyScript
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
 			public static void Destroyed(params IBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnDestroy);
+				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnDestroy);
 
 			/// <summary>
 			/// Runs every time the object's state changes to 'enabled' (visible and participating).
@@ -67,7 +66,7 @@ namespace LunyScript
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
 			public static void Enabled(params IBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnEnable);
+				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnEnable);
 
 			/// <summary>
 			/// Runs every time the object's state changes to 'disabled' (not visible, not participating).
@@ -76,7 +75,7 @@ namespace LunyScript
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
 			public static void Disabled(params IBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnDisable);
+				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnDisable);
 
 			/// <summary>
 			/// Runs once per lifetime just before the object starts processing frame/time-step events,
@@ -85,7 +84,7 @@ namespace LunyScript
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
 			public static void Ready(params IBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnReady);
+				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnReady);
 		}
 	}
 }

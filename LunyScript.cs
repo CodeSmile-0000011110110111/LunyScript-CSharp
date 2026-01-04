@@ -9,7 +9,7 @@ namespace LunyScript
 {
 	public interface ILunyScript
 	{
-		ScriptID ScriptID { get; }
+		LunyScriptID ScriptID { get; }
 		ILunyObject LunyObject { get; }
 		IVariables GlobalVariables { get; }
 		IVariables LocalVariables { get; }
@@ -38,12 +38,12 @@ namespace LunyScript
 		// temporary 'singleton' for static subclasses (eg 'Every')
 		private static LunyScript s_Instance;
 
-		private IScriptContext _context;
+		private ILunyScriptContext _context;
 
 		/// <summary>
 		/// ScriptID of the script for identification.
 		/// </summary>
-		public ScriptID ScriptID => _context.ScriptID;
+		public LunyScriptID ScriptID => _context.ScriptID;
 		/// <summary>
 		/// Reference to proxy for engine object.
 		/// Caution: native engine reference could be null.
@@ -98,7 +98,7 @@ namespace LunyScript
 		/// <returns></returns>
 		protected static IBlock Run(Action action) => new RunActionBlock(_ => action());
 
-		internal void Initialize(IScriptContext context)
+		internal void Initialize(ILunyScriptContext context)
 		{
 			s_Instance = this;
 			_context = context ?? throw new ArgumentNullException(nameof(context));

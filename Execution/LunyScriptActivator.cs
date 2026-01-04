@@ -11,7 +11,7 @@ namespace LunyScript.Execution
 	/// Scans scenes at runtime to discover objects that should run LunyScripts.
 	/// Binds scripts to objects based on name matching (exact, case-sensitive).
 	/// </summary>
-	internal static class ScriptActivator
+	internal static class LunyScriptActivator
 	{
 		/// <summary>
 		/// Processes the current scene, finding objects and binding them to scripts.
@@ -20,10 +20,10 @@ namespace LunyScript.Execution
 		/// <param name="lunyObjects"></param>
 		/// <param name="scriptRegistry"></param>
 		/// <param name="contextRegistry"></param>
-		public static IReadOnlyList<ScriptContext> CreateContexts(IEnumerable<ILunyObject> lunyObjects,
-			ScriptDefinitionRegistry scriptRegistry, ScriptContextRegistry contextRegistry)
+		public static IReadOnlyList<LunyScriptContext> CreateContexts(IEnumerable<ILunyObject> lunyObjects,
+			LunyScriptDefinitionRegistry scriptRegistry, LunyScriptContextRegistry contextRegistry)
 		{
-			var createdContexts = new List<ScriptContext>();
+			var createdContexts = new List<LunyScriptContext>();
 			var objects = lunyObjects.ToList();
 
 			foreach (var lunyObject in objects)
@@ -45,8 +45,8 @@ namespace LunyScript.Execution
 				}
 			}
 
-			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(ScriptContext)}s created from {objects.Count} {nameof(LunyObject)}s.",
-				nameof(ScriptActivator));
+			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(LunyScriptContext)}s created from {objects.Count} {nameof(LunyObject)}s.",
+				nameof(LunyScriptActivator));
 
 			return createdContexts;
 		}
@@ -64,7 +64,7 @@ namespace LunyScript.Execution
 			{
 				try
 				{
-					LunyLogger.LogInfo($"Building {context} ...", nameof(ScriptActivator));
+					LunyLogger.LogInfo($"Building {context} ...", nameof(LunyScriptActivator));
 
 					// Create script instance, initialize with context, and call Build()
 					var scriptInstance = (LunyScript)Activator.CreateInstance(context.ScriptType);
@@ -76,7 +76,7 @@ namespace LunyScript.Execution
 				}
 				catch (Exception ex)
 				{
-					LunyLogger.LogError($"{context.ScriptType} failed to build: {ex}", nameof(ScriptActivator));
+					LunyLogger.LogError($"{context.ScriptType} failed to build: {ex}", nameof(LunyScriptActivator));
 					Debugger.Break();
 				}
 			}
@@ -86,10 +86,10 @@ namespace LunyScript.Execution
 			sw.Stop();
 
 			var ms = (Int32)Math.Round(sw.Elapsed.TotalMilliseconds, MidpointRounding.AwayFromZero);
-			LunyLogger.LogInfo($"Built {activatedCount} script(s) in {ms} ms", nameof(ScriptActivator));
+			LunyLogger.LogInfo($"Built {activatedCount} script(s) in {ms} ms", nameof(LunyScriptActivator));
 		}
 
-		public static void ActivateScripts(IEnumerable<ScriptContext> contexts)
+		public static void ActivateScripts(IEnumerable<LunyScriptContext> contexts)
 		{
 			// sends initial OnCreate and (if enabled) OnEnable events
 			foreach (var context in contexts)

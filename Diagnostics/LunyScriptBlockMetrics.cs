@@ -6,7 +6,7 @@ namespace LunyScript.Diagnostics
 	/// Performance metrics for a single block (runnable or individual block).
 	/// Tracks execution time statistics and error counts.
 	/// </summary>
-	public sealed class BlockMetrics
+	public sealed class LunyScriptBlockMetrics
 	{
 		public RunnableID RunnableID;
 		public Type BlockType;

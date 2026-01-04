@@ -10,9 +10,9 @@ namespace LunyScript.Diagnostics
 	/// Tracks execution time for each runnable/block with configurable rolling average.
 	/// Public methods use [Conditional] attributes - completely stripped in release builds unless DEBUG or LUNYSCRIPT_DEBUG defined.
 	/// </summary>
-	public sealed class BlockProfiler
+	public sealed class LunyScriptBlockProfiler
 	{
-		private readonly Dictionary<RunnableID, BlockMetrics> _metrics = new();
+		private readonly Dictionary<RunnableID, LunyScriptBlockMetrics> _metrics = new();
 		private readonly Dictionary<RunnableID, Stopwatch> _activeBlocks = new();
 		private Int32 _rollingAverageWindow = 60;
 
@@ -47,7 +47,7 @@ namespace LunyScript.Diagnostics
 
 			if (!_metrics.TryGetValue(runnableID, out var metrics))
 			{
-				metrics = new BlockMetrics
+				metrics = new LunyScriptBlockMetrics
 				{
 					RunnableID = runnableID,
 					BlockType = blockType,
@@ -68,10 +68,10 @@ namespace LunyScript.Diagnostics
 #endif
 		}
 
-		public BlockProfilerSnapshot TakeSnapshot()
+		public LunyScriptBlockProfilerSnapshot TakeSnapshot()
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
-			return new BlockProfilerSnapshot
+			return new LunyScriptBlockProfilerSnapshot
 			{
 				BlockMetrics = _metrics.Values.ToList(),
 				Timestamp = DateTime.UtcNow,
@@ -90,7 +90,7 @@ namespace LunyScript.Diagnostics
 #endif
 		}
 
-		private void UpdateMetrics(BlockMetrics metrics, Double newSample)
+		private void UpdateMetrics(LunyScriptBlockMetrics metrics, Double newSample)
 		{
 			metrics.CallCount++;
 			metrics.TotalMs += newSample;

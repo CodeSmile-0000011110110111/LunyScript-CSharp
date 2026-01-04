@@ -8,6 +8,6 @@ namespace LunyScript.Blocks
 	/// </summary>
 	public interface IBlock
 	{
-		void Execute(IScriptContext context);
+		void Execute(ILunyScriptContext context);
 	}
 }

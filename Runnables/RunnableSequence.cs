@@ -23,7 +23,7 @@ namespace LunyScript.Runnables
 			Children = blocks;
 		}
 
-		public void Execute(IScriptContext context)
+		public void Execute(ILunyScriptContext context)
 		{
 			foreach (var block in Children)
 				block?.Execute(context);

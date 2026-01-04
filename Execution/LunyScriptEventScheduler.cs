@@ -1,4 +1,3 @@
-using Luny;
 using Luny.Engine.Events;
 using LunyScript.Runnables;
 using System;
@@ -9,7 +8,7 @@ namespace LunyScript.Execution
 	/// <summary>
 	/// Schedules and manages runnables for various event types.
 	/// </summary>
-	internal sealed class ScriptEventScheduler
+	internal sealed class LunyScriptEventScheduler
 	{
 		// Fast array-based storage for lifecycle events (hot path)
 		private List<IRunnable>[] _runnables;
@@ -18,12 +17,12 @@ namespace LunyScript.Execution
 		// private Dictionary<InputEventKey, List<IRunnable>> _inputRunnables;
 		// private Dictionary<CollisionEventKey, List<IRunnable>> _collisionRunnables;
 
-		// ~ScriptEventScheduler() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		// ~LunyScriptEventScheduler() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
 		/// <summary>
 		/// Schedules a runnable to execute on a specific lifecycle event.
 		/// </summary>
-		internal void Schedule(IRunnable runnable, ObjectLifecycleEvents lifecycleEvent)
+		internal void Schedule(IRunnable runnable, LunyObjectLifecycleEvents lifecycleEvent)
 		{
 			if (runnable == null || runnable.IsEmpty)
 				return;
@@ -31,7 +30,7 @@ namespace LunyScript.Execution
 			if (_runnables == null)
 			{
 				// TODO: consider pre-allocating only the frequently scheduled "update" methods
-				var lifecycleEventCount = Enum.GetNames(typeof(ObjectLifecycleEvents)).Length;
+				var lifecycleEventCount = Enum.GetNames(typeof(LunyObjectLifecycleEvents)).Length;
 				_runnables = new List<IRunnable>[lifecycleEventCount];
 			}
 
@@ -43,10 +42,10 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Gets all runnables scheduled for a specific lifecycle event.
 		/// </summary>
-		internal IEnumerable<IRunnable> GetScheduled(ObjectLifecycleEvents lifecycleEvent) =>
+		internal IEnumerable<IRunnable> GetScheduled(LunyObjectLifecycleEvents lifecycleEvent) =>
 			IsObserving(lifecycleEvent) ? _runnables[(Int32)lifecycleEvent] : null;
 
-		internal Boolean IsObserving(ObjectLifecycleEvents lifecycleEvent)
+		internal Boolean IsObserving(LunyObjectLifecycleEvents lifecycleEvent)
 		{
 			if (_runnables == null)
 				return false;
@@ -57,7 +56,7 @@ namespace LunyScript.Execution
 
 		public void Clear() => _runnables = null;
 
-		public void Clear(ObjectLifecycleEvents lifecycleEvent)
+		public void Clear(LunyObjectLifecycleEvents lifecycleEvent)
 		{
 			if (_runnables == null)
 				return;

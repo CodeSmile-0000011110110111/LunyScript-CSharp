@@ -10,13 +10,13 @@ namespace LunyScript.Execution
 	/// Discovers and manages LunyScript definitions.
 	/// Supports both reflection-based discovery and manual registration.
 	/// </summary>
-	internal sealed class ScriptDefinitionRegistry
+	internal sealed class LunyScriptDefinitionRegistry
 	{
-		private readonly Dictionary<ScriptID, ScriptDefinition> _scriptsById = new();
-		private readonly Dictionary<String, ScriptDefinition> _scriptsByName = new();
+		private readonly Dictionary<LunyScriptID, LunyScriptDefinition> _scriptsById = new();
+		private readonly Dictionary<String, LunyScriptDefinition> _scriptsByName = new();
 
-		public ScriptDefinitionRegistry() => DiscoverScripts();
-		~ScriptDefinitionRegistry() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		public LunyScriptDefinitionRegistry() => DiscoverScripts();
+		~LunyScriptDefinitionRegistry() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
 		/// <summary>
 		/// Discovers all LunyScript subclasses via reflection and registers them.
@@ -50,7 +50,7 @@ namespace LunyScript.Execution
 				return;
 			}
 
-			var definition = new ScriptDefinition(scriptType);
+			var definition = new LunyScriptDefinition(scriptType);
 			_scriptsById[definition.ScriptID] = definition;
 			_scriptsByName[definition.Name] = definition;
 
@@ -60,7 +60,7 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Gets a script definition by ID.
 		/// </summary>
-		public ScriptDefinition GetByID(ScriptID id)
+		public LunyScriptDefinition GetByID(LunyScriptID id)
 		{
 			_scriptsById.TryGetValue(id, out var definition);
 			return definition;
@@ -69,7 +69,7 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Gets a script definition by name (for object binding).
 		/// </summary>
-		public ScriptDefinition GetByName(String name)
+		public LunyScriptDefinition GetByName(String name)
 		{
 			_scriptsByName.TryGetValue(name, out var definition);
 			return definition;
