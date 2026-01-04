@@ -16,9 +16,6 @@ namespace LunyScript.Execution
 	internal sealed class ScriptLifecycle
 	{
 		[NotNull] private readonly ScriptContextRegistry _contexts;
-		[NotNull] private readonly Queue<ScriptContext> _pendingReady = new();
-		[NotNull] private readonly Queue<ScriptContext> _pendingDestroy = new();
-		[NotNull] private readonly Dictionary<LunyID, ScriptContext> _pendingReadyWaitingForEnable = new();
 		private Boolean _processingEnableDisable;
 
 		internal ScriptLifecycle(ScriptContextRegistry contextRegistry) =>
@@ -38,7 +35,7 @@ namespace LunyScript.Execution
 
 				// OnCreate (always observed for internal processing)
 				{
-					lunyObjectImpl.OnCreate = OnCreate;
+					lunyObjectImpl.OnCreate += OnCreate;
 
 					void OnCreate()
 					{
@@ -49,13 +46,13 @@ namespace LunyScript.Execution
 							LunyScriptRunner.Run(runnables, context);
 						}
 
-						EnqueueForReadyOrWaiting(context);
+						LunyEngine.Instance.Lifecycle.EnqueueReady(context.LunyObject);
 					}
 				}
 
 				// OnDestroy (always observed for internal processing)
 				{
-					lunyObjectImpl.OnDestroy = OnDestroy;
+					lunyObjectImpl.OnDestroy += OnDestroy;
 
 					void OnDestroy()
 					{
@@ -69,13 +66,13 @@ namespace LunyScript.Execution
 							LunyScriptRunner.Run(runnables, context);
 						}
 
-						EnqueueForDestruction(context);
+						_contexts.Unregister(context);
 					}
 				}
 
 				// OnEnable
 				{
-					lunyObjectImpl.OnEnable = OnEnable;
+					lunyObjectImpl.OnEnable += OnEnable;
 
 					void OnEnable()
 					{
@@ -94,15 +91,13 @@ namespace LunyScript.Execution
 
 							_processingEnableDisable = false;
 						}
-
-						EnqueueForReadyIfWaitingForEnable(context);
 					}
 				}
 
 				// OnDisable
 				if (context.Scheduler.IsObserving(ObjectLifecycleEvents.OnDisable))
 				{
-					lunyObjectImpl.OnDisable = OnDisable;
+					lunyObjectImpl.OnDisable += OnDisable;
 
 					void OnDisable()
 					{
@@ -124,7 +119,7 @@ namespace LunyScript.Execution
 				// OnReady
 				if (context.Scheduler.IsObserving(ObjectLifecycleEvents.OnReady))
 				{
-					lunyObjectImpl.OnReady = OnReady;
+					lunyObjectImpl.OnReady += OnReady;
 
 					void OnReady()
 					{
@@ -150,11 +145,9 @@ namespace LunyScript.Execution
 
 			if (context.LunyObject is LunyObject lunyObjectImpl)
 			{
-				lunyObjectImpl.OnCreate = null;
-				lunyObjectImpl.OnDestroy = null;
-				lunyObjectImpl.OnReady = null;
-				lunyObjectImpl.OnEnable = null;
-				lunyObjectImpl.OnDisable = null;
+				// Events cannot be cleared from outside the class.
+				// This needs a proper subscription management in Phase 2.
+				// For now, we just clear the scheduler.
 			}
 		}
 
@@ -179,87 +172,6 @@ namespace LunyScript.Execution
 				LunyScriptRunner.Run(runnables, context);
 		}
 
-		/// <summary>
-		/// Processes queued OnReady events at beginning of frame.
-		/// </summary>
-		internal void ProcessPendingReady()
-		{
-			if (_pendingReady.Count > 0)
-				LunyLogger.LogInfo($"Processing {nameof(LunyObject.OnReady)} queue with {_pendingReady.Count} contexts ...", this);
-
-			while (_pendingReady.Count > 0)
-			{
-				var context = _pendingReady.Dequeue();
-				if (context == null)
-					continue;
-
-				if (context.LunyObject.IsEnabled)
-				{
-					LunyLogger.LogInfo($"Invoking OnReady for {context}", this);
-					var lunyObject = (LunyObject)context.LunyObject;
-					lunyObject.OnReady?.Invoke();
-				}
-				else
-					_pendingReadyWaitingForEnable.Add(context.LunyObject.LunyID, context);
-			}
-		}
-
-		/// <summary>
-		/// Processes queued destructions at end of frame.
-		/// Destroys native engine objects and cleans up lifecycle hooks.
-		/// </summary>
-		internal void ProcessPendingDestroy()
-		{
-			if (_pendingDestroy.Count > 0)
-				LunyLogger.LogInfo($"Processing {nameof(LunyObject.OnDestroy)} queue with {_pendingDestroy.Count} contexts ...");
-
-			while (_pendingDestroy.Count > 0)
-			{
-				var context = _pendingDestroy.Dequeue();
-				if (context == null)
-					continue;
-
-				var lunyObject = context.LunyObject;
-				if (lunyObject.IsValid)
-					throw new LunyScriptException($"{context} queued for destruction but still valid");
-
-				LunyLogger.LogInfo($"DESTROY pending: {context} ...");
-				UnregisterCallbacks(context);
-				((LunyObject)lunyObject).DestroyNativeObject();
-			}
-		}
-
-		private void EnqueueForReady(ScriptContext context) => _pendingReady.Enqueue(context);
-
-		private void EnqueueForReadyOrWaiting(ScriptContext context)
-		{
-			var lunyObject = context.LunyObject;
-			if (lunyObject.IsEnabled)
-				EnqueueForReady(context);
-			else
-			{
-				LunyLogger.LogInfo($"Waiting for OnEnable: {context}");
-				_pendingReadyWaitingForEnable.Add(lunyObject.LunyID, context);
-			}
-		}
-
-		private void EnqueueForReadyIfWaitingForEnable(ScriptContext context)
-		{
-			var id = context.LunyObject.LunyID;
-			if (_pendingReadyWaitingForEnable.Remove(id, out var waitingContext))
-			{
-				LunyLogger.LogInfo($"End waiting for OnEnable: {context}");
-				EnqueueForReady(waitingContext);
-			}
-		}
-
-		private void EnqueueForDestruction(ScriptContext context)
-		{
-			_pendingDestroy.Enqueue(context);
-			if (!_contexts.Unregister(context))
-				LunyLogger.LogWarning($"{nameof(EnqueueForDestruction)} could not unregister: {context}", this);
-		}
-
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		private void SafeguardAgainstInfiniteEnableDisableCycle(ScriptContext context)
 		{
@@ -276,11 +188,6 @@ namespace LunyScript.Execution
 
 		public void Shutdown()
 		{
-			ProcessPendingDestroy();
-
-			_pendingReady.Clear();
-			_pendingReadyWaitingForEnable.Clear();
-			_pendingDestroy.Clear();
 		}
 	}
 }

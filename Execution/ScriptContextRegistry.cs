@@ -15,6 +15,7 @@ namespace LunyScript.Execution
 	internal sealed class ScriptContextRegistry
 	{
 		private readonly Dictionary<LunyID, ScriptContext> _contextsByObjectID = new();
+		private readonly Dictionary<NativeID, ScriptContext> _contextsByNativeID = new();
 		private ScriptContext[] _sortedContexts = Array.Empty<ScriptContext>();
 		private Boolean _isSortedContextsDirty;
 
@@ -51,6 +52,7 @@ namespace LunyScript.Execution
 				throw new LunyScriptException($"Context for object {context.LunyObject.Name} ({lunyID}) already registered, replacing");
 
 			_contextsByObjectID[lunyID] = context;
+			_contextsByNativeID[context.LunyObject.NativeID] = context;
 			_isSortedContextsDirty = true;
 		}
 
@@ -63,6 +65,7 @@ namespace LunyScript.Execution
 			if (!_contextsByObjectID.Remove(lunyID))
 				return false;
 
+			_contextsByNativeID.Remove(context.LunyObject.NativeID);
 			_isSortedContextsDirty = true;
 			return true;
 		}
@@ -78,13 +81,8 @@ namespace LunyScript.Execution
 
 		public ScriptContext GetByNativeID(NativeID nativeID)
 		{
-			foreach (var context in _contextsByObjectID.Values)
-			{
-				var engineObject = context.LunyObject;
-				if (engineObject.IsValid && engineObject.NativeID == nativeID)
-					return context;
-			}
-			return null;
+			_contextsByNativeID.TryGetValue(nativeID, out var context);
+			return context;
 		}
 
 		/// <summary>
@@ -99,6 +97,7 @@ namespace LunyScript.Execution
 		{
 			ScriptContext.ClearGlobalVariables();
 			_contextsByObjectID.Clear();
+			_contextsByNativeID.Clear();
 			_sortedContexts = Array.Empty<ScriptContext>();
 			_isSortedContextsDirty = false;
 		}
