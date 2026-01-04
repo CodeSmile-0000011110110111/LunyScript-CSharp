@@ -1,8 +1,9 @@
-using Luny.Diagnostics;
-using Luny.Proxies;
+using Luny;
+using Luny.Engine.Bridge;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace LunyScript.Execution
 {
@@ -19,12 +20,13 @@ namespace LunyScript.Execution
 		/// <param name="lunyObjects"></param>
 		/// <param name="scriptRegistry"></param>
 		/// <param name="contextRegistry"></param>
-		public static IReadOnlyList<ScriptContext> CreateContexts(IReadOnlyList<ILunyObject> lunyObjects,
+		public static IReadOnlyList<ScriptContext> CreateContexts(IEnumerable<ILunyObject> lunyObjects,
 			ScriptDefinitionRegistry scriptRegistry, ScriptContextRegistry contextRegistry)
 		{
 			var createdContexts = new List<ScriptContext>();
+			var objects = lunyObjects.ToList();
 
-			foreach (var lunyObject in lunyObjects)
+			foreach (var lunyObject in objects)
 			{
 				if (lunyObject == null || !lunyObject.IsValid)
 					continue;
@@ -43,15 +45,16 @@ namespace LunyScript.Execution
 				}
 			}
 
-			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(ScriptContext)}s created from {lunyObjects.Count} {nameof(LunyObject)}s.",
+			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(ScriptContext)}s created from {objects.Count} {nameof(LunyObject)}s.",
 				nameof(ScriptActivator));
 
 			return createdContexts;
 		}
 
-		public static void BuildAndActivateLunyScripts(IReadOnlyList<ILunyObject> sceneObjects, LunyScriptRunner scriptRunner)
+		public static void BuildAndActivateLunyScripts(LunyScriptRunner scriptRunner)
 		{
 			var sw = Stopwatch.StartNew();
+			var sceneObjects = LunyEngine.Instance.Objects.AllObjects;
 
 			var scriptContexts = CreateContexts(sceneObjects, scriptRunner.Scripts, scriptRunner.Contexts);
 
@@ -68,7 +71,7 @@ namespace LunyScript.Execution
 					scriptInstance.Initialize(context);
 					scriptInstance.Build();
 					scriptInstance.Shutdown();
-					lifecycle.RegisterCallbacks(context); // hooks up lifecycle events
+					lifecycle.Register(context); // hooks up lifecycle events
 					activatedCount++;
 				}
 				catch (Exception ex)
@@ -86,7 +89,7 @@ namespace LunyScript.Execution
 			LunyLogger.LogInfo($"Built {activatedCount} script(s) in {ms} ms", nameof(ScriptActivator));
 		}
 
-		public static void ActivateScripts(IReadOnlyList<ScriptContext> contexts)
+		public static void ActivateScripts(IEnumerable<ScriptContext> contexts)
 		{
 			// sends initial OnCreate and (if enabled) OnEnable events
 			foreach (var context in contexts)

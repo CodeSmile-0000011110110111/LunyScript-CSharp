@@ -1,6 +1,5 @@
 using Luny;
-using Luny.Diagnostics;
-using Luny.Proxies;
+using Luny.Engine.Bridge;
 using LunyScript.Blocks;
 using LunyScript.Execution;
 using System;

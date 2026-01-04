@@ -1,5 +1,4 @@
 using Luny;
-using Luny.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -80,10 +79,7 @@ namespace LunyScript.Execution
 		/// </summary>
 		public Boolean HasScript(String name) => _scriptsByName.ContainsKey(name);
 
-		/// <summary>
-		/// Clears all registered scripts.
-		/// </summary>
-		public void Clear()
+		internal void Shutdown()
 		{
 			_scriptsById.Clear();
 			_scriptsByName.Clear();

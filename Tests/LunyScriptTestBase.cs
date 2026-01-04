@@ -1,5 +1,4 @@
 using Luny;
-using Luny.Diagnostics;
 using System;
 
 namespace LunyScript.Tests

@@ -1,6 +1,5 @@
 using Luny;
-using Luny.Diagnostics;
-using Luny.Proxies;
+using Luny.Engine.Bridge;
 using LunyScript.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -90,24 +89,20 @@ namespace LunyScript.Execution
 		/// </summary>
 		public Boolean HasContext(LunyID lunyID) => _contextsByObjectID.ContainsKey(lunyID);
 
-		/// <summary>
-		/// Clears all contexts.
-		/// </summary>
-		public void Clear()
-		{
-			ScriptContext.ClearGlobalVariables();
-			_contextsByObjectID.Clear();
-			_contextsByNativeID.Clear();
-			_sortedContexts = Array.Empty<ScriptContext>();
-			_isSortedContextsDirty = false;
-		}
-
 		private ScriptContext[] CreateSortedContexts()
 		{
 			_isSortedContextsDirty = false;
 			return _contextsByObjectID.Values
 				.OrderBy(ctx => ctx.LunyObject.LunyID)
 				.ToArray();
+		}
+
+		internal void Shutdown()
+		{
+			ScriptContext.ClearGlobalVariables();
+			_contextsByObjectID.Clear();
+			_contextsByNativeID.Clear();
+			_sortedContexts = Array.Empty<ScriptContext>();
 		}
 	}
 }

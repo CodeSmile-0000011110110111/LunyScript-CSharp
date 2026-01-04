@@ -1,9 +1,10 @@
 using Luny;
-using Luny.Diagnostics;
-using Luny.Proxies;
+using Luny.Engine;
 using LunyScript.Diagnostics;
+using LunyScript.Runnables;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LunyScript.Execution
 {
@@ -15,10 +16,10 @@ namespace LunyScript.Execution
 	/// </summary>
 	internal sealed class LunyScriptRunner : IEngineObserver
 	{
-		private LunyScriptEngine _scriptEngine;
-		private ScriptDefinitionRegistry _scripts;
-		private ScriptContextRegistry _contexts;
-		private ScriptLifecycle _lifecycle;
+		[NotNull] private LunyScriptEngine _scriptEngine;
+		[NotNull] private ScriptDefinitionRegistry _scripts;
+		[NotNull] private ScriptContextRegistry _contexts;
+		[NotNull] private ScriptLifecycle _lifecycle;
 
 		internal ScriptDefinitionRegistry Scripts => _scripts;
 		internal ScriptContextRegistry Contexts => _contexts;
@@ -84,8 +85,8 @@ namespace LunyScript.Execution
 			LunyLogger.LogInfo($"{nameof(OnStartup)} running...", this);
 
 			// Process current scene to bind scripts to objects
-			var sceneObjects = LunyEngine.Instance.Scene.GetAllObjects();
-			ScriptActivator.BuildAndActivateLunyScripts(sceneObjects, this);
+			LunyEngine.Instance.Scene.GetAllObjects(); // triggers registration in LunyObjectRegistry
+			ScriptActivator.BuildAndActivateLunyScripts(this);
 
 			LunyLogger.LogInfo($"{nameof(OnStartup)} complete.", this);
 		}
@@ -119,8 +120,8 @@ namespace LunyScript.Execution
 
 			// final cleanup of pending object destroy
 			_lifecycle.Shutdown();
-			_contexts?.Clear();
-			_scripts?.Clear();
+			_contexts.Shutdown();
+			_scripts.Shutdown();
 			_scriptEngine.Shutdown();
 
 			_scriptEngine = null;

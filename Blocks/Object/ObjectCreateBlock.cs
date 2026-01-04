@@ -1,4 +1,4 @@
-using Luny.Proxies.Enums;
+using Luny.Engine.Bridge.Enums;
 using LunyScript.Execution;
 using System;
 

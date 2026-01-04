@@ -1,5 +1,5 @@
 using Luny;
-using Luny.Diagnostics;
+using LunyScript.Runnables;
 using System;
 using System.Collections.Generic;
 

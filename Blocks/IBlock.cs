@@ -1,6 +1,6 @@
 using LunyScript.Execution;
 
-namespace LunyScript
+namespace LunyScript.Blocks
 {
 	/// <summary>
 	/// Base interface for all executable blocks (leaf and container).

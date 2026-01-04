@@ -1,4 +1,4 @@
-using Luny.Diagnostics;
+using Luny;
 using LunyScript.Execution;
 using System;
 using System.Diagnostics;
