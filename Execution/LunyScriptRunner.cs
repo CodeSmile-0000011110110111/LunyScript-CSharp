@@ -1,5 +1,6 @@
 using Luny;
 using Luny.Engine;
+using Luny.Engine.Registries;
 using LunyScript.Diagnostics;
 using LunyScript.Runnables;
 using System;

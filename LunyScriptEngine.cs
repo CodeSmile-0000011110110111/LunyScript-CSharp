@@ -1,4 +1,6 @@
 ﻿using Luny;
+using Luny.Engine.Bridge;
+using Luny.Engine.Identity;
 using LunyScript.Execution;
 using System;
 
@@ -10,7 +12,7 @@ namespace LunyScript
 	public interface ILunyScriptEngine
 	{
 		IVariables GlobalVariables { get; }
-		IScriptContext GetScriptContext(NativeID nativeID);
+		IScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID);
 	}
 
 	/// <summary>
@@ -36,7 +38,7 @@ namespace LunyScript
 			LunyLogger.LogInfo("Initialized.", this);
 		}
 
-		public IScriptContext GetScriptContext(NativeID nativeID) => _runner.Contexts.GetByNativeID(nativeID);
+		public IScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID) => _runner.Contexts.GetByNativeID(lunyNativeObjectID);
 		~LunyScriptEngine() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
 
 		internal void Shutdown()

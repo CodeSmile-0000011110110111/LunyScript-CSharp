@@ -1,5 +1,6 @@
 using Luny;
 using Luny.Engine.Bridge;
+using Luny.Engine.Identity;
 using LunyScript.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,8 @@ namespace LunyScript.Execution
 	/// </summary>
 	internal sealed class ScriptContextRegistry
 	{
-		private readonly Dictionary<LunyID, ScriptContext> _contextsByObjectID = new();
-		private readonly Dictionary<NativeID, ScriptContext> _contextsByNativeID = new();
+		private readonly Dictionary<LunyObjectID, ScriptContext> _contextsByObjectID = new();
+		private readonly Dictionary<LunyNativeObjectID, ScriptContext> _contextsByNativeID = new();
 		private ScriptContext[] _sortedContexts = Array.Empty<ScriptContext>();
 		private Boolean _isSortedContextsDirty;
 
@@ -46,12 +47,12 @@ namespace LunyScript.Execution
 			if (context == null)
 				throw new ArgumentNullException(nameof(context));
 
-			var lunyID = context.LunyObject.LunyID;
+			var lunyID = context.LunyObject.LunyObjectID;
 			if (_contextsByObjectID.ContainsKey(lunyID))
 				throw new LunyScriptException($"Context for object {context.LunyObject.Name} ({lunyID}) already registered, replacing");
 
 			_contextsByObjectID[lunyID] = context;
-			_contextsByNativeID[context.LunyObject.NativeID] = context;
+			_contextsByNativeID[context.LunyObject.NativeObjectID] = context;
 			_isSortedContextsDirty = true;
 		}
 
@@ -60,11 +61,11 @@ namespace LunyScript.Execution
 		/// </summary>
 		internal Boolean Unregister(ScriptContext context)
 		{
-			var lunyID = context.LunyObject.LunyID;
+			var lunyID = context.LunyObject.LunyObjectID;
 			if (!_contextsByObjectID.Remove(lunyID))
 				return false;
 
-			_contextsByNativeID.Remove(context.LunyObject.NativeID);
+			_contextsByNativeID.Remove(context.LunyObject.NativeObjectID);
 			_isSortedContextsDirty = true;
 			return true;
 		}
@@ -72,28 +73,28 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Gets a context by ObjectID.
 		/// </summary>
-		public ScriptContext GetByLunyID(LunyID lunyID)
+		public ScriptContext GetByLunyID(LunyObjectID lunyObjectID)
 		{
-			_contextsByObjectID.TryGetValue(lunyID, out var context);
+			_contextsByObjectID.TryGetValue(lunyObjectID, out var context);
 			return context;
 		}
 
-		public ScriptContext GetByNativeID(NativeID nativeID)
+		public ScriptContext GetByNativeID(LunyNativeObjectID lunyNativeObjectID)
 		{
-			_contextsByNativeID.TryGetValue(nativeID, out var context);
+			_contextsByNativeID.TryGetValue(lunyNativeObjectID, out var context);
 			return context;
 		}
 
 		/// <summary>
 		/// Checks if a context exists for the given ObjectID.
 		/// </summary>
-		public Boolean HasContext(LunyID lunyID) => _contextsByObjectID.ContainsKey(lunyID);
+		public Boolean HasContext(LunyObjectID lunyObjectID) => _contextsByObjectID.ContainsKey(lunyObjectID);
 
 		private ScriptContext[] CreateSortedContexts()
 		{
 			_isSortedContextsDirty = false;
 			return _contextsByObjectID.Values
-				.OrderBy(ctx => ctx.LunyObject.LunyID)
+				.OrderBy(ctx => ctx.LunyObject.LunyObjectID)
 				.ToArray();
 		}
 
