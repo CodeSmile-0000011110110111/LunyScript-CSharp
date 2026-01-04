@@ -1,4 +1,5 @@
 using LunyScript.Blocks;
+using System;
 using System.Collections.Generic;
 
 namespace LunyScript.Runnables
@@ -12,6 +13,6 @@ namespace LunyScript.Runnables
 	{
 		RunnableID ID { get; }
 		IReadOnlyList<IBlock> Children { get; }
-		bool IsEmpty { get; }
+		Boolean IsEmpty { get; }
 	}
 }

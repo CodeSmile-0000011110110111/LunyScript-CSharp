@@ -63,6 +63,48 @@ namespace LunyScript.Execution
 			_subscribers.Clear();
 		}
 
+		public void OnFixedStep(Double fixedDeltaTime, ScriptContext context)
+		{
+			var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnFixedStep);
+			if (runnables != null)
+				LunyScriptRunner.Run(runnables, context);
+		}
+
+		public void OnUpdate(Double deltaTime, ScriptContext context)
+		{
+			var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnUpdate);
+			if (runnables != null)
+				LunyScriptRunner.Run(runnables, context);
+		}
+
+		public void OnLateUpdate(Double deltaTime, ScriptContext context)
+		{
+			var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnLateUpdate);
+			if (runnables != null)
+				LunyScriptRunner.Run(runnables, context);
+		}
+
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
+		private void SafeguardAgainstInfiniteEnableDisableCycle(ScriptContext context)
+		{
+#if DEBUG || LUNYSCRIPT_DEBUG
+			// Safeguard against infinite loops (OnEnable toggles to disabled, which triggers OnDisable, etc.)
+			if (_processingEnableDisable)
+			{
+				_processingEnableDisable = false;
+				throw new LunyScriptException("Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed " +
+				                              $"(would cause an infinite loop). Script: {context}");
+			}
+#endif
+		}
+
+		public void Shutdown()
+		{
+			UnregisterAllSubscribers();
+
+			_subscribers.Clear();
+		}
+
 		private sealed class LifecycleSubscriber
 		{
 			private readonly ScriptLifecycle _parent;
@@ -163,48 +205,6 @@ namespace LunyScript.Execution
 					_context.Scheduler.Clear(ObjectLifecycleEvents.OnReady);
 				}
 			}
-		}
-
-		public void OnFixedStep(Double fixedDeltaTime, ScriptContext context)
-		{
-			var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnFixedStep);
-			if (runnables != null)
-				LunyScriptRunner.Run(runnables, context);
-		}
-
-		public void OnUpdate(Double deltaTime, ScriptContext context)
-		{
-			var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnUpdate);
-			if (runnables != null)
-				LunyScriptRunner.Run(runnables, context);
-		}
-
-		public void OnLateUpdate(Double deltaTime, ScriptContext context)
-		{
-			var runnables = context.Scheduler.GetScheduled(ObjectLifecycleEvents.OnLateUpdate);
-			if (runnables != null)
-				LunyScriptRunner.Run(runnables, context);
-		}
-
-		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void SafeguardAgainstInfiniteEnableDisableCycle(ScriptContext context)
-		{
-#if DEBUG || LUNYSCRIPT_DEBUG
-			// Safeguard against infinite loops (OnEnable toggles to disabled, which triggers OnDisable, etc.)
-			if (_processingEnableDisable)
-			{
-				_processingEnableDisable = false;
-				throw new LunyScriptException("Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed " +
-				                              $"(would cause an infinite loop). Script: {context}");
-			}
-#endif
-		}
-
-		public void Shutdown()
-		{
-			UnregisterAllSubscribers();
-
-			_subscribers.Clear();
 		}
 	}
 }

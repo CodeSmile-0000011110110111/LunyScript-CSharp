@@ -32,14 +32,11 @@ namespace LunyScript.Tests
 				GlobalVariables[name] = result;
 		}
 
-		public override void Build()
-		{
+		public override void Build() =>
 			// When.Created(Debug.LogInfo("RUNNING: When.Created"));
 			// When.Destroyed(Debug.LogInfo("RUNNING: When.Destroyed"));
 			// When.Enabled(Debug.LogInfo("RUNNING: When.Enabled"));
 			// When.Disabled(Debug.LogInfo("RUNNING: When.Disabled"));
-
 			When.Created(Run(() => _firstFrame = LunyEngine.Instance.Time.FrameCount));
-		}
 	}
 }

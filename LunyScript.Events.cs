@@ -83,7 +83,8 @@ namespace LunyScript
 			/// </summary>
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
-			public static void Ready(params IBlock[] blocks) => s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnReady);
+			public static void Ready(params IBlock[] blocks) =>
+				s_Instance.ScheduleRunnable(CreateSequence(blocks), ObjectLifecycleEvents.OnReady);
 		}
 	}
 }

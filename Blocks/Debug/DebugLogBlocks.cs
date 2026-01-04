@@ -13,7 +13,7 @@ namespace LunyScript.Blocks
 		protected String _message;
 		private LogLevel _logLevel;
 
-		protected DebugLogBlockBase(String message , LogLevel logLevel)
+		protected DebugLogBlockBase(String message, LogLevel logLevel)
 		{
 			_message = message;
 			_logLevel = logLevel;

@@ -40,8 +40,12 @@ namespace LunyScript.Blocks
 		private CreateObject _data;
 
 		internal static IBlock CreateEmpty(String name) => new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Empty));
-		internal static IBlock CreateWithPrefab(String prefabName) => new ObjectCreateBlock(new CreateObject(prefabName, CreateObject.Type.Prefab));
-		internal static IBlock CreateClone(String originalName) => new ObjectCreateBlock(new CreateObject(originalName, CreateObject.Type.Clone));
+
+		internal static IBlock CreateWithPrefab(String prefabName) =>
+			new ObjectCreateBlock(new CreateObject(prefabName, CreateObject.Type.Prefab));
+
+		internal static IBlock CreateClone(String originalName) =>
+			new ObjectCreateBlock(new CreateObject(originalName, CreateObject.Type.Clone));
 
 		internal static IBlock CreateCube(String name = null) =>
 			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Cube));
