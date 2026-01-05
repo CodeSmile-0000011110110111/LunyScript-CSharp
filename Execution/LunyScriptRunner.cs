@@ -80,39 +80,39 @@ namespace LunyScript.Execution
 			LunyLogger.LogInfo("Initialization complete.", this);
 		}
 
-		public void OnStartup()
+		public void OnEngineStartup()
 		{
-			LunyLogger.LogInfo($"{nameof(OnStartup)} running...", this);
+			LunyLogger.LogInfo($"{nameof(OnEngineStartup)} running...", this);
 
 			// Process current scene to bind scripts to objects
 			LunyEngine.Instance.Scene.GetAllObjects(); // triggers registration in LunyObjectRegistry
 			LunyScriptActivator.BuildAndActivateLunyScripts(this);
 
-			LunyLogger.LogInfo($"{nameof(OnStartup)} complete.", this);
+			LunyLogger.LogInfo($"{nameof(OnEngineStartup)} complete.", this);
 		}
 
-		public void OnFixedStep(Double fixedDeltaTime)
+		public void OnEngineFixedStep(Double fixedDeltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
 				_lifecycle.OnFixedStep(fixedDeltaTime, context);
 		}
 
-		public void OnUpdate(Double deltaTime)
+		public void OnEngineUpdate(Double deltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
 				_lifecycle.OnUpdate(deltaTime, context);
 		}
 
-		public void OnLateUpdate(Double deltaTime)
+		public void OnEngineLateUpdate(Double deltaTime)
 		{
 			// Run all LateUpdate runnables
 			foreach (var context in _contexts.AllContexts)
 				_lifecycle.OnLateUpdate(deltaTime, context);
 		}
 
-		public void OnShutdown()
+		public void OnEngineShutdown()
 		{
-			LunyLogger.LogInfo($"{nameof(OnShutdown)}...", this);
+			LunyLogger.LogInfo($"{nameof(OnEngineShutdown)}...", this);
 
 			// ensure all objects run their OnDestroy
 			foreach (var context in _contexts.AllContexts)
@@ -126,7 +126,7 @@ namespace LunyScript.Execution
 
 			_scriptEngine = null;
 			_lifecycle = null;
-			LunyLogger.LogInfo($"{nameof(OnShutdown)} complete.", this);
+			LunyLogger.LogInfo($"{nameof(OnEngineShutdown)} complete.", this);
 		}
 
 		//~LunyScriptRunner() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
