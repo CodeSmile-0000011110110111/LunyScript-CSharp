@@ -1,6 +1,6 @@
 using Luny;
 using Luny.Engine.Bridge;
-using Luny.Engine.Events;
+using Luny.Engine.Bridge.Enums;
 using LunyScript.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,6 @@ namespace LunyScript.Execution
 	{
 		[NotNull] private readonly LunyScriptContextRegistry _contexts;
 		private readonly Dictionary<LunyScriptContext, LifecycleSubscriber> _subscribers = new();
-		private Boolean _processingEnableDisable;
 
 		internal LunyScriptLifecycle(LunyScriptContextRegistry contextRegistry) =>
 			_contexts = contextRegistry ?? throw new ArgumentNullException(nameof(contextRegistry));
@@ -32,39 +31,17 @@ namespace LunyScript.Execution
 		/// </summary>
 		internal void Register(LunyScriptContext context)
 		{
-			if (context.LunyObject is LunyObject lunyObjectImpl)
-			{
-				var subscriber = new LifecycleSubscriber(this, context, lunyObjectImpl);
-				_subscribers[context] = subscriber;
-				subscriber.RegisterCallbacks();
-			}
+			var subscriber = new LifecycleSubscriber(this, context);
+			_subscribers[context] = subscriber;
 		}
 
 		/// <summary>
 		/// Unregisters lifecycle hooks from a LunyObject.
 		/// Called during context cleanup or shutdown.
 		/// </summary>
-		internal void Unregister(LunyScriptContext context)
-		{
-			context.Scheduler.Clear();
+		private void UnregisterSubscriber(LunyScriptContext context) => _subscribers.Remove(context);
 
-			if (_subscribers.Remove(context, out var subscriber))
-				subscriber.UnregisterCallbacks();
-		}
-
-		private void UnregisterAllSubscribers()
-		{
-			foreach (var pair in _subscribers)
-			{
-				var context = pair.Key;
-				context.Scheduler.Clear();
-
-				var subscriber = pair.Value;
-				subscriber.UnregisterCallbacks();
-			}
-
-			_subscribers.Clear();
-		}
+		private void UnregisterContext(LunyScriptContext context) => _contexts.Unregister(context);
 
 		public void OnFixedStep(Double fixedDeltaTime, LunyScriptContext context)
 		{
@@ -87,56 +64,46 @@ namespace LunyScript.Execution
 				LunyScriptRunner.Run(runnables, context);
 		}
 
-		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void SafeguardAgainstInfiniteEnableDisableCycle(LunyScriptContext context)
-		{
-#if DEBUG || LUNYSCRIPT_DEBUG
-			// Safeguard against infinite loops (OnEnable toggles to disabled, which triggers OnDisable, etc.)
-			if (_processingEnableDisable)
-			{
-				_processingEnableDisable = false;
-				throw new LunyScriptException("Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed " +
-				                              $"(would cause an infinite loop). Script: {context}");
-			}
-#endif
-		}
-
 		public void Shutdown()
 		{
-			UnregisterAllSubscribers();
+			// remove all subscribers and their events
+			foreach (var subscriber in _subscribers.Values)
+				subscriber.UnregisterAllCallbacks();
 
 			_subscribers.Clear();
 		}
 
 		private sealed class LifecycleSubscriber
 		{
-			private readonly LunyScriptLifecycle _parent;
+			private readonly LunyScriptLifecycle _lifecycle;
 			private readonly LunyScriptContext _context;
-			private readonly LunyObject _lunyObject;
+			private Boolean _processingEnableDisable;
 
-			public LifecycleSubscriber(LunyScriptLifecycle parent, LunyScriptContext context, LunyObject lunyObject)
+			public LifecycleSubscriber(LunyScriptLifecycle lifecycle, LunyScriptContext context)
 			{
-				_parent = parent;
+				_lifecycle = lifecycle;
 				_context = context;
-				_lunyObject = lunyObject;
+				RegisterAllCallbacks();
 			}
 
-			public void RegisterCallbacks()
+			private void RegisterAllCallbacks()
 			{
-				_lunyObject.OnCreate += OnCreate;
-				_lunyObject.OnDestroy += OnDestroy;
-				_lunyObject.OnEnable += OnEnable;
-				_lunyObject.OnDisable += OnDisable;
-				_lunyObject.OnReady += OnReady;
+				var lunyObject = _context.LunyObject;
+				lunyObject.OnCreate += OnCreate;
+				lunyObject.OnDestroy += OnDestroy;
+				lunyObject.OnReady += OnReady;
+				lunyObject.OnEnable += OnEnable;
+				lunyObject.OnDisable += OnDisable;
 			}
 
-			public void UnregisterCallbacks()
+			internal void UnregisterAllCallbacks()
 			{
-				_lunyObject.OnCreate -= OnCreate;
-				_lunyObject.OnDestroy -= OnDestroy;
-				_lunyObject.OnEnable -= OnEnable;
-				_lunyObject.OnDisable -= OnDisable;
-				_lunyObject.OnReady -= OnReady;
+				var lunyObject = _context.LunyObject;
+				lunyObject.OnCreate -= OnCreate;
+				lunyObject.OnDestroy -= OnDestroy;
+				lunyObject.OnReady -= OnReady;
+				lunyObject.OnEnable -= OnEnable;
+				lunyObject.OnDisable -= OnDisable;
 			}
 
 			private void OnCreate()
@@ -144,58 +111,25 @@ namespace LunyScript.Execution
 				var runnables = _context.Scheduler.GetScheduled(LunyObjectLifecycleEvents.OnCreate);
 				if (runnables != null)
 				{
-					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnCreate)}: {_context} ...", _parent);
+					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnCreate)}: {_context} ...", _lifecycle);
 					LunyScriptRunner.Run(runnables, _context);
 				}
+
+				_context.LunyObject.OnCreate -= OnCreate; // never fires again
 			}
 
 			private void OnDestroy()
 			{
-				if (_context.DidRunOnDestroy)
-					throw new LunyScriptException($"{nameof(LunyObject.OnDestroy)} was invoked again: {_context}");
-
 				var runnables = _context.Scheduler.GetScheduled(LunyObjectLifecycleEvents.OnDestroy);
 				if (runnables != null)
 				{
-					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnDestroy)}: {_context.LunyObject} ...", _parent);
+					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnDestroy)}: {_context.LunyObject} ...", _lifecycle);
 					LunyScriptRunner.Run(runnables, _context);
 				}
 
-				_parent._contexts.Unregister(_context);
-			}
-
-			private void OnEnable()
-			{
-				if (_context.Scheduler.IsObserving(LunyObjectLifecycleEvents.OnEnable))
-				{
-					_parent.SafeguardAgainstInfiniteEnableDisableCycle(_context);
-					_parent._processingEnableDisable = true;
-					var runnables = _context.Scheduler.GetScheduled(LunyObjectLifecycleEvents.OnEnable);
-					if (runnables != null)
-					{
-						LunyLogger.LogInfo($"Running {nameof(LunyObject.OnEnable)}: {_context} ...", _parent);
-						LunyScriptRunner.Run(runnables, _context);
-					}
-
-					_parent._processingEnableDisable = false;
-				}
-			}
-
-			private void OnDisable()
-			{
-				if (_context.Scheduler.IsObserving(LunyObjectLifecycleEvents.OnDisable))
-				{
-					_parent.SafeguardAgainstInfiniteEnableDisableCycle(_context);
-
-					_parent._processingEnableDisable = true;
-					var runnables = _context.Scheduler.GetScheduled(LunyObjectLifecycleEvents.OnDisable);
-					if (runnables != null)
-					{
-						LunyLogger.LogInfo($"Running {nameof(LunyObject.OnDisable)}: {_context} ...", _parent);
-						LunyScriptRunner.Run(runnables, _context);
-					}
-					_parent._processingEnableDisable = false;
-				}
+				UnregisterAllCallbacks(); // no more events
+				_lifecycle.UnregisterSubscriber(_context);
+				_lifecycle.UnregisterContext(_context);
 			}
 
 			private void OnReady()
@@ -203,10 +137,61 @@ namespace LunyScript.Execution
 				var runnables = _context.Scheduler.GetScheduled(LunyObjectLifecycleEvents.OnReady);
 				if (runnables != null)
 				{
-					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnReady)}: {_context.LunyObject} ...", _parent);
+					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnReady)}: {_context.LunyObject} ...", _lifecycle);
 					LunyScriptRunner.Run(runnables, _context);
 					_context.Scheduler.Clear(LunyObjectLifecycleEvents.OnReady);
 				}
+
+				_context.LunyObject.OnReady -= OnReady; // never fires again
+			}
+
+			private void OnEnable()
+			{
+				if (_context.Scheduler.IsObserving(LunyObjectLifecycleEvents.OnEnable))
+				{
+					ThrowIfAlreadyProcessingEnableDisableEvent(_context);
+					_processingEnableDisable = true;
+
+					var runnables = _context.Scheduler.GetScheduled(LunyObjectLifecycleEvents.OnEnable);
+					if (runnables != null)
+					{
+						LunyLogger.LogInfo($"Running {nameof(LunyObject.OnEnable)}: {_context} ...", _lifecycle);
+						LunyScriptRunner.Run(runnables, _context);
+					}
+
+					_processingEnableDisable = false;
+				}
+			}
+
+			private void OnDisable()
+			{
+				if (_context.Scheduler.IsObserving(LunyObjectLifecycleEvents.OnDisable))
+				{
+					ThrowIfAlreadyProcessingEnableDisableEvent(_context);
+					_processingEnableDisable = true;
+
+					var runnables = _context.Scheduler.GetScheduled(LunyObjectLifecycleEvents.OnDisable);
+					if (runnables != null)
+					{
+						LunyLogger.LogInfo($"Running {nameof(LunyObject.OnDisable)}: {_context} ...", _lifecycle);
+						LunyScriptRunner.Run(runnables, _context);
+					}
+
+					_processingEnableDisable = false;
+				}
+			}
+
+			[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
+			private void ThrowIfAlreadyProcessingEnableDisableEvent(LunyScriptContext context)
+			{
+#if DEBUG || LUNYSCRIPT_DEBUG
+				// Safeguard against infinite loops (OnEnable toggles to disabled, which triggers OnDisable, etc.)
+				if (_processingEnableDisable)
+				{
+					throw new LunyScriptException("Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed " +
+					                              $"(would cause an infinite loop). Script: {context}");
+				}
+#endif
 			}
 		}
 	}
