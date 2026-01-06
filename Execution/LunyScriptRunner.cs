@@ -77,7 +77,7 @@ namespace LunyScript.Execution
 			_contexts = new LunyScriptContextRegistry();
 			_lifecycle = new LunyScriptLifecycle(_contexts);
 
-			LunyTraceLogger.LogInfoInitializationComplete(this);
+			LunyTraceLogger.LogInfoInitialized(this);
 		}
 
 		public void OnEngineStartup()

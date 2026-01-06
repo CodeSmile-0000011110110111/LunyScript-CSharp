@@ -11,10 +11,10 @@ namespace LunyScript
 	public sealed class LunyScriptVariableChangedArgs : EventArgs
 	{
 		public String Name { get; internal set; }
-		public LunyScriptVariable LunyScriptVariable { get; internal set; }
+		public LunyScriptVariable Variable { get; internal set; }
 		public LunyScriptVariable PreviousLunyScriptVariable { get; internal set; }
 
-		public override String ToString() => $"Variable '{Name}' changed: {PreviousLunyScriptVariable} -> {LunyScriptVariable}";
+		public override String ToString() => $"Variable '{Name}' changed: {PreviousLunyScriptVariable} -> {Variable}";
 	}
 
 	/// <summary>
@@ -142,7 +142,7 @@ namespace LunyScript
 #if DEBUG || LUNYSCRIPT_DEBUG
 			CachedChangedEventArgs.Name = key;
 			CachedChangedEventArgs.PreviousLunyScriptVariable = oldValue;
-			CachedChangedEventArgs.LunyScriptVariable = newValue;
+			CachedChangedEventArgs.Variable = newValue;
 			OnVariableChanged?.Invoke(this, CachedChangedEventArgs);
 #endif
 		}
