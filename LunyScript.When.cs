@@ -3,15 +3,18 @@ using LunyScript.Blocks;
 using LunyScript.Execution;
 using LunyScript.Runnables;
 using System;
+using System.Collections.Generic;
 
 namespace LunyScript
 {
 	public abstract partial class LunyScript
 	{
-		private static Boolean HasBlocks(ILunyScriptBlock[] blocks) => blocks?.Length > 0;
-		private static RunnableSequence CreateSequence(ILunyScriptBlock[] blocks) => HasBlocks(blocks) ? new RunnableSequence(blocks) : null;
+		private static Boolean HasBlocks(IReadOnlyList<ILunyScriptBlock> blocks) => blocks?.Count > 0;
 
-		private void ScheduleRunnable(RunnableSequence sequence, LunyObjectLifecycleEvents eventType) =>
+		private static ILunyScriptRunnable CreateSequence(IReadOnlyList<ILunyScriptBlock> blocks) =>
+			HasBlocks(blocks) ? new LunyScriptBlockSequence(blocks) : null;
+
+		private ILunyScriptRunnable ScheduleRunnable(ILunyScriptRunnable sequence, LunyObjectLifecycleEvents eventType) =>
 			((LunyScriptContext)_context).Scheduler.Schedule(sequence, eventType);
 
 		/// <summary>
@@ -26,21 +29,21 @@ namespace LunyScript
 			/// It's therefore unsuitable for once-only events, such as Input.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static void EveryFixedStep(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable EveryFixedStep(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnFixedStep);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static void EveryFrame(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable EveryFrame(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnUpdate);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static void EveryFrameEnds(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable EveryFrameEnds(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnLateUpdate);
 
 			/// <summary>
@@ -48,7 +51,7 @@ namespace LunyScript
 			/// </summary>
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
-			public static void Created(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable Created(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnCreate);
 
 			/// <summary>
@@ -56,7 +59,7 @@ namespace LunyScript
 			/// </summary>
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
-			public static void Destroyed(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable Destroyed(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnDestroy);
 
 			/// <summary>
@@ -65,7 +68,7 @@ namespace LunyScript
 			/// </summary>
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
-			public static void Enabled(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable Enabled(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnEnable);
 
 			/// <summary>
@@ -74,7 +77,7 @@ namespace LunyScript
 			/// </summary>
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
-			public static void Disabled(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable Disabled(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnDisable);
 
 			/// <summary>
@@ -83,7 +86,7 @@ namespace LunyScript
 			/// </summary>
 			/// <param name="blocks"></param>
 			/// <exception cref="NotImplementedException"></exception>
-			public static void Ready(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable Ready(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnReady);
 		}
 	}

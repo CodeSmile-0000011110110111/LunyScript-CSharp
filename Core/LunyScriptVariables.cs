@@ -8,27 +8,27 @@ using System.Text;
 
 namespace LunyScript
 {
-	public sealed class VariableChangedEventArgs : EventArgs
+	public sealed class LunyScriptVariableChangedArgs : EventArgs
 	{
 		public String Name { get; internal set; }
-		public Variable Variable { get; internal set; }
-		public Variable PreviousVariable { get; internal set; }
+		public LunyScriptVariable LunyScriptVariable { get; internal set; }
+		public LunyScriptVariable PreviousLunyScriptVariable { get; internal set; }
 
-		public override String ToString() => $"Variable '{Name}' changed: {PreviousVariable} -> {Variable}";
+		public override String ToString() => $"Variable '{Name}' changed: {PreviousLunyScriptVariable} -> {LunyScriptVariable}";
 	}
 
 	/// <summary>
 	/// Dictionary-based variable storage for LunyScript contexts.
 	/// </summary>
-	public interface IVariables : IEnumerable<KeyValuePair<String, Variable>>
+	public interface ILunyScriptVariables : IEnumerable<KeyValuePair<String, LunyScriptVariable>>
 	{
 		/// <summary>
 		/// Sent when a variable changes.
 		/// Caution: The event args instance becomes invalid after the call, it will be re-used by the next event.
 		/// Copy the values if you want to keep them.
 		/// </summary>
-		event EventHandler<VariableChangedEventArgs> OnVariableChanged;
-		Variable this[String key] { get; set; }
+		event EventHandler<LunyScriptVariableChangedArgs> OnVariableChanged;
+		LunyScriptVariable this[String key] { get; set; }
 		T Get<T>(String key);
 		Boolean Has(String key);
 		Boolean Remove(String key);
@@ -41,28 +41,28 @@ namespace LunyScript
 	/// TODO: Replace with LuaTable when Lua integration is added.
 	/// TODO: Optimize boxing/unboxing (consider variant type or generic storage).
 	/// </summary>
-	public sealed class Variables : IVariables
+	public sealed class LunyScriptVariables : ILunyScriptVariables
 	{
 		/// <summary>
 		/// Fired when a variable is changed. Only invoked in debug builds.
 		/// </summary>
-		public event EventHandler<VariableChangedEventArgs> OnVariableChanged;
+		public event EventHandler<LunyScriptVariableChangedArgs> OnVariableChanged;
 
-		private static readonly VariableChangedEventArgs CachedChangedEventArgs = new();
+		private static readonly LunyScriptVariableChangedArgs CachedChangedEventArgs = new();
 
 		// TODO: replace with LuaTable
-		private readonly Dictionary<String, Variable> _vars = new();
+		private readonly Dictionary<String, LunyScriptVariable> _vars = new();
 
 		/// <summary>
 		/// Gets or sets a variable by name.
 		/// </summary>
-		public Variable this[String key]
+		public LunyScriptVariable this[String key]
 		{
-			get => _vars.TryGetValue(key, out var value) ? value : new Variable(key, null);
+			get => _vars.TryGetValue(key, out var value) ? value : new LunyScriptVariable(key, null);
 			set
 			{
-				var oldValue = _vars.TryGetValue(key, out var existing) ? existing : new Variable(key, null);
-				var newValue = new Variable(key, value.Value);
+				var oldValue = _vars.TryGetValue(key, out var existing) ? existing : new LunyScriptVariable(key, null);
+				var newValue = new LunyScriptVariable(key, value.Value);
 				_vars[key] = newValue;
 				NotifyVariableChanged(key, oldValue, newValue);
 			}
@@ -73,7 +73,7 @@ namespace LunyScript
 		/// </summary>
 		public Int32 Count => _vars.Count;
 
-		public IEnumerator<KeyValuePair<String, Variable>> GetEnumerator() => _vars.GetEnumerator();
+		public IEnumerator<KeyValuePair<String, LunyScriptVariable>> GetEnumerator() => _vars.GetEnumerator();
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -137,12 +137,12 @@ namespace LunyScript
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void NotifyVariableChanged(String key, Variable oldValue, Variable newValue)
+		private void NotifyVariableChanged(String key, LunyScriptVariable oldValue, LunyScriptVariable newValue)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			CachedChangedEventArgs.Name = key;
-			CachedChangedEventArgs.PreviousVariable = oldValue;
-			CachedChangedEventArgs.Variable = newValue;
+			CachedChangedEventArgs.PreviousLunyScriptVariable = oldValue;
+			CachedChangedEventArgs.LunyScriptVariable = newValue;
 			OnVariableChanged?.Invoke(this, CachedChangedEventArgs);
 #endif
 		}

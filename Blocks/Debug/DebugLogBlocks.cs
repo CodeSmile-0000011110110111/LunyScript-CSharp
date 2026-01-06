@@ -13,6 +13,8 @@ namespace LunyScript.Blocks
 		protected String _message;
 		private LogLevel _logLevel;
 
+		private DebugLogBlockBase() {}
+
 		protected DebugLogBlockBase(String message, LogLevel logLevel)
 		{
 			_message = message;
@@ -25,7 +27,7 @@ namespace LunyScript.Blocks
 		private void DoLog(ILunyScriptContext context)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
-			LunyLogger.Log($"{_message} ({context})", this, _logLevel);
+			LunyLogger.Log($"{_message} ({context})", _logLevel, this);
 #endif
 		}
 
@@ -38,7 +40,9 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DebugLogInfoBlock : DebugLogBlockBase
 	{
-		public DebugLogInfoBlock(String message)
+		public static ILunyScriptBlock Create(String message) => new DebugLogInfoBlock(message);
+
+		private DebugLogInfoBlock(String message)
 			: base(message, LogLevel.Info) {}
 	}
 
@@ -48,7 +52,9 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DebugLogWarningBlock : DebugLogBlockBase
 	{
-		public DebugLogWarningBlock(String message)
+		public static ILunyScriptBlock Create(String message) => new DebugLogWarningBlock(message);
+
+		private DebugLogWarningBlock(String message)
 			: base(message, LogLevel.Warning) {}
 	}
 
@@ -58,7 +64,9 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DebugLogErrorBlock : DebugLogBlockBase
 	{
-		public DebugLogErrorBlock(String message)
+		public static ILunyScriptBlock Create(String message) => new DebugLogErrorBlock(message);
+
+		private DebugLogErrorBlock(String message)
 			: base(message, LogLevel.Error) {}
 	}
 }

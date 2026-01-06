@@ -12,8 +12,8 @@ namespace LunyScript.Diagnostics
 	/// </summary>
 	public sealed class LunyScriptBlockProfiler
 	{
-		private readonly Dictionary<RunnableID, LunyScriptBlockMetrics> _metrics = new();
-		private readonly Dictionary<RunnableID, Stopwatch> _activeBlocks = new();
+		private readonly Dictionary<LunyScriptRunID, LunyScriptBlockMetrics> _metrics = new();
+		private readonly Dictionary<LunyScriptRunID, Stopwatch> _activeBlocks = new();
 		private Int32 _rollingAverageWindow = 60;
 
 		public Int32 RollingAverageWindow
@@ -23,36 +23,36 @@ namespace LunyScript.Diagnostics
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		public void BeginBlock(RunnableID runnableID)
+		public void BeginBlock(LunyScriptRunID lunyScriptRunID)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
-			if (!_activeBlocks.TryGetValue(runnableID, out var sw))
+			if (!_activeBlocks.TryGetValue(lunyScriptRunID, out var sw))
 			{
 				sw = new Stopwatch();
-				_activeBlocks[runnableID] = sw;
+				_activeBlocks[lunyScriptRunID] = sw;
 			}
 			sw.Restart();
 #endif
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")] [Conditional("LUNYSCRIPT_PROFILE")]
-		public void EndBlock(RunnableID runnableID, Type blockType)
+		public void EndBlock(LunyScriptRunID lunyScriptRunID, Type blockType)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
-			if (!_activeBlocks.TryGetValue(runnableID, out var sw))
+			if (!_activeBlocks.TryGetValue(lunyScriptRunID, out var sw))
 				return;
 
 			sw.Stop();
 			var elapsed = sw.Elapsed.TotalMilliseconds;
 
-			if (!_metrics.TryGetValue(runnableID, out var metrics))
+			if (!_metrics.TryGetValue(lunyScriptRunID, out var metrics))
 			{
 				metrics = new LunyScriptBlockMetrics
 				{
-					RunnableID = runnableID,
+					LunyScriptRunID = lunyScriptRunID,
 					BlockType = blockType,
 				};
-				_metrics[runnableID] = metrics;
+				_metrics[lunyScriptRunID] = metrics;
 			}
 
 			UpdateMetrics(metrics, elapsed);
@@ -60,10 +60,10 @@ namespace LunyScript.Diagnostics
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")] [Conditional("LUNYSCRIPT_PROFILE")]
-		public void RecordError(RunnableID runnableID, Exception ex)
+		public void RecordError(LunyScriptRunID lunyScriptRunID, Exception ex)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
-			if (_metrics.TryGetValue(runnableID, out var metrics))
+			if (_metrics.TryGetValue(lunyScriptRunID, out var metrics))
 				metrics.ErrorCount++;
 #endif
 		}

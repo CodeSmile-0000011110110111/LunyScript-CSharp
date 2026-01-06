@@ -16,7 +16,7 @@ namespace LunyScript.Execution
 		private readonly Dictionary<String, LunyScriptDefinition> _scriptsByName = new();
 
 		public LunyScriptDefinitionRegistry() => DiscoverScripts();
-		~LunyScriptDefinitionRegistry() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		~LunyScriptDefinitionRegistry() => LunyTraceLogger.LogInfoFinalized(this);
 
 		/// <summary>
 		/// Discovers all LunyScript subclasses via reflection and registers them.
@@ -25,7 +25,7 @@ namespace LunyScript.Execution
 		{
 			var sw = Stopwatch.StartNew();
 
-			var scriptTypes = TypeDiscovery.FindAll<LunyScript>();
+			var scriptTypes = LunyTypeDiscovery.FindAll<LunyScript>();
 
 			foreach (var type in scriptTypes)
 				RegisterScript(type);

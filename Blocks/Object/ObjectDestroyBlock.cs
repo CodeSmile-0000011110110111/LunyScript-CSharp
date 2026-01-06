@@ -10,7 +10,10 @@ namespace LunyScript.Blocks
 	{
 		private String _objectName;
 
-		internal ObjectDestroyBlock(String name) => _objectName = name;
+		public static ILunyScriptBlock Create(String name) => new ObjectDestroyBlock(name);
+
+		private ObjectDestroyBlock() {}
+		private ObjectDestroyBlock(String name) => _objectName = name;
 
 		public void Execute(ILunyScriptContext context)
 		{

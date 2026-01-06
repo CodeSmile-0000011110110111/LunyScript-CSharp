@@ -13,7 +13,10 @@ namespace LunyScript.Blocks
 	{
 		private readonly String _message;
 
-		public DebugBreakBlock(String message = null) => _message = message;
+		public static ILunyScriptBlock Create(String message) => new DebugBreakBlock(message);
+
+		private DebugBreakBlock() {}
+		private DebugBreakBlock(String message = null) => _message = message;
 
 		public void Execute(ILunyScriptContext context) => DoBreak(context);
 

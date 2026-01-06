@@ -12,7 +12,10 @@ namespace LunyScript.Blocks
 	{
 		private readonly String _name;
 
-		internal ObjectSetEnabledBlock(String name) => _name = name;
+		public static ILunyScriptBlock Create(String name) => new ObjectSetEnabledBlock(name);
+
+		private ObjectSetEnabledBlock() {}
+		private ObjectSetEnabledBlock(String name) => _name = name;
 
 		public void Execute(ILunyScriptContext context)
 		{

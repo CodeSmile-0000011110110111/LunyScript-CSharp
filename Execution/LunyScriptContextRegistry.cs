@@ -30,7 +30,7 @@ namespace LunyScript.Execution
 		/// </summary>
 		public Int32 Count => _contextsByObjectID.Count;
 
-		~LunyScriptContextRegistry() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		~LunyScriptContextRegistry() => LunyTraceLogger.LogInfoFinalized(this);
 
 		public LunyScriptContext CreateContext(LunyScriptDefinition scriptDef, ILunyObject sceneObject)
 		{

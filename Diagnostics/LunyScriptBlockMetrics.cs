@@ -8,7 +8,7 @@ namespace LunyScript.Diagnostics
 	/// </summary>
 	public sealed class LunyScriptBlockMetrics
 	{
-		public RunnableID RunnableID;
+		public LunyScriptRunID LunyScriptRunID;
 		public Type BlockType;
 		public Int32 CallCount;
 		public Double TotalMs;
@@ -18,6 +18,6 @@ namespace LunyScript.Diagnostics
 		public Int32 ErrorCount;
 
 		public override String ToString() =>
-			$"Runnable#{RunnableID} {BlockType.Name}: {CallCount} calls, {AverageMs:F2}ms avg ({MinMs:F2}-{MaxMs:F2}ms), {ErrorCount} errors";
+			$"Runnable#{LunyScriptRunID} {BlockType.Name}: {CallCount} calls, {AverageMs:F2}ms avg ({MinMs:F2}-{MaxMs:F2}ms), {ErrorCount} errors";
 	}
 }

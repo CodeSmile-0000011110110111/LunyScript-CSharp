@@ -11,8 +11,8 @@ namespace LunyScript
 	{
 		LunyScriptID ScriptID { get; }
 		ILunyObject LunyObject { get; }
-		IVariables GlobalVariables { get; }
-		IVariables LocalVariables { get; }
+		ILunyScriptVariables GlobalVariables { get; }
+		ILunyScriptVariables LocalVariables { get; }
 		Boolean IsEditor { get; }
 	}
 
@@ -54,12 +54,12 @@ namespace LunyScript
 		/// <summary>
 		/// Global variables which all objects and scripts can read/write.
 		/// </summary>
-		[NotNull] public IVariables GlobalVariables => _context.GlobalVariables;
+		[NotNull] public ILunyScriptVariables GlobalVariables => _context.GlobalVariables;
 		/// <summary>
 		/// Local variables the current object and script owns.
 		/// If multiple objects run the same script, each object has its own unique set of local variables.
 		/// </summary>
-		[NotNull] public IVariables LocalVariables => _context.LocalVariables;
+		[NotNull] public ILunyScriptVariables LocalVariables => _context.LocalVariables;
 		/// <summary>
 		/// True if the script runs within the engine's editor (play mode). False in builds.
 		/// </summary>
@@ -104,7 +104,7 @@ namespace LunyScript
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		// ~LunyScript() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		~LunyScript() => LunyTraceLogger.LogInfoFinalized(this);
 
 		internal void Shutdown() => s_Instance = null; // temp singleton no longer needed
 
@@ -114,98 +114,5 @@ namespace LunyScript
 		/// Users can use regular C# syntax (ie call methods, use loops) to construct complex and/or reusable blocks.
 		/// </summary>
 		public abstract void Build();
-
-		/// <summary>
-		/// Provides diagnostics blocks which are omitted from release builds,
-		/// unless the scripting symbol LUNYSCRIPT_DEBUG is defined.
-		/// </summary>
-		public static class Debug
-		{
-			/// <summary>
-			/// Logs a debug message that is completely stripped in release builds.
-			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
-			/// </summary>
-			public static ILunyScriptBlock LogInfo(String message)
-			{
-#if DEBUG || LUNYSCRIPT_DEBUG
-				return new DebugLogInfoBlock(message);
-#else
-				return null;
-#endif
-			}
-
-			/// <summary>
-			/// Logs a debug "warning" (yellow text) message.
-			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
-			/// </summary>
-			public static ILunyScriptBlock LogWarning(String message)
-			{
-#if DEBUG || LUNYSCRIPT_DEBUG
-				return new DebugLogWarningBlock(message);
-#else
-				return null;
-#endif
-			}
-
-			/// <summary>
-			/// Logs a debug "error" (red text) message.
-			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
-			/// </summary>
-			public static ILunyScriptBlock LogError(String message)
-			{
-#if DEBUG || LUNYSCRIPT_DEBUG
-				return new DebugLogErrorBlock(message);
-#else
-				return null;
-#endif
-			}
-
-			/// <summary>
-			/// Triggers a debugger breakpoint if debugger is attached by calling System.Diagnostics.Debugger.Break().
-			/// Completely stripped in release builds.
-			/// Only breaks when DEBUG or LUNYSCRIPT_DEBUG is defined.
-			/// </summary>
-			public static ILunyScriptBlock Break(String message = null)
-			{
-#if DEBUG || LUNYSCRIPT_DEBUG
-				return new DebugBreakBlock(message);
-#else
-				return null;
-#endif
-			}
-		}
-
-		/// <summary>
-		/// Provides Editor-only functionality.
-		/// In builds these blocks are ignored (no-op).
-		/// </summary>
-		public static class Editor
-		{
-			/// <summary>
-			/// Pauses playmode.
-			/// </summary>
-			public static ILunyScriptBlock PausePlayer(String message = null) => s_Instance.IsEditor ? new EditorPausePlayerBlock(message) : null;
-		}
-
-		/// <summary>
-		/// Provides operations for objects.
-		/// </summary>
-		public static class Object
-		{
-			public static ILunyScriptBlock SetEnabled(String name = null) => new ObjectSetEnabledBlock(name);
-			public static ILunyScriptBlock SetDisabled(String name = null) => new ObjectSetDisabledBlock(name);
-
-			public static ILunyScriptBlock CreateEmpty(String name) => ObjectCreateBlock.CreateEmpty(name);
-			public static ILunyScriptBlock CreateWithPrefab(String prefabName) => ObjectCreateBlock.CreateWithPrefab(prefabName);
-			public static ILunyScriptBlock CreateClone(String originalName) => ObjectCreateBlock.CreateClone(originalName);
-			public static ILunyScriptBlock CreateCube(String name = null) => ObjectCreateBlock.CreateCube(name);
-			public static ILunyScriptBlock CreateSphere(String name = null) => ObjectCreateBlock.CreateSphere(name);
-			public static ILunyScriptBlock CreateCapsule(String name = null) => ObjectCreateBlock.CreateCapsule(name);
-			public static ILunyScriptBlock CreateCylinder(String name = null) => ObjectCreateBlock.CreateCylinder(name);
-			public static ILunyScriptBlock CreatePlane(String name = null) => ObjectCreateBlock.CreatePlane(name);
-			public static ILunyScriptBlock CreateQuad(String name = null) => ObjectCreateBlock.CreateQuad(name);
-
-			public static ILunyScriptBlock Destroy(String name = null) => new ObjectDestroyBlock(name);
-		}
 	}
 }

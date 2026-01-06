@@ -1,3 +1,4 @@
+using Luny;
 using LunyScript.Blocks;
 using LunyScript.Execution;
 using System;
@@ -8,27 +9,27 @@ namespace LunyScript.Runnables
 	/// <summary>
 	/// Executes child blocks in sequential order.
 	/// </summary>
-	public sealed class RunnableSequence : IRunnable
+	public sealed class LunyScriptBlockSequence : ILunyScriptRunnable
 	{
-		public RunnableID ID { get; }
-		public IReadOnlyList<ILunyScriptBlock> Children { get; }
-		public Boolean IsEmpty => Children.Count == 0;
+		public LunyScriptRunID ID { get; }
+		public IReadOnlyList<ILunyScriptBlock> Blocks { get; }
+		public Boolean IsEmpty => Blocks.Count == 0;
 
-		public RunnableSequence(IReadOnlyList<ILunyScriptBlock> blocks)
+		public LunyScriptBlockSequence(IReadOnlyList<ILunyScriptBlock> blocks)
 		{
 			if (blocks == null || blocks.Count == 0)
 				throw new ArgumentException("Sequence must contain at least one block", nameof(blocks));
 
-			ID = RunnableID.Generate();
-			Children = blocks;
+			ID = LunyScriptRunID.Generate();
+			Blocks = blocks;
 		}
 
 		public void Execute(ILunyScriptContext context)
 		{
-			foreach (var block in Children)
+			foreach (var block in Blocks)
 				block?.Execute(context);
 		}
 
-		// ~RunnableSequence() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		~LunyScriptBlockSequence() => LunyTraceLogger.LogInfoFinalized(this);
 	}
 }

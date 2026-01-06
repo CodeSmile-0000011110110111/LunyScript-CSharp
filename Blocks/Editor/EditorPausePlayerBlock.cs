@@ -13,7 +13,10 @@ namespace LunyScript.Blocks
 	{
 		private readonly String _message;
 
-		public EditorPausePlayerBlock(String message = null) => _message = message;
+		public static ILunyScriptBlock Create(String message) => new EditorPausePlayerBlock(message);
+
+		private EditorPausePlayerBlock() {}
+		private EditorPausePlayerBlock(String message = null) => _message = message;
 
 		public void Execute(ILunyScriptContext context) => DoPausePlayer(context);
 

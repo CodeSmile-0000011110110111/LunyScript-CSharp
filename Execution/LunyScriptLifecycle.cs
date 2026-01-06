@@ -23,7 +23,7 @@ namespace LunyScript.Execution
 		internal LunyScriptLifecycle(LunyScriptContextRegistry contextRegistry) =>
 			_contexts = contextRegistry ?? throw new ArgumentNullException(nameof(contextRegistry));
 
-		~LunyScriptLifecycle() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		~LunyScriptLifecycle() => LunyTraceLogger.LogInfoFinalized(this);
 
 		/// <summary>
 		/// Registers lifecycle hooks on a LunyObject for the given context.

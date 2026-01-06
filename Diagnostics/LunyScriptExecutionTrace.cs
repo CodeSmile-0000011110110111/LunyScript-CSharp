@@ -10,7 +10,7 @@ namespace LunyScript.Diagnostics
 	{
 		public Int64 FrameCount;
 		public Double ElapsedSeconds;
-		public RunnableID RunnableID;
+		public LunyScriptRunID LunyScriptRunID;
 		public Type BlockType;
 		public String BlockDescription;
 		public Exception Error;
@@ -18,7 +18,7 @@ namespace LunyScript.Diagnostics
 		public override String ToString()
 		{
 			var errorSuffix = Error != null ? $" [ERROR: {Error.Message}]" : "";
-			return $"[Frame {FrameCount:D8}] [{ElapsedSeconds:F3}s] Runnable#{RunnableID} {BlockType.Name}{errorSuffix}";
+			return $"[Frame {FrameCount:D8}] [{ElapsedSeconds:F3}s] Runnable#{LunyScriptRunID} {BlockType.Name}{errorSuffix}";
 		}
 	}
 }

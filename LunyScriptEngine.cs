@@ -10,7 +10,7 @@ namespace LunyScript
 	/// </summary>
 	public interface ILunyScriptEngine
 	{
-		IVariables GlobalVariables { get; }
+		ILunyScriptVariables GlobalVariables { get; }
 		ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID);
 	}
 
@@ -21,12 +21,14 @@ namespace LunyScript
 	{
 		private LunyScriptRunner _runner;
 		public static ILunyScriptEngine Instance { get; private set; }
-		public IVariables GlobalVariables => LunyScriptContext.GetGlobalVariables();
+		public ILunyScriptVariables GlobalVariables => LunyScriptContext.GetGlobalVariables();
 
 		private LunyScriptEngine() {} // hide default ctor
 
 		internal LunyScriptEngine(LunyScriptRunner scriptRunner)
 		{
+			LunyTraceLogger.LogInfoInitializing(this);
+
 			if (Instance != null)
 				throw new InvalidOperationException($"{nameof(ILunyScriptEngine)} singleton duplication!");
 			if (scriptRunner == null)
@@ -34,17 +36,19 @@ namespace LunyScript
 
 			_runner = scriptRunner;
 			Instance = this;
-			LunyLogger.LogInfo("Initialized.", this);
+
+			LunyTraceLogger.LogInfoInitializationComplete(this);
 		}
 
 		public ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID) => _runner.Contexts.GetByNativeID(lunyNativeObjectID);
-		~LunyScriptEngine() => LunyLogger.LogInfo($"finalized {GetHashCode()}", this);
+		~LunyScriptEngine() => LunyTraceLogger.LogInfoFinalized(this);
 
 		internal void Shutdown()
 		{
+			LunyTraceLogger.LogInfoShuttingDown(this);
 			Instance = null;
 			_runner = null;
-			LunyLogger.LogInfo($"{nameof(Shutdown)}.", this);
+			LunyTraceLogger.LogInfoShutdownComplete(this);
 		}
 	}
 }
