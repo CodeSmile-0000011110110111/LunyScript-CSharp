@@ -27,7 +27,7 @@ namespace LunyScript
 
 		internal LunyScriptEngine(LunyScriptRunner scriptRunner)
 		{
-			LunyTraceLogger.LogInfoInitializing(this);
+			LunyTraceLogger.LogInfoCreateSingletonInstance(typeof(LunyScriptEngine));
 
 			if (Instance != null)
 				throw new InvalidOperationException($"{nameof(ILunyScriptEngine)} singleton duplication!");
@@ -36,8 +36,6 @@ namespace LunyScript
 
 			_runner = scriptRunner;
 			Instance = this;
-
-			LunyTraceLogger.LogInfoInitialized(this);
 		}
 
 		public ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID) => _runner.Contexts.GetByNativeID(lunyNativeObjectID);
