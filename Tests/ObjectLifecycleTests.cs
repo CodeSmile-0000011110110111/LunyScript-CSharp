@@ -6,6 +6,12 @@
 		{
 			base.Build();
 			When.Created(Run(AssertRanInFirstFrame));
+
+			Every.FrameEnds(
+				Debug.LogWarning("Reloading scene now ..."),
+				Scene.Reload()
+			);
+			//Every.TimeInterval(TimeSpan.FromSeconds(1));
 		}
 	}
 
@@ -52,7 +58,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.EveryFixedStep(
+			Every.FixedStep(
 				Run(AssertRanInFirstFrame),
 				Object.Destroy() // prevent log spam
 			);
@@ -64,7 +70,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.EveryFrame(
+			Every.Frame(
 				Run(AssertRanInFirstFrame),
 				Object.Destroy() // prevent log spam
 			);
@@ -76,7 +82,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.EveryFrameEnds(
+			Every.FrameEnds(
 				Run(AssertRanInFirstFrame),
 				Object.Destroy() // prevent log spam
 			);

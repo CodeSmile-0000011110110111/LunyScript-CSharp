@@ -17,10 +17,7 @@ namespace LunyScript
 		private ILunyScriptRunnable ScheduleRunnable(ILunyScriptRunnable sequence, LunyObjectLifecycleEvents eventType) =>
 			((LunyScriptContext)_context).Scheduler.Schedule(sequence, eventType);
 
-		/// <summary>
-		/// Handles events, ie Lifecycle, Input, Collision, Messages.
-		/// </summary>
-		public static class When
+		public static class Every
 		{
 			/// <summary>
 			/// Schedules blocks to run on fixed-rate updates.
@@ -29,23 +26,32 @@ namespace LunyScript
 			/// It's therefore unsuitable for once-only events, such as Input.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static ILunyScriptRunnable EveryFixedStep(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable FixedStep(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnFixedStep);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static ILunyScriptRunnable EveryFrame(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable Frame(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnUpdate);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static ILunyScriptRunnable EveryFrameEnds(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable FrameEnds(params ILunyScriptBlock[] blocks) =>
 				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectLifecycleEvents.OnLateUpdate);
 
+			public static ILunyScriptRunnable TimeInterval(TimeSpan timeSpan, params ILunyScriptBlock[] blocks) =>
+				throw new NotImplementedException(nameof(TimeInterval));
+		}
+
+		/// <summary>
+		/// Handles infrequent events, ie Lifecycle, Input, Collision, Messages.
+		/// </summary>
+		public static class When
+		{
 			/// <summary>
 			/// Runs once the moment when the object is instantiated.
 			/// </summary>
