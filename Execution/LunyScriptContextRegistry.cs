@@ -74,13 +74,13 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Gets a context by ObjectID.
 		/// </summary>
-		public LunyScriptContext GetByLunyID(LunyObjectID lunyObjectID)
+		public LunyScriptContext GetByLunyObjectID(LunyObjectID lunyObjectID)
 		{
 			_contextsByObjectID.TryGetValue(lunyObjectID, out var context);
 			return context;
 		}
 
-		public LunyScriptContext GetByNativeID(LunyNativeObjectID lunyNativeObjectID)
+		public LunyScriptContext GetByNativeObjectID(LunyNativeObjectID lunyNativeObjectID)
 		{
 			_contextsByNativeID.TryGetValue(lunyNativeObjectID, out var context);
 			return context;

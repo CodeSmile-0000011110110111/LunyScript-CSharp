@@ -58,7 +58,8 @@ namespace LunyScript.Execution
 
 			var scriptContexts = CreateContexts(sceneObjects, scriptRunner.Scripts, scriptRunner.Contexts);
 
-			var lifecycle = scriptRunner.Lifecycle;
+			var objectEventHandler = scriptRunner.ObjectEventHandler;
+			var sceneEventHandler = scriptRunner.SceneEventHandler;
 			var activatedCount = 0;
 			foreach (var context in scriptContexts)
 			{
@@ -71,12 +72,16 @@ namespace LunyScript.Execution
 					scriptInstance.Initialize(context);
 					scriptInstance.Build();
 					scriptInstance.Shutdown();
-					lifecycle.Register(context); // hooks up lifecycle events
+
+					// hook up events
+					objectEventHandler.Register(context);
+					sceneEventHandler.Register(context);
+
 					activatedCount++;
 				}
 				catch (Exception ex)
 				{
-					LunyLogger.LogError($"{context.ScriptType} failed to build: {ex}", nameof(LunyScriptActivator));
+					LunyLogger.LogException(ex, nameof(LunyScriptActivator));
 					Debugger.Break();
 				}
 			}

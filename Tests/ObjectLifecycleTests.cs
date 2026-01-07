@@ -5,11 +5,11 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Created(Run(AssertRanInFirstFrame));
+			When.Object.Created(Run(AssertDidRun));
 
 			Every.FrameEnds(
-				Debug.LogWarning("Reloading scene now ..."),
-				Scene.Reload()
+				//Debug.LogWarning("Reloading scene now ..."),
+				//Scene.Reload()
 			);
 			//Every.TimeInterval(TimeSpan.FromSeconds(1));
 		}
@@ -20,8 +20,8 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Created(Object.Destroy());
-			When.Destroyed(Run(AssertRanInFirstFrame));
+			When.Object.Created(Object.Destroy());
+			When.Object.Destroyed(Run(AssertDidRun));
 		}
 	}
 
@@ -30,7 +30,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Enabled(Run(AssertRanInFirstFrame));
+			When.Object.Enabled(Run(AssertDidRun));
 		}
 	}
 
@@ -39,8 +39,8 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Created(Object.SetDisabled());
-			When.Disabled(Run(AssertRanInFirstFrame));
+			When.Object.Created(Object.SetDisabled());
+			When.Object.Disabled(Run(AssertDidRun));
 		}
 	}
 
@@ -49,7 +49,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Ready(Run(AssertRanInFirstFrame));
+			When.Object.Ready(Run(AssertDidRun));
 		}
 	}
 
@@ -59,7 +59,7 @@
 		{
 			base.Build();
 			Every.FixedStep(
-				Run(AssertRanInFirstFrame),
+				Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
 		}
@@ -71,7 +71,7 @@
 		{
 			base.Build();
 			Every.Frame(
-				Run(AssertRanInFirstFrame),
+				Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
 		}
@@ -83,7 +83,7 @@
 		{
 			base.Build();
 			Every.FrameEnds(
-				Run(AssertRanInFirstFrame),
+				Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
 		}

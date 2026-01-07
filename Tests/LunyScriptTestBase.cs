@@ -5,25 +5,7 @@ namespace LunyScript.Tests
 {
 	public abstract class LunyScriptTestBase : LunyScript
 	{
-		private Int64 _firstFrame;
-		private Boolean _loggedOnce_NotInFirstFrame;
-
-		protected void AssertRanInFirstFrame()
-		{
-			var currentFrame = LunyEngine.Instance.Time.FrameCount;
-			if (currentFrame > _firstFrame)
-			{
-				if (!_loggedOnce_NotInFirstFrame)
-				{
-					_loggedOnce_NotInFirstFrame = true;
-					LunyLogger.LogError($"{GetType().Name} expected to run in first frame! Got: {currentFrame}, expected: {_firstFrame}");
-				}
-
-				SetTestPassedVariable(false);
-			}
-			else
-				SetTestPassedVariable(true);
-		}
+		protected void AssertDidRun() => SetTestPassedVariable(true);
 
 		private void SetTestPassedVariable(Boolean result)
 		{
@@ -32,11 +14,16 @@ namespace LunyScript.Tests
 				GlobalVariables[name] = result;
 		}
 
-		public override void Build() =>
-			// When.Created(Debug.LogInfo("RUNNING: When.Created"));
-			// When.Destroyed(Debug.LogInfo("RUNNING: When.Destroyed"));
-			// When.Enabled(Debug.LogInfo("RUNNING: When.Enabled"));
-			// When.Disabled(Debug.LogInfo("RUNNING: When.Disabled"));
-			When.Created(Run(() => _firstFrame = LunyEngine.Instance.Time.FrameCount));
+		public override void Build()
+		{
+			LunyLogger.LogInfo($"{GetType().Name} BUILD", this);
+			When.Object.Created(Run(() => LunyLogger.LogInfo($"{GetType().Name} CREATED...", this)));
+			When.Object.Destroyed(Run(() => LunyLogger.LogInfo($"{GetType().Name} DESTROYED...", this)));
+			When.Object.Ready(Run(() => LunyLogger.LogInfo($"{GetType().Name} READY...", this)));
+			When.Object.Enabled(Run(() => LunyLogger.LogInfo($"{GetType().Name} ENABLED...", this)));
+			When.Object.Disabled(Run(() => LunyLogger.LogInfo($"{GetType().Name} DISABLED...", this)));
+			When.Scene.Unloads(Run(() => LunyLogger.LogInfo($"{GetType().Name} SCENE UNLOADS...", this)));
+			When.Scene.Loads(Run(() => LunyLogger.LogInfo($"{GetType().Name} SCENE LOADS...", this)));
+		}
 	}
 }

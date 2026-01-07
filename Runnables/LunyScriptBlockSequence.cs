@@ -30,6 +30,6 @@ namespace LunyScript.Runnables
 				block?.Execute(context);
 		}
 
-		~LunyScriptBlockSequence() => LunyTraceLogger.LogInfoFinalized(this);
+		//~LunyScriptBlockSequence() => LunyTraceLogger.LogInfoFinalized(this);
 	}
 }
