@@ -101,10 +101,7 @@ namespace LunyScript.Execution
 			LunyScriptActivator.BuildAndActivateLunyScripts(this);
 		}
 
-		public void OnSceneUnloaded(ILunyScene unloadedScene)
-		{
-			_sceneEventHandler.OnSceneUnloaded(unloadedScene);
-		}
+		public void OnSceneUnloaded(ILunyScene unloadedScene) => _sceneEventHandler.OnSceneUnloaded(unloadedScene);
 
 		public void OnEngineFixedStep(Double fixedDeltaTime)
 		{

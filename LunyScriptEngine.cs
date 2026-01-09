@@ -38,7 +38,9 @@ namespace LunyScript
 			Instance = this;
 		}
 
-		public ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID) => _runner.Contexts.GetByNativeObjectID(lunyNativeObjectID);
+		public ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID) =>
+			_runner.Contexts.GetByNativeObjectID(lunyNativeObjectID);
+
 		~LunyScriptEngine() => LunyTraceLogger.LogInfoFinalized(this);
 
 		internal void Shutdown()
