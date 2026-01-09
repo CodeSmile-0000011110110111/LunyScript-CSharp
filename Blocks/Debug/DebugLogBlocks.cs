@@ -27,7 +27,20 @@ namespace LunyScript.Blocks
 		private void DoLog(ILunyScriptContext context)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
-			LunyLogger.Log($"{_message} ({context})", _logLevel, this);
+			switch (_logLevel)
+			{
+				case LogLevel.Info:
+					LunyLogger.LogInfo($"{_message} ({context})", this);
+					break;
+				case LogLevel.Warning:
+					LunyLogger.LogWarning($"{_message} ({context})", this);
+					break;
+				case LogLevel.Error:
+					LunyLogger.LogError($"{_message} ({context})", this);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_logLevel), _logLevel, context?.ToString());
+			}
 #endif
 		}
 
@@ -40,7 +53,14 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DebugLogInfoBlock : DebugLogBlockBase
 	{
-		public static ILunyScriptBlock Create(String message) => new DebugLogInfoBlock(message);
+		public static ILunyScriptBlock Create(String message)
+		{
+#if DEBUG || LUNYSCRIPT_DEBUG
+			return new DebugLogInfoBlock(message);
+#else
+			return null;
+#endif
+		}
 
 		private DebugLogInfoBlock(String message)
 			: base(message, LogLevel.Info) {}
@@ -52,7 +72,14 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DebugLogWarningBlock : DebugLogBlockBase
 	{
-		public static ILunyScriptBlock Create(String message) => new DebugLogWarningBlock(message);
+		public static ILunyScriptBlock Create(String message)
+		{
+#if DEBUG || LUNYSCRIPT_DEBUG
+			return new DebugLogWarningBlock(message);
+#else
+			return null;
+#endif
+		}
 
 		private DebugLogWarningBlock(String message)
 			: base(message, LogLevel.Warning) {}
@@ -64,7 +91,14 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DebugLogErrorBlock : DebugLogBlockBase
 	{
-		public static ILunyScriptBlock Create(String message) => new DebugLogErrorBlock(message);
+		public static ILunyScriptBlock Create(String message)
+		{
+#if DEBUG || LUNYSCRIPT_DEBUG
+			return new DebugLogErrorBlock(message);
+#else
+			return null;
+#endif
+		}
 
 		private DebugLogErrorBlock(String message)
 			: base(message, LogLevel.Error) {}

@@ -50,16 +50,23 @@ namespace LunyScript
 		/// Check EngineObject.IsValid before accessing.
 		/// </summary>
 		[MaybeNull] public ILunyObject LunyObject => _context.LunyObject;
-		// User-facing API: Variables
 		/// <summary>
 		/// Global variables which all objects and scripts can read/write.
 		/// </summary>
 		[NotNull] public ILunyScriptVariables GlobalVariables => _context.GlobalVariables;
 		/// <summary>
+		/// Short alias for 'GlobalVariables'.
+		/// </summary>
+		[NotNull] public ILunyScriptVariables GVars => _context.GlobalVariables;
+		/// <summary>
 		/// Local variables the current object and script owns.
 		/// If multiple objects run the same script, each object has its own unique set of local variables.
 		/// </summary>
 		[NotNull] public ILunyScriptVariables LocalVariables => _context.LocalVariables;
+		/// <summary>
+		/// Short alias for 'LocalVariables'.
+		/// </summary>
+		[NotNull] public ILunyScriptVariables LVars => _context.LocalVariables;
 		/// <summary>
 		/// True if the script runs within the engine's editor (play mode). False in builds.
 		/// </summary>
@@ -69,34 +76,55 @@ namespace LunyScript
 		/// Logs a message that appears in both debug and release builds.
 		/// Posts to both Luny internal log (if enabled) and engine logging.
 		/// </summary>
-		protected static ILunyScriptBlock Log(String message) => new EngineLogBlock(message);
+		protected static ILunyScriptBlock Log(String message) => EngineLogBlock.Create(message);
 
 		/// <summary>
-		/// Runs the contained method or lambda when this block executes. Meant for custom code and quick prototyping.
+		/// Runs the contained method or lambda when this block executes.
 		/// </summary>
 		/// <remarks>
+		/// Intended for quick prototyping and testing only: lambdas are not reusable building blocks.
+		///
 		/// Prefer to convert "Run" code into a custom IBlock class after its initial development and testing,
-		/// or at least prefer named methods over lambdas or assign lambdas to fields. Any of these makes that code
-		/// re-usable and more readable. Example:
+		/// If not that, use named methods rather than lambdas - this ensures the block-based code continues to read like intent.
 		///
-		///		// even a single-line lambda adds more noise (worse for multi-line lambdas):
-		/// 	OnUpdate(Run(() => LunyLogger.LogInfo("custom lambda runs")));
+		///		// Even a single-line lambda adds notable 'syntax noise' (worse for multi-line lambdas):
+		/// 	OnUpdate(Run(() => LunyLogger.LogInfo("custom log inline")));
 		///
-		///		// a named method or lambda field (not shown) is cleaner, and re-usable in the same script:
-		///		OnUpdate(Run(MyCustomCode));
+		///		// A named method is much cleaner, and re-usable in the same script:
+		///		OnUpdate(Run(MyLog));
+		///		private Action MyLog() => () => LunyLogger.LogInfo("custom log method");
 		///
-		///		// a custom IBlock implementation is also clean, and re-usable in all scripts:
-		///		OnUpdate(new MyCustomCodeBlock());
+		///		// C# extension methods for LunyScript also work nice but require the 'this' prefix:
+		///		OnUpdate(Run(this.MyLog()));
+		///		public static MyLunyScriptExtensions
+		///		{
+		///			public static Action MyLog(this LunyScript ls) =>
+		///				() => LunyLogger.LogInfo("custom log ext method");
+		///		}
 		///
-		///		// even better: create your own static factory class returning IBlock instances:
-		///		OnUpdate(MyBlocks.MyCustomCode());
-		///
-		///		// a LunyScript C# extension methods are also fine but require the 'this' prefix:
-		///		OnUpdate(this.MyCustomCode());
+		///		// Best: Create your own static factory class returning IBlock instances.
+		///		// The block's Execute method has access to the context (object reference, variables, etc.).
+		///		// The static Create() method helps to later adapt the creation code without having to modify callers.
+		///		OnUpdate(MyBlocks.MyLog());
+		///		internal static MyBlocks
+		///		{
+		///			public static ILunyScriptBlock MyLog() => MyLogBlock.Create();
+		///			internal sealed class MyLogBlock : ILunyScriptBlock
+		///			{
+		///				public static ILunyScriptBlock Create() => new MyLogBlock();
+		///				public void Execute(ILunyScriptContext context) => LunyLogger.LogInfo("custom log block");
+		///			}
+		///		}
 		/// </remarks>
 		/// <param name="action"></param>
 		/// <returns></returns>
-		protected static ILunyScriptBlock Run(Action action) => new RunActionBlock(_ => action());
+		protected static ILunyScriptBlock Run(Action action) => RunActionBlock.Create(_ => action());
+		/// <summary>
+		/// Run overload whose action receives the ILunyScriptContext instance.
+		/// </summary>
+		/// <param name="action"></param>
+		/// <returns></returns>
+		protected static ILunyScriptBlock Run(Action<ILunyScriptContext> action) => RunActionBlock.Create(action);
 
 		internal void Initialize(ILunyScriptContext context)
 		{

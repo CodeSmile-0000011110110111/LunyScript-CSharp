@@ -14,8 +14,7 @@ namespace LunyScript
 			/// <summary>
 			/// Pauses playmode.
 			/// </summary>
-			public static ILunyScriptBlock PausePlayer(String message = null) =>
-				s_Instance.IsEditor ? EditorPausePlayerBlock.Create(message) : null;
+			public static ILunyScriptBlock PausePlayer(String message = null) => EditorPausePlayerBlock.Create(message);
 		}
 	}
 }

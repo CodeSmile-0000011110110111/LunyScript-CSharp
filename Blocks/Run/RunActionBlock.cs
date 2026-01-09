@@ -11,6 +11,7 @@ namespace LunyScript.Blocks
 	internal sealed class RunActionBlock : ILunyScriptBlock
 	{
 		private readonly Action<ILunyScriptContext> _action;
+		public static ILunyScriptBlock Create(Action<ILunyScriptContext> action) => new RunActionBlock(action);
 
 		public RunActionBlock(Action<ILunyScriptContext> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
 

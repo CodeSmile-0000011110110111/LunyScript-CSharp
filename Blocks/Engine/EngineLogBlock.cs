@@ -11,6 +11,8 @@ namespace LunyScript.Blocks
 	{
 		private readonly String _message;
 
+		public static ILunyScriptBlock Create(String message) => new EngineLogBlock(message);
+
 		public EngineLogBlock(String message) => _message = message ?? throw new ArgumentNullException(nameof(message));
 
 		public void Execute(ILunyScriptContext context) => LunyLogger.LogInfo(_message, this);

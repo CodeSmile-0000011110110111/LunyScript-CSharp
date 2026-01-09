@@ -1,4 +1,5 @@
 using Luny.Engine.Bridge.Enums;
+using LunyScript.Blocks;
 using LunyScript.Runnables;
 using System;
 using System.Collections.Generic;
@@ -19,29 +20,29 @@ namespace LunyScript.Events
 
 		//~LunyScriptEventScheduler() => LunyTraceLogger.LogInfoFinalized(this);
 
-		/// <summary>
-		/// Schedules a runnable to execute on a specific lifecycle event.
-		/// </summary>
-		internal ILunyScriptRunnable Schedule(ILunyScriptRunnable runnable, LunyObjectEvent objectEvent) =>
-			Schedule(runnable, ref _objectEventRunnables, (Int32)objectEvent, s_ObjectEventCount);
+		private static Boolean HasBlocks(IReadOnlyList<ILunyScriptBlock> blocks) => blocks?.Count > 0;
 
-		internal ILunyScriptRunnable Schedule(ILunyScriptRunnable runnable, LunySceneEvent sceneEvent) =>
-			Schedule(runnable, ref _sceneEventRunnables, (Int32)sceneEvent, s_SceneEventCount);
+		private static ILunyScriptRunnable CreateSequence(IReadOnlyList<ILunyScriptBlock> blocks) =>
+			HasBlocks(blocks) ? new LunyScriptBlockSequence(blocks) : null;
 
-		private ILunyScriptRunnable Schedule(ILunyScriptRunnable runnable, ref List<ILunyScriptRunnable>[] runnables, Int32 eventIndex,
-			Int32 eventCount)
+		private static ILunyScriptRunnable ScheduleRunnable(ref List<ILunyScriptRunnable>[] runnablesRef, ILunyScriptRunnable runnable,
+			Int32 eventIndex, Int32 eventCount)
 		{
-			if (runnable == null || runnable.IsEmpty)
-				return runnable;
-
-			if (runnables == null)
-				runnables = new List<ILunyScriptRunnable>[eventCount];
-
-			runnables[eventIndex] ??= new List<ILunyScriptRunnable>();
-			runnables[eventIndex].Add(runnable);
+			if (runnable != null && !runnable.IsEmpty)
+			{
+				runnablesRef ??= new List<ILunyScriptRunnable>[eventCount];
+				runnablesRef[eventIndex] ??= new List<ILunyScriptRunnable>();
+				runnablesRef[eventIndex].Add(runnable);
+			}
 
 			return runnable;
 		}
+
+		internal ILunyScriptRunnable ScheduleSequence(ILunyScriptBlock[] blocks, LunyObjectEvent objectEvent) =>
+			ScheduleRunnable(ref _objectEventRunnables, CreateSequence(blocks), (Int32)objectEvent, s_ObjectEventCount);
+
+		internal ILunyScriptRunnable ScheduleSequence(ILunyScriptBlock[] blocks, LunySceneEvent sceneEvent) =>
+			ScheduleRunnable(ref _sceneEventRunnables, CreateSequence(blocks), (Int32)sceneEvent, s_SceneEventCount);
 
 		/// <summary>
 		/// Gets all runnables scheduled for a specific lifecycle event.

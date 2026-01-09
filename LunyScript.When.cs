@@ -4,24 +4,12 @@ using LunyScript.Events;
 using LunyScript.Execution;
 using LunyScript.Runnables;
 using System;
-using System.Collections.Generic;
 
 namespace LunyScript
 {
 	public abstract partial class LunyScript
 	{
-		private LunyScriptEventScheduler Scheduler => ((LunyScriptContext)_context).Scheduler;
-
-		private static Boolean HasBlocks(IReadOnlyList<ILunyScriptBlock> blocks) => blocks?.Count > 0;
-
-		private static ILunyScriptRunnable CreateSequence(IReadOnlyList<ILunyScriptBlock> blocks) =>
-			HasBlocks(blocks) ? new LunyScriptBlockSequence(blocks) : null;
-
-		private ILunyScriptRunnable ScheduleRunnable(ILunyScriptRunnable sequence, LunyObjectEvent eventType) =>
-			Scheduler.Schedule(sequence, eventType);
-
-		private ILunyScriptRunnable ScheduleRunnable(ILunyScriptRunnable sequence, LunySceneEvent eventType) =>
-			Scheduler.Schedule(sequence, eventType);
+		private static LunyScriptEventScheduler Scheduler => ((LunyScriptContext)s_Instance._context).Scheduler;
 
 		public static class Every
 		{
@@ -33,21 +21,21 @@ namespace LunyScript
 			/// </summary>
 			/// <param name="blocks"></param>
 			public static ILunyScriptRunnable FixedStep(params ILunyScriptBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectEvent.OnFixedStep);
+				Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnFixedStep);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates.
 			/// </summary>
 			/// <param name="blocks"></param>
 			public static ILunyScriptRunnable Frame(params ILunyScriptBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectEvent.OnUpdate);
+				Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnUpdate);
 
 			/// <summary>
 			/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
 			/// </summary>
 			/// <param name="blocks"></param>
 			public static ILunyScriptRunnable FrameEnds(params ILunyScriptBlock[] blocks) =>
-				s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectEvent.OnLateUpdate);
+				Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnLateUpdate);
 
 			public static ILunyScriptRunnable TimeInterval(TimeSpan timeSpan, params ILunyScriptBlock[] blocks) =>
 				throw new NotImplementedException(nameof(TimeInterval));
@@ -69,7 +57,7 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
 				public static ILunyScriptRunnable Created(params ILunyScriptBlock[] blocks) =>
-					s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectEvent.OnCreate);
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnCreate);
 
 				/// <summary>
 				/// Runs once when the object gets destroyed. The object is already disabled, the native engine instance still exists.
@@ -77,7 +65,7 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
 				public static ILunyScriptRunnable Destroyed(params ILunyScriptBlock[] blocks) =>
-					s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectEvent.OnDestroy);
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnDestroy);
 
 				/// <summary>
 				/// Runs every time the object's state changes to 'enabled' (visible and participating).
@@ -86,7 +74,7 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
 				public static ILunyScriptRunnable Enabled(params ILunyScriptBlock[] blocks) =>
-					s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectEvent.OnEnable);
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnEnable);
 
 				/// <summary>
 				/// Runs every time the object's state changes to 'disabled' (not visible, not participating).
@@ -95,7 +83,7 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
 				public static ILunyScriptRunnable Disabled(params ILunyScriptBlock[] blocks) =>
-					s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectEvent.OnDisable);
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnDisable);
 
 				/// <summary>
 				/// Runs once per lifetime just before the object starts processing frame/time-step events,
@@ -104,7 +92,7 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
 				public static ILunyScriptRunnable Ready(params ILunyScriptBlock[] blocks) =>
-					s_Instance.ScheduleRunnable(CreateSequence(blocks), LunyObjectEvent.OnReady);
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnReady);
 			}
 
 			/// <summary>
@@ -118,7 +106,7 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				/// <returns></returns>
 				public static ILunyScriptRunnable Loads(params ILunyScriptBlock[] blocks) =>
-					s_Instance.ScheduleRunnable(CreateSequence(blocks), LunySceneEvent.OnSceneLoaded);
+					Scheduler.ScheduleSequence(blocks, LunySceneEvent.OnSceneLoaded);
 
 				/// <summary>
 				/// Runs when a scene has loaded.
@@ -136,7 +124,7 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				/// <returns></returns>
 				public static ILunyScriptRunnable Unloads(params ILunyScriptBlock[] blocks) =>
-					s_Instance.ScheduleRunnable(CreateSequence(blocks), LunySceneEvent.OnSceneUnloaded);
+					Scheduler.ScheduleSequence(blocks, LunySceneEvent.OnSceneUnloaded);
 
 				/// <summary>
 				/// Runs when a scene has unloaded.
