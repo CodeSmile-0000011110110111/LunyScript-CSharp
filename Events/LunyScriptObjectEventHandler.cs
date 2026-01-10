@@ -1,5 +1,4 @@
 using Luny;
-using Luny.Engine.Bridge;
 using Luny.Engine.Bridge.Enums;
 using LunyScript.Exceptions;
 using LunyScript.Execution;
@@ -40,9 +39,11 @@ namespace LunyScript.Events
 		/// Unregisters lifecycle hooks from a LunyObject.
 		/// Called during context cleanup or shutdown.
 		/// </summary>
-		private void UnregisterSubscriber(LunyScriptContext context) => _subscribers.Remove(context);
-
-		private void UnregisterContext(LunyScriptContext context) => _contexts.Unregister(context);
+		private void Unregister(LunyScriptContext context)
+		{
+			_subscribers.Remove(context);
+			_contexts.Unregister(context);
+		}
 
 		public void OnFixedStep(Double fixedDeltaTime, LunyScriptContext context)
 		{
@@ -107,73 +108,63 @@ namespace LunyScript.Events
 				lunyObject.OnDisable -= OnDisable;
 			}
 
-			private void OnCreate()
+			private void RunScheduledForEvent(LunyObjectEvent objectEvent)
 			{
-				var runnables = _context.Scheduler.GetScheduled(LunyObjectEvent.OnCreate);
+				var runnables = _context.Scheduler.GetScheduled(objectEvent);
 				if (runnables != null)
 				{
-					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnCreate)}: {_context} ...", _objectEventHandler);
+					LunyLogger.LogInfo($"Running {nameof(objectEvent)}: {_context} ...", _objectEventHandler);
 					LunyScriptRunner.Run(runnables, _context);
 				}
+			}
 
-				_context.LunyObject.OnCreate -= OnCreate; // never fires again
+			private void UnscheduleOnceOnlyEvent(LunyObjectEvent objectEvent)
+			{
+				if (objectEvent == LunyObjectEvent.OnCreate || objectEvent == LunyObjectEvent.OnReady)
+				{
+					// event never fires again for this object
+					_context.Scheduler.Unschedule(objectEvent);
+
+					if (objectEvent == LunyObjectEvent.OnCreate)
+						_context.LunyObject.OnCreate -= OnCreate;
+					else if (objectEvent == LunyObjectEvent.OnReady)
+						_context.LunyObject.OnReady -= OnReady;
+				}
+			}
+
+			private void OnCreate()
+			{
+				RunScheduledForEvent(LunyObjectEvent.OnCreate);
+				UnscheduleOnceOnlyEvent(LunyObjectEvent.OnCreate);
 			}
 
 			private void OnDestroy()
 			{
-				var runnables = _context.Scheduler.GetScheduled(LunyObjectEvent.OnDestroy);
-				if (runnables != null)
-				{
-					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnDestroy)}: {_context.LunyObject} ...", _objectEventHandler);
-					LunyScriptRunner.Run(runnables, _context);
-				}
-
+				RunScheduledForEvent(LunyObjectEvent.OnDestroy);
 				UnregisterAllCallbacks(); // no more events
-				_objectEventHandler.UnregisterSubscriber(_context);
-				_objectEventHandler.UnregisterContext(_context);
+				_objectEventHandler.Unregister(_context);
 			}
 
 			private void OnReady()
 			{
-				var runnables = _context.Scheduler.GetScheduled(LunyObjectEvent.OnReady);
-				if (runnables != null)
-				{
-					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnReady)}: {_context.LunyObject} ...", _objectEventHandler);
-					LunyScriptRunner.Run(runnables, _context);
-					_context.Scheduler.Unschedule(LunyObjectEvent.OnReady);
-				}
-
-				_context.LunyObject.OnReady -= OnReady; // never fires again
+				RunScheduledForEvent(LunyObjectEvent.OnReady);
+				UnscheduleOnceOnlyEvent(LunyObjectEvent.OnReady);
 			}
 
 			private void OnEnable()
 			{
-				var runnables = _context.Scheduler.GetScheduled(LunyObjectEvent.OnEnable);
-				if (runnables != null)
-				{
-					ThrowIfAlreadyProcessingEnableDisableEvent(_context);
-					_processingEnableDisable = true;
-
-					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnEnable)}: {_context} ...", _objectEventHandler);
-					LunyScriptRunner.Run(runnables, _context);
-
-					_processingEnableDisable = false;
-				}
+				ThrowIfAlreadyProcessingEnableDisableEvent(_context);
+				_processingEnableDisable = true;
+				RunScheduledForEvent(LunyObjectEvent.OnEnable);
+				_processingEnableDisable = false;
 			}
 
 			private void OnDisable()
 			{
-				var runnables = _context.Scheduler.GetScheduled(LunyObjectEvent.OnDisable);
-				if (runnables != null)
-				{
-					ThrowIfAlreadyProcessingEnableDisableEvent(_context);
-					_processingEnableDisable = true;
-
-					LunyLogger.LogInfo($"Running {nameof(LunyObject.OnDisable)}: {_context} ...", _objectEventHandler);
-					LunyScriptRunner.Run(runnables, _context);
-
-					_processingEnableDisable = false;
-				}
+				ThrowIfAlreadyProcessingEnableDisableEvent(_context);
+				_processingEnableDisable = true;
+				RunScheduledForEvent(LunyObjectEvent.OnDisable);
+				_processingEnableDisable = false;
 			}
 
 			[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]

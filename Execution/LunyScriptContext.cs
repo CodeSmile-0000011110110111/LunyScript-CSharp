@@ -6,7 +6,6 @@ using System;
 
 namespace LunyScript.Execution
 {
-	// alias required within LunyScript due to namespace/class clash
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered runnables.
