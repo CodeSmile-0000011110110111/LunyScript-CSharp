@@ -13,7 +13,7 @@ namespace LunyScript.Execution
 	/// <summary>
 	/// Engine-agnostic script execution runner.
 	/// Implements the lifecycle contract and will be discovered/reflected by
-	/// the <see cref="Luny.LunyEngine"/> at startup.
+	/// the <see cref="LunyEngineInternal"/> at startup.
 	/// Manages script discovery, object binding, and run context lifecycle.
 	/// </summary>
 	internal sealed class LunyScriptRunner : ILunyEngineObserver
@@ -38,7 +38,7 @@ namespace LunyScript.Execution
 		private static void Run(ILunyScriptRunnable lunyScriptRunnable, LunyScriptContext context)
 		{
 			// TODO: avoid profiling overhead when not enabled
-			var timeService = LunyEngine.Instance.Time;
+			var timeService = LunyEngineInternal.Instance.Time;
 			var blockType = lunyScriptRunnable.GetType();
 			var trace = new LunyScriptExecutionTrace
 			{
@@ -97,7 +97,7 @@ namespace LunyScript.Execution
 			_sceneEventHandler.OnSceneLoaded(loadedScene);
 
 			// Process current scene to bind scripts to objects
-			LunyEngine.Instance.Scene.GetAllObjects(); // triggers registration in LunyObjectRegistry
+			LunyEngineInternal.Instance.Scene.GetAllObjects(); // triggers registration in LunyObjectRegistry
 			LunyScriptActivator.BuildAndActivateLunyScripts(this);
 		}
 

@@ -9,6 +9,6 @@ namespace LunyScript.Blocks
 
 		private SceneReloadBlock() {}
 
-		public void Execute(ILunyScriptContext context) => LunyEngine.Instance.Scene.ReloadScene();
+		public void Execute(ILunyScriptContext context) => LunyEngineInternal.Instance.Scene.ReloadScene();
 	}
 }

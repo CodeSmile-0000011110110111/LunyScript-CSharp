@@ -54,7 +54,7 @@ namespace LunyScript.Execution
 		public static void BuildAndActivateLunyScripts(LunyScriptRunner scriptRunner)
 		{
 			var sw = Stopwatch.StartNew();
-			var sceneObjects = LunyEngine.Instance.Objects.AllObjects;
+			var sceneObjects = LunyEngineInternal.Instance.Objects.AllObjects;
 
 			var scriptContexts = CreateContexts(sceneObjects, scriptRunner.Scripts, scriptRunner.Contexts);
 

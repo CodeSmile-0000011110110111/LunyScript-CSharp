@@ -14,7 +14,7 @@ namespace LunyScript.Blocks
 		private readonly String _message;
 
 		public static ILunyScriptBlock Create(String message) =>
-			LunyEngine.Instance.Application.IsEditor ? new EditorPausePlayerBlock(message) : null;
+			LunyEngineInternal.Instance.Application.IsEditor ? new EditorPausePlayerBlock(message) : null;
 
 		private EditorPausePlayerBlock() {}
 		private EditorPausePlayerBlock(String message = null) => _message = message;
@@ -28,7 +28,7 @@ namespace LunyScript.Blocks
 			if (_message != null)
 				LunyLogger.LogInfo($"{nameof(EditorPausePlayerBlock)}: {_message}", context.LunyObject);
 
-			LunyEngine.Instance.Editor.PausePlayer();
+			LunyEngineInternal.Instance.Editor.PausePlayer();
 #endif
 		}
 
