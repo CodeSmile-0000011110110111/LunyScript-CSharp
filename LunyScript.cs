@@ -70,7 +70,7 @@ namespace LunyScript
 		/// <summary>
 		/// True if the script runs within the engine's editor (play mode). False in builds.
 		/// </summary>
-		public Boolean IsEditor => LunyEngineInternal.Instance.Application.IsEditor;
+		public Boolean IsEditor => LunyEngine.Instance.Application.IsEditor;
 
 		/// <summary>
 		/// Logs a message that appears in both debug and release builds.
