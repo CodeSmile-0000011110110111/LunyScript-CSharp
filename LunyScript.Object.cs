@@ -1,5 +1,6 @@
 using LunyScript.Blocks;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace LunyScript
 {
@@ -24,6 +25,8 @@ namespace LunyScript
 			public static ILunyScriptBlock CreateQuad(String name = null) => ObjectCreateBlock.CreateQuad(name);
 
 			public static ILunyScriptBlock Destroy(String name = null) => ObjectDestroyBlock.Create(name);
+			public static ILunyScriptBlock Test(String name = null, [CallerMemberName] string callerMemberName = null)
+				=> ObjectDestroyBlock.Create(name);
 		}
 	}
 }
