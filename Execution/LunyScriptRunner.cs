@@ -119,7 +119,7 @@ namespace LunyScript.Execution
 				_scripts.Shutdown();
 				_scriptEngine.Shutdown();
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				LunyLogger.LogError($"Error during {nameof(LunyScriptRunner)} {nameof(OnEngineShutdown)}!", this);
 				throw;
