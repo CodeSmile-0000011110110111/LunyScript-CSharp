@@ -1,7 +1,7 @@
 using Luny;
 using System;
 
-namespace LunyScript.Tests
+namespace LunyScript.SmokeTests
 {
 	public abstract class LunyScriptTestBase : LunyScript
 	{
