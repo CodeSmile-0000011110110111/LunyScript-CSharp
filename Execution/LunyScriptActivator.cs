@@ -24,9 +24,8 @@ namespace LunyScript.Execution
 			LunyScriptDefinitionRegistry scriptRegistry, LunyScriptContextRegistry contextRegistry)
 		{
 			var createdContexts = new List<LunyScriptContext>();
-			var objects = lunyObjects.ToList();
 
-			foreach (var lunyObject in objects)
+			foreach (var lunyObject in lunyObjects)
 			{
 				if (lunyObject == null || !lunyObject.IsValid)
 					continue;
@@ -45,7 +44,7 @@ namespace LunyScript.Execution
 				}
 			}
 
-			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(LunyScriptContext)}s created from {objects.Count} {nameof(LunyObject)}s.",
+			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(LunyScriptContext)}s created from {lunyObjects.Count()} {nameof(LunyObject)}s.",
 				nameof(LunyScriptActivator));
 
 			return createdContexts;
