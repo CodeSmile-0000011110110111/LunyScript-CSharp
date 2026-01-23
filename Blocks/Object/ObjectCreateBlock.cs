@@ -18,9 +18,9 @@ namespace LunyScript.Blocks
 
 		internal readonly String Name;
 		internal readonly Type CreateType;
-		internal readonly PrimitiveType PrimitiveType;
+		internal readonly LunyPrimitiveType PrimitiveType;
 
-		public CreateObjectData(String name, Type type, PrimitiveType primitiveType = PrimitiveType.Empty)
+		public CreateObjectData(String name, Type type, LunyPrimitiveType primitiveType = LunyPrimitiveType.Empty)
 		{
 			Name = name;
 			CreateType = type;
@@ -51,22 +51,22 @@ namespace LunyScript.Blocks
 			new ObjectCreateBlock(new CreateObjectData(originalName, CreateObjectData.Type.Clone));
 
 		public static ILunyScriptBlock CreateCube(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Cube));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Cube));
 
 		public static ILunyScriptBlock CreateSphere(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Sphere));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Sphere));
 
 		public static ILunyScriptBlock CreateCapsule(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Capsule));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Capsule));
 
 		public static ILunyScriptBlock CreateCylinder(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Cylinder));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Cylinder));
 
 		public static ILunyScriptBlock CreatePlane(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Plane));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Plane));
 
 		public static ILunyScriptBlock CreateQuad(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Quad));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Quad));
 
 		private ObjectCreateBlock() {}
 		private ObjectCreateBlock(CreateObjectData data) => _data = data;
