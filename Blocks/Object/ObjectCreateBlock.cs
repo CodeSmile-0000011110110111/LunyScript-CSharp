@@ -1,10 +1,12 @@
+using Luny;
 using Luny.Engine.Bridge.Enums;
+using Luny.Engine.Services;
 using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks
 {
-	public readonly struct CreateObject
+	public readonly struct CreateObjectData
 	{
 		public enum Type
 		{
@@ -18,7 +20,7 @@ namespace LunyScript.Blocks
 		internal readonly Type CreateType;
 		internal readonly PrimitiveType PrimitiveType;
 
-		public CreateObject(String name, Type type, PrimitiveType primitiveType = PrimitiveType.Empty)
+		public CreateObjectData(String name, Type type, PrimitiveType primitiveType = PrimitiveType.Empty)
 		{
 			Name = name;
 			CreateType = type;
@@ -37,37 +39,55 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class ObjectCreateBlock : ILunyScriptBlock
 	{
-		private CreateObject _data;
+		private CreateObjectData _data;
 
-		public static ILunyScriptBlock CreateEmpty(String name) => new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Empty));
+		// TODO: refactor to individual blocks with base class (improves debugging, omit unused parameters in type)
+		public static ILunyScriptBlock CreateEmpty(String name) => new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Empty));
 
 		public static ILunyScriptBlock CreateWithPrefab(String prefabName) =>
-			new ObjectCreateBlock(new CreateObject(prefabName, CreateObject.Type.Prefab));
+			new ObjectCreateBlock(new CreateObjectData(prefabName, CreateObjectData.Type.Prefab));
 
 		public static ILunyScriptBlock CreateClone(String originalName) =>
-			new ObjectCreateBlock(new CreateObject(originalName, CreateObject.Type.Clone));
+			new ObjectCreateBlock(new CreateObjectData(originalName, CreateObjectData.Type.Clone));
 
 		public static ILunyScriptBlock CreateCube(String name = null) =>
-			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Cube));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Cube));
 
 		public static ILunyScriptBlock CreateSphere(String name = null) =>
-			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Sphere));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Sphere));
 
 		public static ILunyScriptBlock CreateCapsule(String name = null) =>
-			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Capsule));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Capsule));
 
 		public static ILunyScriptBlock CreateCylinder(String name = null) =>
-			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Cylinder));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Cylinder));
 
 		public static ILunyScriptBlock CreatePlane(String name = null) =>
-			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Plane));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Plane));
 
 		public static ILunyScriptBlock CreateQuad(String name = null) =>
-			new ObjectCreateBlock(new CreateObject(name, CreateObject.Type.Primitive, PrimitiveType.Quad));
+			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, PrimitiveType.Quad));
 
 		private ObjectCreateBlock() {}
-		private ObjectCreateBlock(CreateObject data) => _data = data;
+		private ObjectCreateBlock(CreateObjectData data) => _data = data;
 
-		public void Execute(ILunyScriptContext context) => throw new NotImplementedException();
+		public void Execute(ILunyScriptContext context)
+		{
+			var service = LunyEngine.Instance.Object;
+			switch (_data.CreateType)
+			{
+				case CreateObjectData.Type.Empty:
+					service.CreateEmpty(_data.Name);
+					break;
+				case CreateObjectData.Type.Primitive:
+					service.CreatePrimitive(_data.Name, _data.PrimitiveType);
+					break;
+				case CreateObjectData.Type.Clone:
+				case CreateObjectData.Type.Prefab:
+					throw new NotImplementedException($"{_data.CreateType} instantiation is not yet implemented.");
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
 	}
 }

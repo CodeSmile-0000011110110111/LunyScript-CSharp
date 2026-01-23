@@ -87,9 +87,50 @@ namespace LunyScript.Execution
 
 		public void OnEngineStartup()
 		{
-			LunyTraceLogger.LogInfoStartingUp(this);
+			try
+			{
+				LunyTraceLogger.LogInfoStartingUp(this);
+			}
+			catch (Exception)
+			{
+				LunyLogger.LogError($"Error during {nameof(LunyEngine)} {nameof(OnEngineStartup)}!", this);
+				throw;
+			}
+			finally
+			{
+				LunyTraceLogger.LogInfoStartupComplete(this);
+			}
+		}
 
-			LunyTraceLogger.LogInfoStartupComplete(this);
+		public void OnEngineShutdown()
+		{
+			try
+			{
+				LunyTraceLogger.LogInfoShuttingDown(this);
+
+				// ensure all objects run their OnDestroy
+				foreach (var context in _contexts.AllContexts)
+					context.LunyObject.Destroy();
+
+				// final cleanup of pending object destroy
+				_objectEventHandler.Shutdown();
+				_sceneEventHandler.Shutdown();
+				_contexts.Shutdown();
+				_scripts.Shutdown();
+				_scriptEngine.Shutdown();
+			}
+			catch (Exception e)
+			{
+				LunyLogger.LogError($"Error during {nameof(LunyScriptRunner)} {nameof(OnEngineShutdown)}!", this);
+				throw;
+			}
+			finally
+			{
+				_scriptEngine = null;
+				_objectEventHandler = null;
+
+				LunyTraceLogger.LogInfoShutdownComplete(this);
+			}
 		}
 
 		public void OnSceneLoaded(ILunyScene loadedScene)
@@ -120,27 +161,6 @@ namespace LunyScript.Execution
 			// Run all LateUpdate runnables
 			foreach (var context in _contexts.AllContexts)
 				_objectEventHandler.OnLateUpdate(deltaTime, context);
-		}
-
-		public void OnEngineShutdown()
-		{
-			LunyTraceLogger.LogInfoShuttingDown(this);
-
-			// ensure all objects run their OnDestroy
-			foreach (var context in _contexts.AllContexts)
-				context.LunyObject.Destroy();
-
-			// final cleanup of pending object destroy
-			_objectEventHandler.Shutdown();
-			_sceneEventHandler.Shutdown();
-			_contexts.Shutdown();
-			_scripts.Shutdown();
-			_scriptEngine.Shutdown();
-
-			_scriptEngine = null;
-			_objectEventHandler = null;
-
-			LunyTraceLogger.LogInfoShutdownComplete(this);
 		}
 
 		~LunyScriptRunner() => LunyTraceLogger.LogInfoFinalized(this);
