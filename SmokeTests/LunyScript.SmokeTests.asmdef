@@ -1,4 +1,4 @@
 ﻿{
-  "name": "LunyScript.Tests",
+  "name": "LunyScript.SmokeTests",
   "references":[ "GUID:d3eaacbbd31dbfe4bbd3a9bce5c65632", "GUID:d8105533248dd994a834ff6858cf7898" ]
 }
