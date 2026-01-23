@@ -5,7 +5,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Object.Created(Run(AssertDidRun));
+			When.Self.Created(Run(AssertDidRun));
 
 			Every.FrameEnds(
 				//Debug.LogWarning("Reloading scene now ..."),
@@ -20,8 +20,8 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Object.Created(Object.Destroy());
-			When.Object.Destroyed(Run(AssertDidRun));
+			When.Self.Created(Object.Destroy());
+			When.Self.Destroyed(Run(AssertDidRun));
 		}
 	}
 
@@ -30,7 +30,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Object.Enabled(Run(AssertDidRun));
+			When.Self.Enabled(Run(AssertDidRun));
 		}
 	}
 
@@ -39,8 +39,8 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Object.Created(Object.SetDisabled());
-			When.Object.Disabled(Run(AssertDidRun));
+			When.Self.Created(Object.SetDisabled());
+			When.Self.Disabled(Run(AssertDidRun));
 		}
 	}
 
@@ -49,7 +49,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Object.Ready(Run(AssertDidRun));
+			When.Self.Ready(Run(AssertDidRun));
 		}
 	}
 

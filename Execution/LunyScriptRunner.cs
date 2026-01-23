@@ -61,7 +61,8 @@ namespace LunyScript.Execution
 				context.BlockProfiler.RecordError(lunyScriptRunnable.ID, ex);
 				trace.Error = ex;
 				context.DebugHooks.NotifyBlockError(trace);
-				LunyLogger.LogError(ex.ToString(), context);
+				//LunyLogger.LogError(ex.ToString(), context);
+				throw;
 			}
 			finally
 			{

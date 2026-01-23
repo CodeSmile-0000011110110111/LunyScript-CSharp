@@ -47,9 +47,9 @@ namespace LunyScript
 		public static class When
 		{
 			/// <summary>
-			/// Object Events
+			/// Self Events operate on the object in context
 			/// </summary>
-			public static class Object
+			public static class Self
 			{
 				/// <summary>
 				/// Runs once the moment when the object is instantiated.
@@ -93,6 +93,31 @@ namespace LunyScript
 				/// <exception cref="NotImplementedException"></exception>
 				public static ILunyScriptRunnable Ready(params ILunyScriptBlock[] blocks) =>
 					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnReady);
+
+				/// <summary>
+				/// Schedules blocks to run on fixed-rate updates.
+				/// Scheduling depends on engine and Time settings, but typically runs 30 or 50 times per second.
+				/// May run multiple times per frame and may not run in every frame.
+				/// It's therefore unsuitable for once-only events, such as Input.
+				/// </summary>
+				/// <param name="blocks"></param>
+				public static ILunyScriptRunnable Steps(params ILunyScriptBlock[] blocks) =>
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnFixedStep);
+
+				/// <summary>
+				/// Schedules blocks to run on every frame update.
+				/// </summary>
+				/// <param name="blocks"></param>
+				public static ILunyScriptRunnable Updates(params ILunyScriptBlock[] blocks) =>
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnUpdate);
+
+				/// <summary>
+				/// Schedules blocks to run after every frame update.
+				/// </summary>
+				/// <param name="blocks"></param>
+				public static ILunyScriptRunnable LateUpdates(params ILunyScriptBlock[] blocks) =>
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnLateUpdate);
+
 			}
 
 			/// <summary>

@@ -17,11 +17,11 @@ namespace LunyScript.SmokeTests
 		public override void Build()
 		{
 			LunyLogger.LogInfo($"{GetType().Name} BUILD", this);
-			When.Object.Created(Run(() => LunyLogger.LogInfo($"{GetType().Name} CREATED...", this)));
-			When.Object.Destroyed(Run(() => LunyLogger.LogInfo($"{GetType().Name} DESTROYED...", this)));
-			When.Object.Ready(Run(() => LunyLogger.LogInfo($"{GetType().Name} READY...", this)));
-			When.Object.Enabled(Run(() => LunyLogger.LogInfo($"{GetType().Name} ENABLED...", this)));
-			When.Object.Disabled(Run(() => LunyLogger.LogInfo($"{GetType().Name} DISABLED...", this)));
+			When.Self.Created(Run(() => LunyLogger.LogInfo($"{GetType().Name} CREATED...", this)));
+			When.Self.Destroyed(Run(() => LunyLogger.LogInfo($"{GetType().Name} DESTROYED...", this)));
+			When.Self.Ready(Run(() => LunyLogger.LogInfo($"{GetType().Name} READY...", this)));
+			When.Self.Enabled(Run(() => LunyLogger.LogInfo($"{GetType().Name} ENABLED...", this)));
+			When.Self.Disabled(Run(() => LunyLogger.LogInfo($"{GetType().Name} DISABLED...", this)));
 			When.Scene.Unloads(Run(() => LunyLogger.LogInfo($"{GetType().Name} SCENE UNLOADS...", this)));
 			When.Scene.Loads(Run(() => LunyLogger.LogInfo($"{GetType().Name} SCENE LOADS...", this)));
 		}

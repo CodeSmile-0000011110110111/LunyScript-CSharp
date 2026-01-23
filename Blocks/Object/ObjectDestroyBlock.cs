@@ -1,3 +1,4 @@
+using Luny;
 using LunyScript.Execution;
 using System;
 
@@ -20,7 +21,10 @@ namespace LunyScript.Blocks
 			if (String.IsNullOrEmpty(_objectName))
 				context.LunyObject.Destroy();
 			else
-				throw new NotImplementedException($"{nameof(ObjectDestroyBlock)} for {_objectName} is not implemented.");
+			{
+				var target = LunyEngine.Instance.Objects.GetByName(_objectName);
+				target?.Destroy();
+			}
 		}
 	}
 }
