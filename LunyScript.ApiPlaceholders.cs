@@ -14,7 +14,9 @@
 		public static class Input {}
 		public static class Menu {}
 		public static class Physics {}
+
 		public static class Player {}
+
 		//public static class Prefab {}
 		public static class Storage {}
 

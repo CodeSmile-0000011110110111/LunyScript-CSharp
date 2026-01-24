@@ -10,10 +10,10 @@ namespace LunyScript
 		/// </summary>
 		public static class Object
 		{
-			public static ILunyScriptBlock Enable(String name = null) => 
+			public static ILunyScriptBlock Enable(String name = null) =>
 				String.IsNullOrEmpty(name) ? ObjectEnableSelfBlock.Create() : ObjectEnableTargetBlock.Create(name);
 
-			public static ILunyScriptBlock Disable(String name = null) => 
+			public static ILunyScriptBlock Disable(String name = null) =>
 				String.IsNullOrEmpty(name) ? ObjectDisableSelfBlock.Create() : ObjectDisableTargetBlock.Create(name);
 
 			public static ILunyScriptBlock Clone(String originalName) => ObjectCreateCloneBlock.Create(originalName);
@@ -25,7 +25,7 @@ namespace LunyScript
 			public static ILunyScriptBlock CreatePlane(String name = null) => ObjectCreatePlaneBlock.Create(name);
 			public static ILunyScriptBlock CreateQuad(String name = null) => ObjectCreateQuadBlock.Create(name);
 
-			public static ILunyScriptBlock Destroy(String name = null) => 
+			public static ILunyScriptBlock Destroy(String name = null) =>
 				String.IsNullOrEmpty(name) ? ObjectDestroySelfBlock.Create() : ObjectDestroyTargetBlock.Create(name);
 		}
 	}

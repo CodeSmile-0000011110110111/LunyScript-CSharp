@@ -119,6 +119,7 @@ namespace LunyScript
 		/// <param name="action"></param>
 		/// <returns></returns>
 		protected static ILunyScriptBlock Run(Action action) => RunActionBlock.Create(_ => action());
+
 		/// <summary>
 		/// Run overload whose action receives the ILunyScriptContext instance.
 		/// </summary>

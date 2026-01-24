@@ -20,7 +20,7 @@ namespace LunyScript.Blocks
 
 		private ObjectEnableTargetBlock(String name) => _name = name;
 
-		public void Execute(ILunyScriptContext context) => 
+		public void Execute(ILunyScriptContext context) =>
 			throw new NotImplementedException($"{nameof(ObjectEnableTargetBlock)} with name '{_name}' not implemented");
 	}
 }

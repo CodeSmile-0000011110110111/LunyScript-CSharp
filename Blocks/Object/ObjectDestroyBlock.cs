@@ -21,7 +21,6 @@ namespace LunyScript.Blocks
 
 		private ObjectDestroyTargetBlock(String name) => _name = name;
 
-		public void Execute(ILunyScriptContext context) => 
-			LunyEngine.Instance.Objects.GetByName(_name)?.Destroy();
+		public void Execute(ILunyScriptContext context) => LunyEngine.Instance.Objects.GetByName(_name)?.Destroy();
 	}
 }

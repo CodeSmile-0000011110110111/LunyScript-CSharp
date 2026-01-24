@@ -117,7 +117,6 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				public static ILunyScriptRunnable LateUpdates(params ILunyScriptBlock[] blocks) =>
 					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnLateUpdate);
-
 			}
 
 			/// <summary>

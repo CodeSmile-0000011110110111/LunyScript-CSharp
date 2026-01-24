@@ -44,7 +44,8 @@ namespace LunyScript.Execution
 				}
 			}
 
-			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(LunyScriptContext)}s created from {lunyObjects.Count()} {nameof(LunyObject)}s.",
+			LunyLogger.LogInfo(
+				$"{createdContexts.Count} {nameof(LunyScriptContext)}s created from {lunyObjects.Count()} {nameof(LunyObject)}s.",
 				nameof(LunyScriptActivator));
 
 			return createdContexts;
