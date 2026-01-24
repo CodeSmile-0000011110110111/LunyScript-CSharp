@@ -39,7 +39,7 @@
 		public override void Build()
 		{
 			base.Build();
-			When.Self.Created(Object.SetDisabled());
+			When.Self.Created(Object.Disable());
 			When.Self.Disabled(Run(AssertDidRun));
 		}
 	}

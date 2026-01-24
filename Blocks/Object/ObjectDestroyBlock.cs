@@ -4,27 +4,24 @@ using System;
 
 namespace LunyScript.Blocks
 {
-	/// <summary>
-	/// Destroys an instance of an engine object.
-	/// </summary>
-	internal sealed class ObjectDestroyBlock : ILunyScriptBlock
+	internal sealed class ObjectDestroySelfBlock : ILunyScriptBlock
 	{
-		private String _objectName;
+		public static ILunyScriptBlock Create() => new ObjectDestroySelfBlock();
 
-		public static ILunyScriptBlock Create(String name) => new ObjectDestroyBlock(name);
+		private ObjectDestroySelfBlock() {}
 
-		private ObjectDestroyBlock() {}
-		private ObjectDestroyBlock(String name) => _objectName = name;
+		public void Execute(ILunyScriptContext context) => context.LunyObject.Destroy();
+	}
 
-		public void Execute(ILunyScriptContext context)
-		{
-			if (String.IsNullOrEmpty(_objectName))
-				context.LunyObject.Destroy();
-			else
-			{
-				var target = LunyEngine.Instance.Objects.GetByName(_objectName);
-				target?.Destroy();
-			}
-		}
+	internal sealed class ObjectDestroyTargetBlock : ILunyScriptBlock
+	{
+		private readonly String _name;
+
+		public static ILunyScriptBlock Create(String name) => new ObjectDestroyTargetBlock(name);
+
+		private ObjectDestroyTargetBlock(String name) => _name = name;
+
+		public void Execute(ILunyScriptContext context) => 
+			LunyEngine.Instance.Objects.GetByName(_name)?.Destroy();
 	}
 }

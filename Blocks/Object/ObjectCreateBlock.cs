@@ -6,88 +6,105 @@ using System;
 
 namespace LunyScript.Blocks
 {
-	public readonly struct CreateObjectData
+	internal abstract class ObjectCreateBlockBase : ILunyScriptBlock
 	{
-		public enum Type
-		{
-			Empty,
-			Clone,
-			Prefab,
-			Primitive,
-		}
+		protected readonly String Name;
+		protected static ILunyObjectService Object => LunyEngine.Instance.Object;
 
-		internal readonly String Name;
-		internal readonly Type CreateType;
-		internal readonly LunyPrimitiveType PrimitiveType;
+		protected ObjectCreateBlockBase(String name) => Name = name;
 
-		public CreateObjectData(String name, Type type, LunyPrimitiveType primitiveType = LunyPrimitiveType.Empty)
-		{
-			Name = name;
-			CreateType = type;
-			PrimitiveType = primitiveType;
-		}
-
-		// behaviour
-		// position
-		// rotation
-		// scale
-		// parent (by name?)
+		public abstract void Execute(ILunyScriptContext context);
 	}
 
-	/// <summary>
-	/// Creates an instance of an engine object.
-	/// </summary>
-	internal sealed class ObjectCreateBlock : ILunyScriptBlock
+	internal sealed class ObjectCreateEmptyBlock : ObjectCreateBlockBase
 	{
-		private CreateObjectData _data;
+		public static ILunyScriptBlock Create(String name) => new ObjectCreateEmptyBlock(name);
 
-		// TODO: refactor to individual blocks with base class (improves debugging, omit unused parameters in type)
-		public static ILunyScriptBlock CreateEmpty(String name) => new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Empty));
+		private ObjectCreateEmptyBlock(String name)
+			: base(name) {}
 
-		public static ILunyScriptBlock CreateWithPrefab(String prefabName) =>
-			new ObjectCreateBlock(new CreateObjectData(prefabName, CreateObjectData.Type.Prefab));
+		public override void Execute(ILunyScriptContext context) => Object.CreateEmpty(Name);
+	}
 
-		public static ILunyScriptBlock CreateClone(String originalName) =>
-			new ObjectCreateBlock(new CreateObjectData(originalName, CreateObjectData.Type.Clone));
+	internal sealed class ObjectCreateCubeBlock : ObjectCreateBlockBase
+	{
+		public static ILunyScriptBlock Create(String name) => new ObjectCreateCubeBlock(name);
 
-		public static ILunyScriptBlock CreateCube(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Cube));
+		private ObjectCreateCubeBlock(String name)
+			: base(name) {}
 
-		public static ILunyScriptBlock CreateSphere(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Sphere));
+		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Cube);
+	}
 
-		public static ILunyScriptBlock CreateCapsule(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Capsule));
+	internal sealed class ObjectCreateSphereBlock : ObjectCreateBlockBase
+	{
+		public static ILunyScriptBlock Create(String name) => new ObjectCreateSphereBlock(name);
 
-		public static ILunyScriptBlock CreateCylinder(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Cylinder));
+		private ObjectCreateSphereBlock(String name)
+			: base(name) {}
 
-		public static ILunyScriptBlock CreatePlane(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Plane));
+		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Sphere);
+	}
 
-		public static ILunyScriptBlock CreateQuad(String name = null) =>
-			new ObjectCreateBlock(new CreateObjectData(name, CreateObjectData.Type.Primitive, LunyPrimitiveType.Quad));
+	internal sealed class ObjectCreateCapsuleBlock : ObjectCreateBlockBase
+	{
+		public static ILunyScriptBlock Create(String name) => new ObjectCreateCapsuleBlock(name);
 
-		private ObjectCreateBlock() {}
-		private ObjectCreateBlock(CreateObjectData data) => _data = data;
+		private ObjectCreateCapsuleBlock(String name)
+			: base(name) {}
 
-		public void Execute(ILunyScriptContext context)
-		{
-			var service = LunyEngine.Instance.Object;
-			switch (_data.CreateType)
-			{
-				case CreateObjectData.Type.Empty:
-					service.CreateEmpty(_data.Name);
-					break;
-				case CreateObjectData.Type.Primitive:
-					service.CreatePrimitive(_data.Name, _data.PrimitiveType);
-					break;
-				case CreateObjectData.Type.Clone:
-				case CreateObjectData.Type.Prefab:
-					throw new NotImplementedException($"{_data.CreateType} instantiation is not yet implemented.");
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-		}
+		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Capsule);
+	}
+
+	internal sealed class ObjectCreateCylinderBlock : ObjectCreateBlockBase
+	{
+		public static ILunyScriptBlock Create(String name) => new ObjectCreateCylinderBlock(name);
+
+		private ObjectCreateCylinderBlock(String name)
+			: base(name) {}
+
+		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Cylinder);
+	}
+
+	internal sealed class ObjectCreatePlaneBlock : ObjectCreateBlockBase
+	{
+		public static ILunyScriptBlock Create(String name) => new ObjectCreatePlaneBlock(name);
+
+		private ObjectCreatePlaneBlock(String name)
+			: base(name) {}
+
+		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Plane);
+	}
+
+	internal sealed class ObjectCreateQuadBlock : ObjectCreateBlockBase
+	{
+		public static ILunyScriptBlock Create(String name) => new ObjectCreateQuadBlock(name);
+
+		private ObjectCreateQuadBlock(String name)
+			: base(name) {}
+
+		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Quad);
+	}
+
+	internal sealed class ObjectCreatePrefabBlock : ObjectCreateBlockBase
+	{
+		public static ILunyScriptBlock Create(String prefabName) => new ObjectCreatePrefabBlock(prefabName);
+
+		private ObjectCreatePrefabBlock(String prefabName)
+			: base(prefabName) {}
+
+		public override void Execute(ILunyScriptContext context) =>
+			throw new NotImplementedException($"{nameof(ObjectCreatePrefabBlock)}.{nameof(Execute)} is not yet implemented.");
+	}
+
+	internal sealed class ObjectCreateCloneBlock : ObjectCreateBlockBase
+	{
+		public static ILunyScriptBlock Create(String originalName) => new ObjectCreateCloneBlock(originalName);
+
+		private ObjectCreateCloneBlock(String originalName)
+			: base(originalName) {}
+
+		public override void Execute(ILunyScriptContext context) =>
+			throw new NotImplementedException($"{nameof(ObjectCreateCloneBlock)}.{nameof(Execute)} is not yet implemented.");
 	}
 }

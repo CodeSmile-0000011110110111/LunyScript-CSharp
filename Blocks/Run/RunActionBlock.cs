@@ -13,7 +13,7 @@ namespace LunyScript.Blocks
 		private readonly Action<ILunyScriptContext> _action;
 		public static ILunyScriptBlock Create(Action<ILunyScriptContext> action) => new RunActionBlock(action);
 
-		public RunActionBlock(Action<ILunyScriptContext> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
+		private RunActionBlock(Action<ILunyScriptContext> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
 
 		public void Execute(ILunyScriptContext context) => _action(context);
 	}

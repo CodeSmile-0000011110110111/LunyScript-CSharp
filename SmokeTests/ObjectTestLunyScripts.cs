@@ -11,10 +11,10 @@ namespace LunyScript.Unity.SmokeTests
 
 		public override void Build()
 		{
-			When.Self.Created(Object.CreateEmpty(DestroyedObjectName));
+			When.Self.Created(Object.Create(DestroyedObjectName));
 			When.Self.LateUpdates(Object.Destroy(DestroyedObjectName));
 
-			When.Self.Ready(Object.CreateEmpty(EmptyObjectName));
+			When.Self.Ready(Object.Create(EmptyObjectName));
 			When.Self.Ready(Object.CreateCube(CubeObjectName));
 			When.Self.Ready(Object.CreateSphere(SphereObjectName));
 		}
