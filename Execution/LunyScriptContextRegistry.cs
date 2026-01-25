@@ -35,7 +35,6 @@ namespace LunyScript.Execution
 		public LunyScriptContext CreateContext(LunyScriptDefinition scriptDef, ILunyObject sceneObject)
 		{
 			var context = new LunyScriptContext(scriptDef, sceneObject);
-			//LunyLogger.LogInfo($"{nameof(CreateContext)}: {context.ScriptID} -> {context.LunyObject}", this);
 			Register(context);
 			return context;
 		}
