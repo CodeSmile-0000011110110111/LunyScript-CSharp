@@ -1,13 +1,13 @@
 ﻿namespace LunyScript.SmokeTests
 {
-	public sealed class Assert_Runs_WhenCreated : LunyScriptTestBase
+	public sealed class Assert_Runs_WhenCreated : LunyScriptSmokeTestBase
 	{
 		public override void Build()
 		{
 			base.Build();
-			When.Self.Created(Run(AssertDidRun));
+			When.Self.Created(Method.Run(AssertDidRun));
 
-			Every.FrameEnds(
+			When.Self.LateUpdates(
 				//Debug.LogWarning("Reloading scene now ..."),
 				//Scene.Reload()
 			);
@@ -15,75 +15,72 @@
 		}
 	}
 
-	public sealed class Assert_Runs_WhenDestroyed : LunyScriptTestBase
+	public sealed class Assert_Runs_WhenDestroyed : LunyScriptSmokeTestBase
 	{
 		public override void Build()
 		{
 			base.Build();
 			When.Self.Created(Object.Destroy());
-			When.Self.Destroyed(Run(AssertDidRun));
+			When.Self.Destroyed(Method.Run(AssertDidRun));
 		}
 	}
 
-	public sealed class Assert_Runs_WhenEnabled : LunyScriptTestBase
+	public sealed class Assert_Runs_WhenEnabled : LunyScriptSmokeTestBase
 	{
 		public override void Build()
 		{
 			base.Build();
-			When.Self.Enabled(Run(AssertDidRun));
+			When.Self.Enabled(Method.Run(AssertDidRun));
 		}
 	}
 
-	public sealed class Assert_Runs_WhenDisabled : LunyScriptTestBase
+	public sealed class Assert_Runs_WhenDisabled : LunyScriptSmokeTestBase
 	{
 		public override void Build()
 		{
 			base.Build();
 			When.Self.Created(Object.Disable());
-			When.Self.Disabled(Run(AssertDidRun));
+			When.Self.Disabled(Method.Run(AssertDidRun));
 		}
 	}
 
-	public sealed class Assert_Runs_WhenReady : LunyScriptTestBase
+	public sealed class Assert_Runs_WhenReady : LunyScriptSmokeTestBase
 	{
 		public override void Build()
 		{
 			base.Build();
-			When.Self.Ready(Run(AssertDidRun));
+			When.Self.Ready(Method.Run(AssertDidRun));
 		}
 	}
 
-	public sealed class Assert_Runs_EveryFixedStep : LunyScriptTestBase
+	public sealed class Assert_Runs_EveryFixedStep : LunyScriptSmokeTestBase
 	{
 		public override void Build()
 		{
 			base.Build();
-			Every.FixedStep(
-				Run(AssertDidRun),
+			When.Self.Steps(Method.Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
 		}
 	}
 
-	public sealed class Assert_Runs_EveryFrame : LunyScriptTestBase
+	public sealed class Assert_Runs_EveryFrame : LunyScriptSmokeTestBase
 	{
 		public override void Build()
 		{
 			base.Build();
-			Every.Frame(
-				Run(AssertDidRun),
+			When.Self.Updates(Method.Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
 		}
 	}
 
-	public sealed class Assert_Runs_EveryFrameEnds : LunyScriptTestBase
+	public sealed class Assert_Runs_EveryFrameEnds : LunyScriptSmokeTestBase
 	{
 		public override void Build()
 		{
 			base.Build();
-			Every.FrameEnds(
-				Run(AssertDidRun),
+			When.Self.LateUpdates(Method.Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
 		}

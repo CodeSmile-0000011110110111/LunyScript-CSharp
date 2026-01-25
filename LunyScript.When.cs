@@ -13,29 +13,32 @@ namespace LunyScript
 
 		public static class Every
 		{
+			/*
 			/// <summary>
-			/// Schedules blocks to run on fixed-rate updates.
+			/// Runs on fixed-rate stepping. Continues to run even for disabled objects.
 			/// Scheduling depends on engine and Time settings, but typically runs 30 or 50 times per second.
 			/// May run multiple times per frame and may not run in every frame.
 			/// It's therefore unsuitable for once-only events, such as Input.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static ILunyScriptRunnable FixedStep(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable Step(params ILunyScriptBlock[] blocks) =>
 				Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnFixedStep);
 
 			/// <summary>
-			/// Schedules blocks to run on every-frame updates.
+			/// Runs every frame. Continues to run even for disabled objects.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static ILunyScriptRunnable Frame(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable Update(params ILunyScriptBlock[] blocks) =>
 				Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnUpdate);
 
 			/// <summary>
-			/// Schedules blocks to run on every-frame updates but runs after OnUpdate.
+			/// Runs after frame update. Continues to run even for disabled objects.
 			/// </summary>
 			/// <param name="blocks"></param>
-			public static ILunyScriptRunnable FrameEnds(params ILunyScriptBlock[] blocks) =>
+			public static ILunyScriptRunnable LateUpdate(params ILunyScriptBlock[] blocks) =>
 				Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnLateUpdate);
+				*/
+
 
 			public static ILunyScriptRunnable TimeInterval(TimeSpan timeSpan, params ILunyScriptBlock[] blocks) =>
 				throw new NotImplementedException(nameof(TimeInterval));
@@ -95,7 +98,7 @@ namespace LunyScript
 					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnReady);
 
 				/// <summary>
-				/// Schedules blocks to run on fixed-rate updates.
+				/// Runs on fixed-rate stepping while object is enabled.
 				/// Scheduling depends on engine and Time settings, but typically runs 30 or 50 times per second.
 				/// May run multiple times per frame and may not run in every frame.
 				/// It's therefore unsuitable for once-only events, such as Input.
@@ -105,14 +108,14 @@ namespace LunyScript
 					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnFixedStep);
 
 				/// <summary>
-				/// Schedules blocks to run on every frame update.
+				/// Runs every frame while object is enabled.
 				/// </summary>
 				/// <param name="blocks"></param>
 				public static ILunyScriptRunnable Updates(params ILunyScriptBlock[] blocks) =>
 					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnUpdate);
 
 				/// <summary>
-				/// Schedules blocks to run after every frame update.
+				/// Runs after frame update while object is enabled.
 				/// </summary>
 				/// <param name="blocks"></param>
 				public static ILunyScriptRunnable LateUpdates(params ILunyScriptBlock[] blocks) =>

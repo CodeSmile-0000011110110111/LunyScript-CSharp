@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace LunyScript
 {
-	public readonly struct LunyScriptVariable
+	public readonly struct LunyScriptVariable : IEquatable<LunyScriptVariable>, IEquatable<Boolean>, IEquatable<Double>, IEquatable<String>
 	{
 		public String Name { get; }
 		public Object Value { get; }
@@ -15,9 +15,9 @@ namespace LunyScript
 			Value = value;
 		}
 
-		public Boolean Boolean() => Value is Boolean b ? b : false;
-		public Number Number() => Value is Number n ? n : default;
-		public String String() => Value is String s ? s : default;
+		public Boolean AsBoolean() => Value is Boolean b ? b : false;
+		public Number AsNumber() => Value is Number n ? n : default;
+		public String AsString() => Value is String s ? s : default;
 
 		public static implicit operator LunyScriptVariable(Int32 v) => new(null, v);
 		public static implicit operator LunyScriptVariable(Single v) => new(null, v);
@@ -42,9 +42,24 @@ namespace LunyScript
 			return Value.ToString();
 		}
 
-		public override Boolean Equals(Object obj) => obj is LunyScriptVariable other && Equals(other);
-
+		public Boolean Equals(Boolean b) => AsBoolean() == b;
+		public Boolean Equals(Double d) => AsNumber() == d;
+		public Boolean Equals(String s) => AsString() == s;
 		public Boolean Equals(LunyScriptVariable other) => Name == other.Name && Equals(Value, other.Value);
+
+		public override Boolean Equals(Object obj)
+		{
+			if (obj is LunyScriptVariable other)
+				return Equals(other);
+			if (obj is Boolean b)
+				return Equals(b);
+			if (obj is Double d)
+				return Equals(d);
+			if (obj is String s)
+				return Equals(s);
+
+			return false;
+		}
 
 		public override Int32 GetHashCode()
 		{
@@ -56,5 +71,20 @@ namespace LunyScript
 
 		public static Boolean operator ==(LunyScriptVariable left, LunyScriptVariable right) => left.Equals(right);
 		public static Boolean operator !=(LunyScriptVariable left, LunyScriptVariable right) => !left.Equals(right);
+
+		public static Boolean operator ==(LunyScriptVariable left, Boolean right) => left.Equals(right);
+		public static Boolean operator !=(LunyScriptVariable left, Boolean right) => !left.Equals(right);
+		public static Boolean operator ==(Boolean left, LunyScriptVariable right) => right.Equals(left);
+		public static Boolean operator !=(Boolean left, LunyScriptVariable right) => !right.Equals(left);
+
+		public static Boolean operator ==(LunyScriptVariable left, Double right) => left.Equals(right);
+		public static Boolean operator !=(LunyScriptVariable left, Double right) => !left.Equals(right);
+		public static Boolean operator ==(Double left, LunyScriptVariable right) => right.Equals(left);
+		public static Boolean operator !=(Double left, LunyScriptVariable right) => !right.Equals(left);
+
+		public static Boolean operator ==(LunyScriptVariable left, String right) => left.Equals(right);
+		public static Boolean operator !=(LunyScriptVariable left, String right) => !left.Equals(right);
+		public static Boolean operator ==(String left, LunyScriptVariable right) => right.Equals(left);
+		public static Boolean operator !=(String left, LunyScriptVariable right) => !right.Equals(left);
 	}
 }

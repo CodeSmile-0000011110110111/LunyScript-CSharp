@@ -47,23 +47,34 @@ namespace LunyScript.Events
 
 		public void OnFixedStep(Double fixedDeltaTime, LunyScriptContext context)
 		{
-			var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnFixedStep);
-			if (runnables != null)
-				LunyScriptRunner.Run(runnables, context);
+			if (context.LunyObject.IsEnabled)
+			{
+				var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnFixedStep);
+				if (runnables != null)
+					LunyScriptRunner.Run(runnables, context);
+
+			}
+
 		}
 
 		public void OnUpdate(Double deltaTime, LunyScriptContext context)
 		{
-			var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnUpdate);
-			if (runnables != null)
-				LunyScriptRunner.Run(runnables, context);
+			if (context.LunyObject.IsEnabled)
+			{
+				var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnUpdate);
+				if (runnables != null)
+					LunyScriptRunner.Run(runnables, context);
+			}
 		}
 
 		public void OnLateUpdate(Double deltaTime, LunyScriptContext context)
 		{
-			var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnLateUpdate);
-			if (runnables != null)
-				LunyScriptRunner.Run(runnables, context);
+			if (context.LunyObject.IsEnabled)
+			{
+				var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnLateUpdate);
+				if (runnables != null)
+					LunyScriptRunner.Run(runnables, context);
+			}
 		}
 
 		public void Shutdown()
