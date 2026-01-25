@@ -3,6 +3,7 @@ using Luny.Engine.Identity;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace LunyScript.Execution
 {
@@ -39,14 +40,14 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Manually registers a LunyScript type.
 		/// </summary>
-		public void RegisterScript(Type scriptType)
+		private void RegisterScript(Type scriptType)
 		{
 			if (scriptType == null)
 				throw new ArgumentNullException(nameof(scriptType));
 
 			if (_scriptsByName.ContainsKey(scriptType.Name))
 			{
-				LunyLogger.LogWarning($"{scriptType.Name} already registered, skipping duplicate", this);
+				LunyLogger.LogError($"{scriptType.Name} already registered", this);
 				return;
 			}
 
@@ -85,5 +86,7 @@ namespace LunyScript.Execution
 			_scriptsById.Clear();
 			_scriptsByName.Clear();
 		}
+
+		public IReadOnlyList<String> GetNames() => _scriptsByName.Keys.ToList().AsReadOnly();
 	}
 }

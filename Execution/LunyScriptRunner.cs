@@ -139,8 +139,10 @@ namespace LunyScript.Execution
 			_sceneEventHandler.OnSceneLoaded(loadedScene);
 
 			// Process current scene to bind scripts to objects
-			LunyEngine.Instance.Scene.GetAllObjects(); // triggers registration in LunyObjectRegistry
-			LunyScriptActivator.BuildAndActivateLunyScripts(this);
+			var lunyEngine = LunyEngine.Instance;
+			var scriptNames = _scripts.GetNames();
+			var scriptedObjects = lunyEngine.Scene.GetObjects(scriptNames);
+			LunyScriptActivator.BuildAndActivateLunyScripts(this, scriptedObjects);
 		}
 
 		public void OnSceneUnloaded(ILunyScene unloadedScene) => _sceneEventHandler.OnSceneUnloaded(unloadedScene);

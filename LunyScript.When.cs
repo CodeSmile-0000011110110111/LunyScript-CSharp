@@ -11,44 +11,43 @@ namespace LunyScript
 	{
 		private static LunyScriptEventScheduler Scheduler => ((LunyScriptContext)s_Instance._context).Scheduler;
 
-		public static class Every
-		{
-			/*
-			/// <summary>
-			/// Runs on fixed-rate stepping. Continues to run even for disabled objects.
-			/// Scheduling depends on engine and Time settings, but typically runs 30 or 50 times per second.
-			/// May run multiple times per frame and may not run in every frame.
-			/// It's therefore unsuitable for once-only events, such as Input.
-			/// </summary>
-			/// <param name="blocks"></param>
-			public static ILunyScriptRunnable Step(params ILunyScriptBlock[] blocks) =>
-				Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnFixedStep);
-
-			/// <summary>
-			/// Runs every frame. Continues to run even for disabled objects.
-			/// </summary>
-			/// <param name="blocks"></param>
-			public static ILunyScriptRunnable Update(params ILunyScriptBlock[] blocks) =>
-				Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnUpdate);
-
-			/// <summary>
-			/// Runs after frame update. Continues to run even for disabled objects.
-			/// </summary>
-			/// <param name="blocks"></param>
-			public static ILunyScriptRunnable LateUpdate(params ILunyScriptBlock[] blocks) =>
-				Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnLateUpdate);
-				*/
-
-
-			public static ILunyScriptRunnable TimeInterval(TimeSpan timeSpan, params ILunyScriptBlock[] blocks) =>
-				throw new NotImplementedException(nameof(TimeInterval));
-		}
-
 		/// <summary>
 		/// Handles infrequent events, ie Lifecycle, Input, Collision, Messages.
 		/// </summary>
 		public static class When
 		{
+			// public static ILunyScriptRunnable TimeInterval(TimeSpan timeSpan, params ILunyScriptBlock[] blocks) =>
+			// 	throw new NotImplementedException(nameof(TimeInterval));
+
+			public static class Engine
+			{
+				/* // TODO: this are considered "Global" updates ... needs corresponding event handler
+				/// <summary>
+				/// Runs on fixed-rate stepping. Continues to run even for disabled objects.
+				/// Scheduling depends on engine and Time settings, but typically runs 30 or 50 times per second.
+				/// May run multiple times per frame and may not run in every frame.
+				/// It's therefore unsuitable for once-only events, such as Input.
+				/// </summary>
+				/// <param name="blocks"></param>
+				public static ILunyScriptRunnable Steps(params ILunyScriptBlock[] blocks) =>
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnFixedStep);
+
+				/// <summary>
+				/// Runs every frame. Continues to run even for disabled objects.
+				/// </summary>
+				/// <param name="blocks"></param>
+				public static ILunyScriptRunnable Updates(params ILunyScriptBlock[] blocks) =>
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnUpdate);
+
+				/// <summary>
+				/// Runs after frame update. Continues to run even for disabled objects.
+				/// </summary>
+				/// <param name="blocks"></param>
+				public static ILunyScriptRunnable LateUpdates(params ILunyScriptBlock[] blocks) =>
+					Scheduler.ScheduleSequence(blocks, LunyObjectEvent.OnLateUpdate);
+					*/
+			}
+
 			/// <summary>
 			/// Self Events operate on the object in context
 			/// </summary>
