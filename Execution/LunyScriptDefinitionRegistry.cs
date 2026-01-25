@@ -1,9 +1,9 @@
 using Luny;
 using Luny.Engine.Identity;
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace LunyScript.Execution
 {
@@ -87,6 +87,6 @@ namespace LunyScript.Execution
 			_scriptsByName.Clear();
 		}
 
-		public IReadOnlyList<String> GetNames() => _scriptsByName.Keys.ToList().AsReadOnly();
+		public IReadOnlySet<String> GetNames() => _scriptsByName.Keys.ToFrozenSet();
 	}
 }
