@@ -3,6 +3,7 @@ using Luny.Engine.Bridge;
 using LunyScript.Diagnostics;
 using LunyScript.Events;
 using System;
+using System.Collections.Generic;
 
 namespace LunyScript.Execution
 {
@@ -67,9 +68,12 @@ namespace LunyScript.Execution
 		/// </summary>
 		internal LunyScriptEventScheduler Scheduler { get; }
 
+		private List<Double> _intervalTimers;
+
 		internal static void ClearGlobalVariables() => s_GlobalVariables?.Clear();
 
 		internal static ILunyScriptVariables GetGlobalVariables() => s_GlobalVariables;
+
 
 		public LunyScriptContext(ILunyScriptDefinition definition, ILunyObject lunyObject)
 		{

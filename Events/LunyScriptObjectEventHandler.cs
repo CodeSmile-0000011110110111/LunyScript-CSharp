@@ -64,7 +64,41 @@ namespace LunyScript.Events
 				var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnUpdate);
 				if (runnables != null)
 					LunyScriptRunner.Run(runnables, context);
+
+				OnIntervalUpdate(deltaTime, context);
 			}
+		}
+
+
+		internal void OnIntervalUpdate(Double deltaTime, LunyScriptContext context)
+		{
+			var lunyObject = context.LunyObject;
+			if (!lunyObject.IsEnabled)
+				return;
+
+			var intervals = context.Scheduler.IntervalRunnables;
+			if (intervals == null || intervals.Count == 0)
+				return;
+
+			// TODO: Junie implemented this without enough context, this needs a refactor
+			throw new NotImplementedException(nameof(OnIntervalUpdate));
+
+			/*
+			_intervalTimers ??= new List<Double>();
+			while (_intervalTimers.Count < intervals.Count)
+				_intervalTimers.Add(0);
+
+			for (int i = 0; i < intervals.Count; i++)
+			{
+				_intervalTimers[i] += deltaTime;
+				var target = intervals[i].interval.TotalSeconds;
+				if (_intervalTimers[i] >= target)
+				{
+					_intervalTimers[i] %= target;
+					LunyScriptRunner.Run(new[] { intervals[i].runnable }, this);
+				}
+			}
+		*/
 		}
 
 		public void OnLateUpdate(Double deltaTime, LunyScriptContext context)

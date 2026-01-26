@@ -156,7 +156,9 @@ namespace LunyScript.Execution
 		public void OnEngineUpdate(Double deltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
+			{
 				_objectEventHandler.OnUpdate(deltaTime, context);
+			}
 		}
 
 		public void OnEngineLateUpdate(Double deltaTime)

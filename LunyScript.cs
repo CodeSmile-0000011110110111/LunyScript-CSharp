@@ -34,7 +34,7 @@ namespace LunyScript
 	/// </remarks>
 	public abstract partial class LunyScript : ILunyScript
 	{
-		// temporary 'singleton' for static subclasses (eg 'Every')
+		// temporary 'singleton' for static subclasses
 		private static LunyScript s_Instance;
 
 		private ILunyScriptContext _context;

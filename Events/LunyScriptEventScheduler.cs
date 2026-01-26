@@ -17,6 +17,9 @@ namespace LunyScript.Events
 		// Fast array-based storage for lifecycle events (hot path)
 		private List<ILunyScriptRunnable>[] _objectEventRunnables;
 		private List<ILunyScriptRunnable>[] _sceneEventRunnables;
+		private List<(TimeSpan interval, ILunyScriptRunnable runnable)> _intervalRunnables;
+
+		internal IReadOnlyList<(TimeSpan interval, ILunyScriptRunnable runnable)> IntervalRunnables => _intervalRunnables;
 
 		//~LunyScriptEventScheduler() => LunyTraceLogger.LogInfoFinalized(this);
 
@@ -43,6 +46,18 @@ namespace LunyScript.Events
 
 		internal ILunyScriptRunnable ScheduleSequence(ILunyScriptBlock[] blocks, LunySceneEvent sceneEvent) =>
 			ScheduleRunnable(ref _sceneEventRunnables, CreateSequence(blocks), (Int32)sceneEvent, s_SceneEventCount);
+
+		internal ILunyScriptRunnable ScheduleSequence(ILunyScriptBlock[] blocks, TimeSpan timeSpan)
+		{
+			var runnable = CreateSequence(blocks);
+			if (runnable != null && !runnable.IsEmpty)
+			{
+				_intervalRunnables ??= new List<(TimeSpan, ILunyScriptRunnable)>();
+				_intervalRunnables.Add((timeSpan, runnable));
+			}
+
+			return runnable;
+		}
 
 		/// <summary>
 		/// Gets all runnables scheduled for a specific lifecycle event.
