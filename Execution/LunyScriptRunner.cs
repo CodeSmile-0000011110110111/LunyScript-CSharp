@@ -104,37 +104,6 @@ namespace LunyScript.Execution
 			}
 		}
 
-		internal void Shutdown()
-		{
-			try
-			{
-				LunyTraceLogger.LogInfoShuttingDown(this);
-
-				// ensure all objects run their OnDestroy
-				foreach (var context in _contexts.AllContexts)
-					context.LunyObject.Destroy();
-
-				// final cleanup of pending object destroy
-				_objectEventHandler.Shutdown();
-				_sceneEventHandler.Shutdown();
-				_contexts.Shutdown();
-				_scripts.Shutdown();
-				_scriptEngine.Shutdown();
-			}
-			catch (Exception)
-			{
-				LunyLogger.LogError($"Error during {nameof(LunyScriptRunner)} {nameof(OnEngineShutdown)}!", this);
-				throw;
-			}
-			finally
-			{
-				_scriptEngine = null;
-				_objectEventHandler = null;
-
-				LunyTraceLogger.LogInfoShutdownComplete(this);
-			}
-		}
-
 		public void OnEngineShutdown() => Shutdown();
 
 		public void OnSceneLoaded(ILunyScene loadedScene)
@@ -145,10 +114,10 @@ namespace LunyScript.Execution
 			var lunyEngine = LunyEngine.Instance;
 			var scriptNames = _scripts.GetNames();
 			var scriptedObjects = lunyEngine.Scene.GetObjects(scriptNames);
-			
+
 			// Filter out objects that already have a context to avoid double activation
 			var newScriptedObjects = scriptedObjects.Where(obj => _contexts.GetByNativeObjectID(obj.NativeObjectID) == null).ToList();
-			
+
 			LunyScriptActivator.BuildAndActivateLunyScripts(this, newScriptedObjects);
 		}
 
@@ -185,9 +154,7 @@ namespace LunyScript.Execution
 		public void OnEngineUpdate(Double deltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
-			{
 				_objectEventHandler.OnUpdate(deltaTime, context);
-			}
 		}
 
 		public void OnEngineLateUpdate(Double deltaTime)
@@ -195,6 +162,37 @@ namespace LunyScript.Execution
 			// Run all LateUpdate runnables
 			foreach (var context in _contexts.AllContexts)
 				_objectEventHandler.OnLateUpdate(deltaTime, context);
+		}
+
+		internal void Shutdown()
+		{
+			try
+			{
+				LunyTraceLogger.LogInfoShuttingDown(this);
+
+				// ensure all objects run their OnDestroy
+				foreach (var context in _contexts.AllContexts)
+					context.LunyObject.Destroy();
+
+				// final cleanup of pending object destroy
+				_objectEventHandler.Shutdown();
+				_sceneEventHandler.Shutdown();
+				_contexts.Shutdown();
+				_scripts.Shutdown();
+				_scriptEngine.Shutdown();
+			}
+			catch (Exception)
+			{
+				LunyLogger.LogError($"Error during {nameof(LunyScriptRunner)} {nameof(OnEngineShutdown)}!", this);
+				throw;
+			}
+			finally
+			{
+				_scriptEngine = null;
+				_objectEventHandler = null;
+
+				LunyTraceLogger.LogInfoShutdownComplete(this);
+			}
 		}
 
 		~LunyScriptRunner() => LunyTraceLogger.LogInfoFinalized(this);

@@ -25,13 +25,13 @@ namespace LunyScript
 		public ILunyScriptVariables GlobalVars => LunyScriptContext.GetGlobalVariables();
 		public ILunyScriptVariables GVars => LunyScriptContext.GetGlobalVariables();
 
-		private LunyScriptEngine() {} // hide default ctor
-
 		internal static void ForceReset_UnitTestsOnly()
 		{
 			Instance = null;
-			Execution.LunyScriptContext.ClearGlobalVariables();
+			LunyScriptContext.ClearGlobalVariables();
 		}
+
+		private LunyScriptEngine() {} // hide default ctor
 
 		internal LunyScriptEngine(LunyScriptRunner scriptRunner)
 		{

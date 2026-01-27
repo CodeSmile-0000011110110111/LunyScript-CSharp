@@ -52,9 +52,7 @@ namespace LunyScript.Events
 				var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnFixedStep);
 				if (runnables != null)
 					LunyScriptRunner.Run(runnables, context);
-
 			}
-
 		}
 
 		public void OnUpdate(Double deltaTime, LunyScriptContext context)
@@ -68,7 +66,6 @@ namespace LunyScript.Events
 				OnIntervalUpdate(deltaTime, context);
 			}
 		}
-
 
 		internal void OnIntervalUpdate(Double deltaTime, LunyScriptContext context)
 		{

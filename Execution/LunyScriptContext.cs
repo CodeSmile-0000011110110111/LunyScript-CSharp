@@ -31,6 +31,8 @@ namespace LunyScript.Execution
 		private readonly ILunyScriptDefinition _scriptDef;
 		private readonly ILunyObject _lunyObject;
 
+		private List<Double> _intervalTimers;
+
 		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
@@ -68,12 +70,9 @@ namespace LunyScript.Execution
 		/// </summary>
 		internal LunyScriptEventScheduler Scheduler { get; }
 
-		private List<Double> _intervalTimers;
-
 		internal static void ClearGlobalVariables() => s_GlobalVariables?.Clear();
 
 		internal static ILunyScriptVariables GetGlobalVariables() => s_GlobalVariables;
-
 
 		public LunyScriptContext(ILunyScriptDefinition definition, ILunyObject lunyObject)
 		{
