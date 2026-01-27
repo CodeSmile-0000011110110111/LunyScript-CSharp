@@ -27,6 +27,12 @@ namespace LunyScript
 
 		private LunyScriptEngine() {} // hide default ctor
 
+		internal static void ForceReset_UnitTestsOnly()
+		{
+			Instance = null;
+			Execution.LunyScriptContext.ClearGlobalVariables();
+		}
+
 		internal LunyScriptEngine(LunyScriptRunner scriptRunner)
 		{
 			LunyTraceLogger.LogInfoCreateSingletonInstance(typeof(LunyScriptEngine));

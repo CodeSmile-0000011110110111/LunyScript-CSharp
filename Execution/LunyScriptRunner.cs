@@ -7,6 +7,7 @@ using LunyScript.Runnables;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace LunyScript.Execution
 {
@@ -103,7 +104,7 @@ namespace LunyScript.Execution
 			}
 		}
 
-		public void OnEngineShutdown()
+		internal void Shutdown()
 		{
 			try
 			{
@@ -134,6 +135,8 @@ namespace LunyScript.Execution
 			}
 		}
 
+		public void OnEngineShutdown() => Shutdown();
+
 		public void OnSceneLoaded(ILunyScene loadedScene)
 		{
 			_sceneEventHandler.OnSceneLoaded(loadedScene);
@@ -142,7 +145,33 @@ namespace LunyScript.Execution
 			var lunyEngine = LunyEngine.Instance;
 			var scriptNames = _scripts.GetNames();
 			var scriptedObjects = lunyEngine.Scene.GetObjects(scriptNames);
-			LunyScriptActivator.BuildAndActivateLunyScripts(this, scriptedObjects);
+			
+			// Filter out objects that already have a context to avoid double activation
+			var newScriptedObjects = scriptedObjects.Where(obj => _contexts.GetByNativeObjectID(obj.NativeObjectID) == null).ToList();
+			
+			LunyScriptActivator.BuildAndActivateLunyScripts(this, newScriptedObjects);
+		}
+
+		public void OnObjectCreated(ILunyObject lunyObject)
+		{
+			// Check if object is already scripted to avoid double activation
+			if (_contexts.GetByNativeObjectID(lunyObject.NativeObjectID) != null)
+				return;
+
+			// Activate script on dynamically created object
+			LunyScriptActivator.BuildAndActivateLunyScripts(this, new[] { lunyObject });
+		}
+
+		public void OnObjectDestroyed(ILunyObject lunyObject)
+		{
+			// Cleanup context for destroyed object
+			var context = _contexts.GetByNativeObjectID(lunyObject.NativeObjectID);
+			if (context != null)
+			{
+				// _objectEventHandler.Unregister(context);
+				// _sceneEventHandler.Unregister(context);
+				_contexts.Unregister(context);
+			}
 		}
 
 		public void OnSceneUnloaded(ILunyScene unloadedScene) => _sceneEventHandler.OnSceneUnloaded(unloadedScene);
