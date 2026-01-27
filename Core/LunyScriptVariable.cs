@@ -45,7 +45,7 @@ namespace LunyScript
 		public Boolean Equals(Boolean b) => AsBoolean() == b;
 		public Boolean Equals(Double d) => AsNumber() == d;
 		public Boolean Equals(String s) => AsString() == s;
-		public Boolean Equals(LunyScriptVariable other) => Name == other.Name && Equals(Value, other.Value);
+		public Boolean Equals(LunyScriptVariable other) => Equals(Value, other.Value);
 
 		public override Boolean Equals(Object obj)
 		{
