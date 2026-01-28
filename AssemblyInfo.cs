@@ -1,12 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 
-// Namespaces sorted alphabetically
-[assembly:InternalsVisibleTo(nameof(LunyScript) + ".Godot")]
-[assembly:InternalsVisibleTo(nameof(LunyScript) + ".GodotEditor")]
-[assembly:InternalsVisibleTo(nameof(LunyScript) + ".Unity")]
-[assembly:InternalsVisibleTo(nameof(LunyScript) + ".UnityEditor")]
-
 // Rider can't handle 'nameof' generated strings apparently
+[assembly:InternalsVisibleTo("LunyScript-Test")]
+[assembly:InternalsVisibleTo("LunyScript.Godot")]
+[assembly:InternalsVisibleTo("LunyScript.GodotEditor")]
 [assembly:InternalsVisibleTo("LunyScript.Unity")]
 [assembly:InternalsVisibleTo("LunyScript.UnityEditor")]
 

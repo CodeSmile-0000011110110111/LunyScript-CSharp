@@ -16,8 +16,8 @@ namespace LunyScript.Execution
 		LunyScriptID ScriptID { get; }
 		Type ScriptType { get; }
 		ILunyObject LunyObject { get; }
-		ILunyScriptVariables GlobalVariables { get; }
-		ILunyScriptVariables LocalVariables { get; }
+		ILunyTable GlobalVariables { get; }
+		ILunyTable LocalVariables { get; }
 	}
 
 	/// <summary>
@@ -26,7 +26,7 @@ namespace LunyScript.Execution
 	/// </summary>
 	internal sealed class LunyScriptContext : ILunyScriptContext
 	{
-		private static readonly LunyScriptVariables s_GlobalVariables = new();
+		private static readonly ILunyTable s_GlobalVariables = new LunyTable();
 
 		private readonly ILunyScriptDefinition _scriptDef;
 		private readonly ILunyObject _lunyObject;
@@ -49,11 +49,11 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Global variables shared across all scripts.
 		/// </summary>
-		public ILunyScriptVariables GlobalVariables { get; } = s_GlobalVariables;
+		public ILunyTable GlobalVariables { get; } = s_GlobalVariables;
 		/// <summary>
 		/// Per-object variables for this script instance.
 		/// </summary>
-		public ILunyScriptVariables LocalVariables { get; } = new LunyScriptVariables();
+		public ILunyTable LocalVariables { get; } = new LunyTable();
 
 		/// <summary>
 		/// Debugging hooks for execution tracing and breakpoints.
@@ -72,7 +72,7 @@ namespace LunyScript.Execution
 
 		internal static void ClearGlobalVariables() => s_GlobalVariables?.Clear();
 
-		internal static ILunyScriptVariables GetGlobalVariables() => s_GlobalVariables;
+		internal static ILunyTable GetGlobalVariables() => s_GlobalVariables;
 
 		public LunyScriptContext(ILunyScriptDefinition definition, ILunyObject lunyObject)
 		{
