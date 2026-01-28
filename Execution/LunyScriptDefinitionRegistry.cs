@@ -1,7 +1,6 @@
 using Luny;
 using Luny.Engine.Identity;
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -87,6 +86,6 @@ namespace LunyScript.Execution
 			_scriptsByName.Clear();
 		}
 
-		public IReadOnlySet<String> GetNames() => _scriptsByName.Keys.ToFrozenSet();
+		public IReadOnlyCollection<String> GetNames() => _scriptsByName.Keys;
 	}
 }
