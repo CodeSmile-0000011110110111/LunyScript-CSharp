@@ -11,7 +11,7 @@ namespace LunyScript.SmokeTests
 		{
 			var name = GetType().Name;
 			if (!GlobalVars[name].AsBoolean())
-				GlobalVars[name] = LunyVariable.Create(result);
+				GlobalVars[name] = result;
 		}
 
 		public override void Build()

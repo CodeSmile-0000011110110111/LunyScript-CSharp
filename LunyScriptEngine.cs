@@ -10,8 +10,8 @@ namespace LunyScript
 	/// </summary>
 	public interface ILunyScriptEngine
 	{
-		ILunyTable GlobalVars { get; }
-		ILunyTable GVars { get; }
+		ITable GlobalVars { get; }
+		ITable GVars { get; }
 		ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID);
 	}
 
@@ -22,8 +22,8 @@ namespace LunyScript
 	{
 		private LunyScriptRunner _runner;
 		public static ILunyScriptEngine Instance { get; private set; }
-		public ILunyTable GlobalVars => LunyScriptContext.GetGlobalVariables();
-		public ILunyTable GVars => LunyScriptContext.GetGlobalVariables();
+		public ITable GlobalVars => LunyScriptContext.GetGlobalVariables();
+		public ITable GVars => LunyScriptContext.GetGlobalVariables();
 
 		internal static void ForceReset_UnitTestsOnly()
 		{

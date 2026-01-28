@@ -10,8 +10,8 @@ namespace LunyScript
 	{
 		LunyScriptID ScriptID { get; }
 		ILunyObject LunyObject { get; }
-		ILunyTable GlobalVars { get; }
-		ILunyTable LocalVars { get; }
+		ITable GlobalVars { get; }
+		ITable LocalVars { get; }
 		Boolean IsEditor { get; }
 	}
 
@@ -52,20 +52,20 @@ namespace LunyScript
 		/// <summary>
 		/// Global variables which all objects and scripts can read/write.
 		/// </summary>
-		[NotNull] public ILunyTable GlobalVars => _context.GlobalVariables;
+		[NotNull] public ITable GlobalVars => _context.GlobalVariables;
 		/// <summary>
 		/// Short alias for 'GlobalVariables'.
 		/// </summary>
-		[NotNull] public ILunyTable GVars => _context.GlobalVariables;
+		[NotNull] public ITable GVars => _context.GlobalVariables;
 		/// <summary>
 		/// Local variables the current object and script owns.
 		/// If multiple objects run the same script, each object has its own unique set of local variables.
 		/// </summary>
-		[NotNull] public ILunyTable LocalVars => _context.LocalVariables;
+		[NotNull] public ITable LocalVars => _context.LocalVariables;
 		/// <summary>
 		/// Short alias for 'LocalVariables'.
 		/// </summary>
-		[NotNull] public ILunyTable LVars => _context.LocalVariables;
+		[NotNull] public ITable LVars => _context.LocalVariables;
 		/// <summary>
 		/// True if the script runs within the engine's editor (play mode). False in builds.
 		/// </summary>
