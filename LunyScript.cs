@@ -57,18 +57,10 @@ namespace LunyScript
 		/// </summary>
 		[NotNull] public ITable GlobalVars => _context.GlobalVariables;
 		/// <summary>
-		/// Short alias for 'GlobalVariables'.
-		/// </summary>
-		[NotNull] public ITable GVars => _context.GlobalVariables;
-		/// <summary>
 		/// Local variables the current object and script owns.
 		/// If multiple objects run the same script, each object has its own unique set of local variables.
 		/// </summary>
 		[NotNull] public ITable LocalVars => _context.LocalVariables;
-		/// <summary>
-		/// Short alias for 'LocalVariables'.
-		/// </summary>
-		[NotNull] public ITable LVars => _context.LocalVariables;
 		/// <summary>
 		/// True if the script runs within the engine's editor (play mode). False in builds.
 		/// </summary>
@@ -85,6 +77,9 @@ namespace LunyScript
 		public PrefabApi Prefab => new(this);
 		public SceneApi Scene => new(this);
 		public WhenApi When => new(this);
+
+		public VarApi Var => new((Table)LocalVars);
+		public VarApi GVar => new((Table)GlobalVars);
 
 		internal void Initialize(ILunyScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
