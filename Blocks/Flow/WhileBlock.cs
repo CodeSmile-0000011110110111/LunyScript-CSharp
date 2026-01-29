@@ -15,13 +15,13 @@ namespace LunyScript.Blocks
 
 		internal WhileBlockBuilder(IScriptConditionBlock[] conditions) => _conditions = conditions;
 
+		public void Execute(ILunyScriptContext context) => (_cachedBlock ??= Build()).Execute(context);
+
 		public IScriptActionBlock Do(params IScriptActionBlock[] blocks)
 		{
 			_blocks = blocks;
 			return Build();
 		}
-
-		public void Execute(ILunyScriptContext context) => (_cachedBlock ??= Build()).Execute(context);
 
 		private IScriptActionBlock Build() => WhileBlock.Create(_conditions, _blocks);
 	}
@@ -34,8 +34,7 @@ namespace LunyScript.Blocks
 		private readonly IScriptConditionBlock[] _conditions;
 		private readonly IScriptActionBlock[] _blocks;
 
-		public static WhileBlock Create(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks) => 
-			new(conditions, blocks);
+		public static WhileBlock Create(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks) => new(conditions, blocks);
 
 		private WhileBlock(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)
 		{
@@ -64,8 +63,10 @@ namespace LunyScript.Blocks
 				return false; // Infinite loop prevention if no conditions
 
 			foreach (var condition in _conditions)
+			{
 				if (!condition.Evaluate(context))
 					return false;
+			}
 
 			return true;
 		}

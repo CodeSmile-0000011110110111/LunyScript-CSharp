@@ -1,7 +1,6 @@
 using LunyScript.Execution;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace LunyScript.Blocks
 {
@@ -15,6 +14,8 @@ namespace LunyScript.Blocks
 		private IScriptActionBlock _cachedBlock;
 
 		internal IfBlockBuilder(IScriptConditionBlock[] conditions) => _branches.Add((conditions, Array.Empty<IScriptActionBlock>()));
+
+		public void Execute(ILunyScriptContext context) => (_cachedBlock ??= Build()).Execute(context);
 
 		public IfBlockBuilder Then(params IScriptActionBlock[] blocks)
 		{
@@ -35,8 +36,6 @@ namespace LunyScript.Blocks
 			return Build();
 		}
 
-		public void Execute(ILunyScriptContext context) => (_cachedBlock ??= Build()).Execute(context);
-
 		private IScriptActionBlock Build() => IfBlock.Create(_branches, _elseBlocks);
 	}
 
@@ -48,8 +47,8 @@ namespace LunyScript.Blocks
 		private readonly List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> _branches;
 		private readonly IScriptActionBlock[] _elseBlocks;
 
-		public static IfBlock Create(List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> branches, IScriptActionBlock[] elseBlocks) => 
-			new(branches, elseBlocks);
+		public static IfBlock Create(List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> branches,
+			IScriptActionBlock[] elseBlocks) => new(branches, elseBlocks);
 
 		private IfBlock(List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> branches, IScriptActionBlock[] elseBlocks)
 		{
@@ -78,8 +77,10 @@ namespace LunyScript.Blocks
 				return true;
 
 			foreach (var condition in conditions)
+			{
 				if (condition == null || !condition.Evaluate(context))
 					return false;
+			}
 
 			return true;
 		}

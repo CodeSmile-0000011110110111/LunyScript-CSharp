@@ -20,13 +20,13 @@ namespace LunyScript.Blocks
 			_step = step;
 		}
 
+		public void Execute(ILunyScriptContext context) => (_cachedBlock ??= Build()).Execute(context);
+
 		public IScriptActionBlock Do(params IScriptActionBlock[] blocks)
 		{
 			_blocks = blocks;
 			return Build();
 		}
-
-		public void Execute(ILunyScriptContext context) => (_cachedBlock ??= Build()).Execute(context);
 
 		private IScriptActionBlock Build() => ForBlock.Create(_limit, _step, _blocks);
 	}
@@ -40,8 +40,7 @@ namespace LunyScript.Blocks
 		private readonly Int32 _step;
 		private readonly IScriptActionBlock[] _blocks;
 
-		public static ForBlock Create(Int32 limit, Int32 step, IScriptActionBlock[] blocks) => 
-			new(limit, step, blocks);
+		public static ForBlock Create(Int32 limit, Int32 step, IScriptActionBlock[] blocks) => new(limit, step, blocks);
 
 		private ForBlock(Int32 limit, Int32 step, IScriptActionBlock[] blocks)
 		{

@@ -1,6 +1,5 @@
 using LunyScript.Execution;
 using System;
-using System.Collections.Generic;
 
 namespace LunyScript.Blocks
 {
@@ -21,8 +20,10 @@ namespace LunyScript.Blocks
 				return true;
 
 			foreach (var condition in _conditions)
+			{
 				if (!condition.Evaluate(context))
 					return false;
+			}
 
 			return true;
 		}
@@ -45,8 +46,10 @@ namespace LunyScript.Blocks
 				return false;
 
 			foreach (var condition in _conditions)
+			{
 				if (condition.Evaluate(context))
 					return true;
+			}
 
 			return false;
 		}
