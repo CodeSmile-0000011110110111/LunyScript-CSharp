@@ -9,7 +9,7 @@ namespace LunyScript.Execution
 {
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
-	/// Contains the script metadata, object reference, variables, and registered runnables.
+	/// Contains the script metadata, object reference, variables, and registered sequences.
 	/// </summary>
 	public interface ILunyScriptContext
 	{
@@ -22,7 +22,7 @@ namespace LunyScript.Execution
 
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
-	/// Contains the script metadata, object reference, variables, and registered runnables.
+	/// Contains the script metadata, object reference, variables, and registered sequences.
 	/// </summary>
 	internal sealed class LunyScriptContext : ILunyScriptContext
 	{
@@ -61,12 +61,12 @@ namespace LunyScript.Execution
 		internal LunyScriptDebugHooks DebugHooks { get; }
 
 		/// <summary>
-		/// Block-level profiler for tracking runnable performance.
+		/// Block-level profiler for tracking blocks performance.
 		/// </summary>
 		internal LunyScriptBlockProfiler BlockProfiler { get; }
 
 		/// <summary>
-		/// Event scheduler for managing runnables across all event types.
+		/// Event scheduler for managing sequences across all event types.
 		/// </summary>
 		internal LunyScriptEventScheduler Scheduler { get; }
 

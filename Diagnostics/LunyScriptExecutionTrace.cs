@@ -18,7 +18,7 @@ namespace LunyScript.Diagnostics
 		public override String ToString()
 		{
 			var errorSuffix = Error != null ? $" [ERROR: {Error.Message}]" : "";
-			return $"[Frame {FrameCount:D8}] [{ElapsedSeconds:F3}s] Runnable#{LunyScriptRunID} {BlockType.Name}{errorSuffix}";
+			return $"[Frame {FrameCount:D8}] [{ElapsedSeconds:F3}s] Sequence#{LunyScriptRunID} {BlockType.Name}{errorSuffix}";
 		}
 	}
 }

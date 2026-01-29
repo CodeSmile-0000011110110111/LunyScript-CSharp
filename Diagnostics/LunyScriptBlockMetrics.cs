@@ -3,7 +3,7 @@ using System;
 namespace LunyScript.Diagnostics
 {
 	/// <summary>
-	/// Performance metrics for a single block (runnable or individual block).
+	/// Performance metrics for a single block (sequence or individual block).
 	/// Tracks execution time statistics and error counts.
 	/// </summary>
 	public sealed class LunyScriptBlockMetrics
@@ -18,6 +18,6 @@ namespace LunyScript.Diagnostics
 		public Int32 ErrorCount;
 
 		public override String ToString() =>
-			$"Runnable#{LunyScriptRunID} {BlockType.Name}: {CallCount} calls, {AverageMs:F2}ms avg ({MinMs:F2}-{MaxMs:F2}ms), {ErrorCount} errors";
+			$"Sequence#{LunyScriptRunID} {BlockType.Name}: {CallCount} calls, {AverageMs:F2}ms avg ({MinMs:F2}-{MaxMs:F2}ms), {ErrorCount} errors";
 	}
 }

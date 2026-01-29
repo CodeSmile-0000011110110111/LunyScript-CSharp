@@ -1,13 +1,12 @@
 using Luny.Engine.Bridge.Enums;
 using LunyScript.Blocks;
-using LunyScript.Runnables;
 using System;
 using System.Collections.Generic;
 
 namespace LunyScript.Events
 {
 	/// <summary>
-	/// Schedules and manages runnables for various event types.
+	/// Schedules and manages sequences for various event types.
 	/// </summary>
 	internal sealed class LunyScriptEventScheduler
 	{
@@ -15,66 +14,66 @@ namespace LunyScript.Events
 		private static readonly Int32 s_SceneEventCount = Enum.GetNames(typeof(LunySceneEvent)).Length;
 
 		// Fast array-based storage for lifecycle events (hot path)
-		private List<ILunyScriptRunnable>[] _objectEventRunnables;
-		private List<ILunyScriptRunnable>[] _sceneEventRunnables;
-		private List<(TimeSpan interval, ILunyScriptRunnable runnable)> _intervalRunnables;
+		private List<IScriptSequenceBlock>[] _objectEventSequences;
+		private List<IScriptSequenceBlock>[] _sceneEventSequences;
+		private List<(TimeSpan interval, IScriptSequenceBlock sequence)> _intervalSequences;
 
-		internal IReadOnlyList<(TimeSpan interval, ILunyScriptRunnable runnable)> IntervalRunnables => _intervalRunnables;
+		internal IReadOnlyList<(TimeSpan interval, IScriptSequenceBlock sequence)> IntervalSequences => _intervalSequences;
 
 		//~LunyScriptEventScheduler() => LunyTraceLogger.LogInfoFinalized(this);
 
 		private static Boolean HasBlocks(IReadOnlyList<IScriptActionBlock> blocks) => blocks?.Count > 0;
 
-		private static ILunyScriptRunnable CreateSequence(IReadOnlyList<IScriptActionBlock> blocks) =>
-			HasBlocks(blocks) ? new LunyScriptBlockSequence(blocks) : null;
+		private static IScriptSequenceBlock CreateSequence(IReadOnlyList<IScriptActionBlock> blocks) =>
+			HasBlocks(blocks) ? new SequenceBlock(blocks) : null;
 
-		private static ILunyScriptRunnable ScheduleRunnable(ref List<ILunyScriptRunnable>[] runnablesRef, ILunyScriptRunnable runnable,
+		private static IScriptSequenceBlock ScheduleSequence(ref List<IScriptSequenceBlock>[] sequencesRef, IScriptSequenceBlock sequence,
 			Int32 eventIndex, Int32 eventCount)
 		{
-			if (runnable != null && !runnable.IsEmpty)
+			if (sequence != null && !sequence.IsEmpty)
 			{
-				runnablesRef ??= new List<ILunyScriptRunnable>[eventCount];
-				runnablesRef[eventIndex] ??= new List<ILunyScriptRunnable>();
-				runnablesRef[eventIndex].Add(runnable);
+				sequencesRef ??= new List<IScriptSequenceBlock>[eventCount];
+				sequencesRef[eventIndex] ??= new List<IScriptSequenceBlock>();
+				sequencesRef[eventIndex].Add(sequence);
 			}
 
-			return runnable;
+			return sequence;
 		}
 
-		internal ILunyScriptRunnable ScheduleSequence(IScriptActionBlock[] blocks, LunyObjectEvent objectEvent) =>
-			ScheduleRunnable(ref _objectEventRunnables, CreateSequence(blocks), (Int32)objectEvent, s_ObjectEventCount);
+		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, LunyObjectEvent objectEvent) =>
+			ScheduleSequence(ref _objectEventSequences, CreateSequence(blocks), (Int32)objectEvent, s_ObjectEventCount);
 
-		internal ILunyScriptRunnable ScheduleSequence(IScriptActionBlock[] blocks, LunySceneEvent sceneEvent) =>
-			ScheduleRunnable(ref _sceneEventRunnables, CreateSequence(blocks), (Int32)sceneEvent, s_SceneEventCount);
+		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, LunySceneEvent sceneEvent) =>
+			ScheduleSequence(ref _sceneEventSequences, CreateSequence(blocks), (Int32)sceneEvent, s_SceneEventCount);
 
-		internal ILunyScriptRunnable ScheduleSequence(IScriptActionBlock[] blocks, TimeSpan timeSpan)
+		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, TimeSpan timeSpan)
 		{
-			var runnable = CreateSequence(blocks);
-			if (runnable != null && !runnable.IsEmpty)
+			var sequence = CreateSequence(blocks);
+			if (sequence != null && !sequence.IsEmpty)
 			{
-				_intervalRunnables ??= new List<(TimeSpan, ILunyScriptRunnable)>();
-				_intervalRunnables.Add((timeSpan, runnable));
+				_intervalSequences ??= new List<(TimeSpan, IScriptSequenceBlock)>();
+				_intervalSequences.Add((timeSpan, sequence));
 			}
 
-			return runnable;
+			return sequence;
 		}
 
 		/// <summary>
-		/// Gets all runnables scheduled for a specific lifecycle event.
+		/// Gets all sequences scheduled for a specific lifecycle event.
 		/// </summary>
-		internal IEnumerable<ILunyScriptRunnable> GetScheduled(LunyObjectEvent objectEvent) =>
-			IsObserving((Int32)objectEvent, ref _objectEventRunnables) ? _objectEventRunnables[(Int32)objectEvent] : null;
+		internal IEnumerable<IScriptSequenceBlock> GetSequences(LunyObjectEvent objectEvent) =>
+			IsObserving((Int32)objectEvent, ref _objectEventSequences) ? _objectEventSequences[(Int32)objectEvent] : null;
 
-		internal IEnumerable<ILunyScriptRunnable> GetScheduled(LunySceneEvent sceneEvent) =>
-			IsObserving((Int32)sceneEvent, ref _objectEventRunnables) ? _objectEventRunnables[(Int32)sceneEvent] : null;
+		internal IEnumerable<IScriptSequenceBlock> GetSequences(LunySceneEvent sceneEvent) =>
+			IsObserving((Int32)sceneEvent, ref _objectEventSequences) ? _objectEventSequences[(Int32)sceneEvent] : null;
 
-		internal Boolean IsObserving(Int32 eventIndex, ref List<ILunyScriptRunnable>[] runnables)
+		internal Boolean IsObserving(Int32 eventIndex, ref List<IScriptSequenceBlock>[] sequencesRef)
 		{
-			if (runnables == null)
+			if (sequencesRef == null)
 				return false;
 
-			var eventRunnables = runnables[eventIndex];
-			return eventRunnables != null && eventRunnables.Count > 0;
+			var eventSequences = sequencesRef[eventIndex];
+			return eventSequences != null && eventSequences.Count > 0;
 		}
 
 		internal Boolean IsObservingAnyOf(Type enumType)
@@ -82,9 +81,9 @@ namespace LunyScript.Events
 			switch (enumType)
 			{
 				case not null when enumType == typeof(LunyObjectEvent):
-					return _objectEventRunnables != null;
+					return _objectEventSequences != null;
 				case not null when enumType == typeof(LunySceneEvent):
-					return _sceneEventRunnables != null;
+					return _sceneEventSequences != null;
 
 				default:
 					throw new ArgumentOutOfRangeException(nameof(enumType), enumType?.ToString());
@@ -93,10 +92,10 @@ namespace LunyScript.Events
 
 		internal void Unschedule(LunyObjectEvent objectEvent)
 		{
-			if (_objectEventRunnables == null)
+			if (_objectEventSequences == null)
 				return;
 
-			_objectEventRunnables[(Int32)objectEvent] = null;
+			_objectEventSequences[(Int32)objectEvent] = null;
 		}
 	}
 }

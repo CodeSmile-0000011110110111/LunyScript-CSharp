@@ -1,5 +1,6 @@
 using Luny;
 using Luny.Engine.Bridge.Enums;
+using LunyScript.Blocks;
 using LunyScript.Exceptions;
 using LunyScript.Execution;
 using System;
@@ -49,9 +50,9 @@ namespace LunyScript.Events
 		{
 			if (context.LunyObject.IsEnabled)
 			{
-				var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnFixedStep);
-				if (runnables != null)
-					LunyScriptRunner.Run(runnables, context);
+				var sequences = context.Scheduler.GetSequences(LunyObjectEvent.OnFixedStep);
+				if (sequences != null)
+					LunyScriptRunner.Run(sequences, context);
 			}
 		}
 
@@ -59,9 +60,9 @@ namespace LunyScript.Events
 		{
 			if (context.LunyObject.IsEnabled)
 			{
-				var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnUpdate);
-				if (runnables != null)
-					LunyScriptRunner.Run(runnables, context);
+				var sequences = context.Scheduler.GetSequences(LunyObjectEvent.OnUpdate);
+				if (sequences != null)
+					LunyScriptRunner.Run(sequences, context);
 
 				OnIntervalUpdate(deltaTime, context);
 			}
@@ -73,7 +74,7 @@ namespace LunyScript.Events
 			if (!lunyObject.IsEnabled)
 				return;
 
-			var intervals = context.Scheduler.IntervalRunnables;
+			var intervals = context.Scheduler.IntervalSequences;
 			if (intervals == null || intervals.Count == 0)
 				return;
 
@@ -102,9 +103,9 @@ namespace LunyScript.Events
 		{
 			if (context.LunyObject.IsEnabled)
 			{
-				var runnables = context.Scheduler.GetScheduled(LunyObjectEvent.OnLateUpdate);
-				if (runnables != null)
-					LunyScriptRunner.Run(runnables, context);
+				var sequences = context.Scheduler.GetSequences(LunyObjectEvent.OnLateUpdate);
+				if (sequences != null)
+					LunyScriptRunner.Run(sequences, context);
 			}
 		}
 
@@ -152,11 +153,11 @@ namespace LunyScript.Events
 
 			private void RunScheduledForEvent(LunyObjectEvent objectEvent)
 			{
-				var runnables = _context.Scheduler.GetScheduled(objectEvent);
-				if (runnables != null)
+				var sequences = _context.Scheduler.GetSequences(objectEvent);
+				if (sequences != null)
 				{
 					LunyLogger.LogInfo($"Running {nameof(objectEvent)}: {_context} ...", _objectEventHandler);
-					LunyScriptRunner.Run(runnables, _context);
+					LunyScriptRunner.Run(sequences, _context);
 				}
 			}
 

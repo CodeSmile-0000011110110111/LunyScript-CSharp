@@ -1,9 +1,9 @@
 using Luny;
 using Luny.Engine;
 using Luny.Engine.Bridge;
+using LunyScript.Blocks;
 using LunyScript.Diagnostics;
 using LunyScript.Events;
-using LunyScript.Runnables;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -30,36 +30,36 @@ namespace LunyScript.Execution
 		internal LunyScriptObjectEventHandler ObjectEventHandler => _objectEventHandler;
 		internal LunyScriptSceneEventHandler SceneEventHandler => _sceneEventHandler;
 
-		internal static void Run(IEnumerable<ILunyScriptRunnable> runnables, LunyScriptContext context)
+		internal static void Run(IEnumerable<IScriptSequenceBlock> sequences, LunyScriptContext context)
 		{
-			foreach (var runnable in runnables)
-				Run(runnable, context);
+			foreach (var sequence in sequences)
+				Run(sequence, context);
 		}
 
-		private static void Run(ILunyScriptRunnable lunyScriptRunnable, LunyScriptContext context)
+		private static void Run(IScriptSequenceBlock sequence, LunyScriptContext context)
 		{
 			// TODO: avoid profiling overhead when not enabled
 			var timeService = LunyEngine.Instance.Time;
-			var blockType = lunyScriptRunnable.GetType();
+			var blockType = sequence.GetType();
 			var trace = new LunyScriptExecutionTrace
 			{
 				FrameCount = timeService?.FrameCount ?? -1,
 				ElapsedSeconds = timeService?.ElapsedSeconds ?? -1.0,
-				LunyScriptRunID = lunyScriptRunnable.ID,
+				LunyScriptRunID = sequence.ID,
 				BlockType = blockType,
-				BlockDescription = lunyScriptRunnable.ToString(),
+				BlockDescription = sequence.ToString(),
 			};
 
 			context.DebugHooks.NotifyBlockExecute(trace);
-			context.BlockProfiler.BeginBlock(lunyScriptRunnable.ID);
+			context.BlockProfiler.BeginBlock(sequence.ID);
 
 			try
 			{
-				lunyScriptRunnable.Execute(context);
+				sequence.Execute(context);
 			}
 			catch (Exception ex)
 			{
-				context.BlockProfiler.RecordError(lunyScriptRunnable.ID, ex);
+				context.BlockProfiler.RecordError(sequence.ID, ex);
 				trace.Error = ex;
 				context.DebugHooks.NotifyBlockError(trace);
 				//LunyLogger.LogError(ex.ToString(), context);
@@ -67,7 +67,7 @@ namespace LunyScript.Execution
 			}
 			finally
 			{
-				context.BlockProfiler.EndBlock(lunyScriptRunnable.ID, blockType);
+				context.BlockProfiler.EndBlock(sequence.ID, blockType);
 				context.DebugHooks.NotifyBlockComplete(trace);
 			}
 		}

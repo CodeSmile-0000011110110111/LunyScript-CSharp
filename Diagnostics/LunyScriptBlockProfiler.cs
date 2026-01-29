@@ -7,7 +7,7 @@ namespace LunyScript.Diagnostics
 {
 	/// <summary>
 	/// Concrete implementation of block-level profiling for LunyScript execution.
-	/// Tracks execution time for each runnable/block with configurable rolling average.
+	/// Tracks execution time for each sequence/block with configurable rolling average.
 	/// Public methods use [Conditional] attributes - completely stripped in release builds unless DEBUG or LUNYSCRIPT_DEBUG defined.
 	/// </summary>
 	public sealed class LunyScriptBlockProfiler

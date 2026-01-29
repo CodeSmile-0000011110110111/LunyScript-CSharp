@@ -3,7 +3,7 @@ using System;
 namespace LunyScript
 {
 	/// <summary>
-	/// Unique identifier for a runnable sequence/FSM/BT instance.
+	/// Unique identifier for a Sequence/FSM/BT instance.
 	/// Sequential integers for deterministic ordering and debugging.
 	/// </summary>
 	public readonly struct LunyScriptRunID : IEquatable<LunyScriptRunID>, IComparable<LunyScriptRunID>

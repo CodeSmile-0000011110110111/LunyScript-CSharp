@@ -1,7 +1,6 @@
 ﻿using Luny.Engine.Bridge.Enums;
 using LunyScript.Blocks;
 using LunyScript.Events;
-using LunyScript.Runnables;
 using System;
 
 namespace LunyScript
@@ -75,7 +74,7 @@ namespace LunyScript
 				/// </summary>
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
-				public ILunyScriptRunnable Created(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Created(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnCreate);
 
 				/// <summary>
@@ -83,7 +82,7 @@ namespace LunyScript
 				/// </summary>
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
-				public ILunyScriptRunnable Destroyed(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Destroyed(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnDestroy);
 
 				/// <summary>
@@ -92,7 +91,7 @@ namespace LunyScript
 				/// </summary>
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
-				public ILunyScriptRunnable Enabled(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Enabled(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnEnable);
 
 				/// <summary>
@@ -101,7 +100,7 @@ namespace LunyScript
 				/// </summary>
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
-				public ILunyScriptRunnable Disabled(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Disabled(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnDisable);
 
 				/// <summary>
@@ -110,7 +109,7 @@ namespace LunyScript
 				/// </summary>
 				/// <param name="blocks"></param>
 				/// <exception cref="NotImplementedException"></exception>
-				public ILunyScriptRunnable Ready(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Ready(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnReady);
 
 				/// <summary>
@@ -120,21 +119,21 @@ namespace LunyScript
 				/// It's therefore unsuitable for once-only events, such as Input.
 				/// </summary>
 				/// <param name="blocks"></param>
-				public ILunyScriptRunnable Steps(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Steps(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnFixedStep);
 
 				/// <summary>
 				/// Runs every frame while object is enabled.
 				/// </summary>
 				/// <param name="blocks"></param>
-				public ILunyScriptRunnable Updates(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Updates(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnUpdate);
 
 				/// <summary>
 				/// Runs after frame update while object is enabled.
 				/// </summary>
 				/// <param name="blocks"></param>
-				public ILunyScriptRunnable LateUpdates(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock LateUpdates(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnLateUpdate);
 			}
 
@@ -152,7 +151,7 @@ namespace LunyScript
 				/// </summary>
 				/// <param name="blocks"></param>
 				/// <returns></returns>
-				public ILunyScriptRunnable Loads(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Loads(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunySceneEvent.OnSceneLoaded);
 
 				/// <summary>
@@ -162,7 +161,7 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				/// <returns></returns>
 				/// <exception cref="NotImplementedException"></exception>
-				public ILunyScriptRunnable Loads(String sceneName, params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Loads(String sceneName, params IScriptActionBlock[] blocks) =>
 					throw new NotImplementedException(nameof(Loads));
 
 				/// <summary>
@@ -170,7 +169,7 @@ namespace LunyScript
 				/// </summary>
 				/// <param name="blocks"></param>
 				/// <returns></returns>
-				public ILunyScriptRunnable Unloads(params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Unloads(params IScriptActionBlock[] blocks) =>
 					Scheduler?.ScheduleSequence(blocks, LunySceneEvent.OnSceneUnloaded);
 
 				/// <summary>
@@ -180,7 +179,7 @@ namespace LunyScript
 				/// <param name="blocks"></param>
 				/// <returns></returns>
 				/// <exception cref="NotImplementedException"></exception>
-				public ILunyScriptRunnable Unloads(String sceneName, params IScriptActionBlock[] blocks) =>
+				public IScriptSequenceBlock Unloads(String sceneName, params IScriptActionBlock[] blocks) =>
 					throw new NotImplementedException(nameof(Unloads));
 			}
 		}

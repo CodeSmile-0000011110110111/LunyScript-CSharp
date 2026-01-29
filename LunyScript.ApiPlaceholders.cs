@@ -1,6 +1,6 @@
-﻿namespace ILunyScript
+﻿namespace LunyScript
 {
-	public abstract partial class ILunyScript
+	public abstract partial class LunyScript
 	{
 		// these API outlines exist to get a feel for the intellisense/autocompletion behaviour ...
 

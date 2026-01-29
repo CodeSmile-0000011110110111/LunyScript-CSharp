@@ -1,20 +1,19 @@
-using LunyScript.Blocks;
 using LunyScript.Execution;
 using System;
 using System.Collections.Generic;
 
-namespace LunyScript.Runnables
+namespace LunyScript.Blocks
 {
 	/// <summary>
 	/// Executes child blocks in sequential order.
 	/// </summary>
-	public sealed class LunyScriptBlockSequence : ILunyScriptRunnable
+	public sealed class SequenceBlock : IScriptSequenceBlock
 	{
 		public LunyScriptRunID ID { get; }
 		public IReadOnlyList<IScriptActionBlock> Blocks { get; }
 		public Boolean IsEmpty => Blocks.Count == 0;
 
-		public LunyScriptBlockSequence(IReadOnlyList<IScriptActionBlock> blocks)
+		public SequenceBlock(IReadOnlyList<IScriptActionBlock> blocks)
 		{
 			if (blocks == null || blocks.Count == 0)
 				throw new ArgumentException("Sequence must contain at least one block", nameof(blocks));

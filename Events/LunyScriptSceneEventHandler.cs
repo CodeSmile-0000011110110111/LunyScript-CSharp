@@ -49,11 +49,11 @@ namespace LunyScript.Events
 		private void TryRunForEvent(LunyObjectID subscriberID, LunySceneEvent sceneEvent)
 		{
 			var context = _contexts.GetByLunyObjectID(subscriberID);
-			var runnables = context?.Scheduler?.GetScheduled(sceneEvent);
-			if (runnables != null)
+			var sequences = context?.Scheduler?.GetSequences(sceneEvent);
+			if (sequences != null)
 			{
 				LunyLogger.LogInfo($"Running {nameof(sceneEvent)} for {context}", this);
-				LunyScriptRunner.Run(runnables, context);
+				LunyScriptRunner.Run(sequences, context);
 			}
 		}
 
