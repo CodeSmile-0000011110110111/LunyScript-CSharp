@@ -9,32 +9,35 @@ namespace LunyScript
 		/// Provides diagnostics blocks which are omitted from release builds,
 		/// unless the scripting symbol LUNYSCRIPT_DEBUG is defined.
 		/// </summary>
-		public static class Debug
+		public readonly struct DebugApi
 		{
+			private readonly ILunyScript _script;
+			internal DebugApi(ILunyScript script) => _script = script;
+
 			/// <summary>
 			/// Logs a debug message that is completely stripped in release builds.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 			/// </summary>
-			public static ILunyScriptBlock LogInfo(String message) => DebugLogInfoBlock.Create(message);
+			public ILunyScriptBlock LogInfo(String message) => DebugLogInfoBlock.Create(message);
 
 			/// <summary>
 			/// Logs a debug "warning" (yellow text) message.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
 			/// </summary>
-			public static ILunyScriptBlock LogWarning(String message) => DebugLogWarningBlock.Create(message);
+			public ILunyScriptBlock LogWarning(String message) => DebugLogWarningBlock.Create(message);
 
 			/// <summary>
 			/// Logs a debug "error" (red text) message.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
 			/// </summary>
-			public static ILunyScriptBlock LogError(String message) => DebugLogErrorBlock.Create(message);
+			public ILunyScriptBlock LogError(String message) => DebugLogErrorBlock.Create(message);
 
 			/// <summary>
 			/// Triggers a debugger breakpoint if debugger is attached by calling System.Diagnostics.Debugger.Break().
 			/// Completely stripped in release builds.
 			/// Only breaks when DEBUG or LUNYSCRIPT_DEBUG is defined.
 			/// </summary>
-			public static ILunyScriptBlock Break(String message = null) => DebugBreakBlock.Create(message);
+			public ILunyScriptBlock Break(String message = null) => DebugBreakBlock.Create(message);
 		}
 	}
 }

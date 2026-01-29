@@ -1,5 +1,6 @@
 using Luny;
 using Luny.Engine.Bridge;
+using LunyScript.Events;
 using LunyScript.Execution;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -13,6 +14,11 @@ namespace LunyScript
 		ITable GlobalVars { get; }
 		ITable LocalVars { get; }
 		Boolean IsEditor { get; }
+	}
+
+	internal interface ILunyScriptInternal
+	{
+		LunyScriptEventScheduler Scheduler { get; }
 	}
 
 	/// <summary>
@@ -32,11 +38,8 @@ namespace LunyScript
 	///			}
 	///		}
 	/// </remarks>
-	public abstract partial class LunyScript : ILunyScript
+	public abstract partial class LunyScript : ILunyScript, ILunyScriptInternal
 	{
-		// temporary 'singleton' for static subclasses
-		private static LunyScript s_Instance;
-
 		private ILunyScriptContext _context;
 
 		/// <summary>
@@ -71,15 +74,26 @@ namespace LunyScript
 		/// </summary>
 		public Boolean IsEditor => LunyEngine.Instance.Application.IsEditor;
 
-		internal void Initialize(ILunyScriptContext context)
-		{
-			s_Instance = this;
-			_context = context ?? throw new ArgumentNullException(nameof(context));
-		}
+		LunyScriptEventScheduler ILunyScriptInternal.Scheduler => _context is LunyScriptContext context ? context.Scheduler : null;
+
+		// API properties
+		public DebugApi Debug => new(this);
+		public EditorApi Editor => new(this);
+		public EngineApi Engine => new(this);
+		public MethodApi Method => new(this);
+		public ObjectApi Object => new(this);
+		public PrefabApi Prefab => new(this);
+		public SceneApi Scene => new(this);
+		public WhenApi When => new(this);
+
+		internal void Initialize(ILunyScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
 		~LunyScript() => LunyTraceLogger.LogInfoFinalized(this);
 
-		internal void Destroy() => s_Instance = null; // temp singleton no longer needed
+		internal void Destroy()
+		{
+			// cleanup if necessary
+		}
 
 		/// <summary>
 		/// Called once when the script is initialized.
@@ -87,7 +101,5 @@ namespace LunyScript
 		/// Users can use regular C# syntax (ie call methods, use loops) to construct complex and/or reusable blocks.
 		/// </summary>
 		public abstract void Build();
-
-		public static partial class Method {}
 	}
 }

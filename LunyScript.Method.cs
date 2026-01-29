@@ -6,14 +6,17 @@ namespace LunyScript
 {
 	public abstract partial class LunyScript
 	{
-		public static partial class Method
+		public readonly struct MethodApi
 		{
+			private readonly ILunyScript _script;
+			internal MethodApi(ILunyScript script) => _script = script;
+
 			/// <summary>
 			/// Run overload whose method/lambda receives the ILunyScriptContext instance.
 			/// </summary>
 			/// <param name="action"></param>
 			/// <returns></returns>
-			public static ILunyScriptBlock Run(Action<ILunyScriptContext> action) => RunActionBlock.Create(action);
+			public ILunyScriptBlock Run(Action<ILunyScriptContext> action) => RunActionBlock.Create(action);
 
 			/// <summary>
 			/// Runs the contained method/lambda when this block executes.
@@ -55,7 +58,7 @@ namespace LunyScript
 			/// </remarks>
 			/// <param name="action"></param>
 			/// <returns></returns>
-			public static ILunyScriptBlock Run(Action action) => RunActionBlock.Create(_ => action());
+			public ILunyScriptBlock Run(Action action) => RunActionBlock.Create(_ => action());
 		}
 	}
 }

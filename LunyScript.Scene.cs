@@ -7,9 +7,12 @@ namespace LunyScript
 		/// <summary>
 		/// Provides operations for managing Scenes and accessing the scene hierarchy.
 		/// </summary>
-		public static class Scene
+		public readonly struct SceneApi
 		{
-			public static ILunyScriptBlock Reload() => SceneReloadBlock.Create();
+			private readonly ILunyScript _script;
+			internal SceneApi(ILunyScript script) => _script = script;
+
+			public ILunyScriptBlock Reload() => SceneReloadBlock.Create();
 		}
 	}
 }
