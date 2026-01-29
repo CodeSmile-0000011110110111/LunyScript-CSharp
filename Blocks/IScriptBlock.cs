@@ -1,3 +1,4 @@
+using Luny;
 using LunyScript.Execution;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,14 @@ namespace LunyScript.Blocks
 	public interface IScriptConditionBlock : IScriptBlock
 	{
 		Boolean Evaluate(ILunyScriptContext context);
+	}
+
+	/// <summary>
+	/// Interface for blocks that evaluate to a runtime Variable value.
+	/// </summary>
+	public interface IScriptValue : IScriptBlock
+	{
+		Variable Evaluate(ILunyScriptContext context);
 	}
 
 	/// <summary>

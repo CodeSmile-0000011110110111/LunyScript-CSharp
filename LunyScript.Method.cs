@@ -59,6 +59,20 @@ namespace LunyScript
 			/// <param name="action"></param>
 			/// <returns></returns>
 			public IScriptActionBlock Run(Action action) => RunActionBlock.Create(_ => action());
+
+			/// <summary>
+			/// Check overload whose method/lambda receives the ILunyScriptContext instance.
+			/// </summary>
+			/// <param name="func"></param>
+			/// <returns></returns>
+			public IScriptConditionBlock Check(Func<ILunyScriptContext, Boolean> func) => CheckConditionBlock.Create(func);
+
+			/// <summary>
+			/// Checks the contained method/lambda when this block executes.
+			/// </summary>
+			/// <param name="func"></param>
+			/// <returns></returns>
+			public IScriptConditionBlock Check(Func<Boolean> func) => CheckConditionBlock.Create(_ => func());
 		}
 	}
 }

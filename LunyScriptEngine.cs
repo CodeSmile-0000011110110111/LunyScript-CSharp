@@ -25,6 +25,12 @@ namespace LunyScript
 		public ITable GlobalVars => LunyScriptContext.GetGlobalVariables();
 		public ITable GVars => LunyScriptContext.GetGlobalVariables();
 
+		/// <summary>
+		/// Maximum allowed iterations for While/For loops to prevent engine hangs.
+		/// Only active in DEBUG or UNITY_EDITOR builds.
+		/// </summary>
+		public static Int32 MaxLoopIterations => 1000000;
+
 		internal static void ForceReset_UnitTestsOnly()
 		{
 			Instance = null;
