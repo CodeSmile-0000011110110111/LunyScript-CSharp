@@ -8,10 +8,10 @@ namespace LunyScript.Blocks
 	/// Useful for quick tests and one-off logic.
 	/// Prefer writing custom IBlock implementations for cleaner code and best reusability.
 	/// </summary>
-	internal sealed class RunActionBlock : ILunyScriptBlock
+	internal sealed class RunActionBlock : IScriptActionBlock
 	{
 		private readonly Action<ILunyScriptContext> _action;
-		public static ILunyScriptBlock Create(Action<ILunyScriptContext> action) => new RunActionBlock(action);
+		public static IScriptActionBlock Create(Action<ILunyScriptContext> action) => new RunActionBlock(action);
 
 		private RunActionBlock(Action<ILunyScriptContext> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
 

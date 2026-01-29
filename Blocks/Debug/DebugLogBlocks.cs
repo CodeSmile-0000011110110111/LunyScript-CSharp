@@ -8,7 +8,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Debug-only logging block base class.
 	/// </summary>
-	internal class DebugLogBlockBase : ILunyScriptBlock
+	internal class DebugLogBlockBase : IScriptActionBlock
 	{
 		protected String _message;
 		private LogLevel _logLevel;
@@ -53,7 +53,7 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DebugLogInfoBlock : DebugLogBlockBase
 	{
-		public static ILunyScriptBlock Create(String message)
+		public static IScriptActionBlock Create(String message)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			return new DebugLogInfoBlock(message);
@@ -72,7 +72,7 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DebugLogWarningBlock : DebugLogBlockBase
 	{
-		public static ILunyScriptBlock Create(String message)
+		public static IScriptActionBlock Create(String message)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			return new DebugLogWarningBlock(message);
@@ -91,7 +91,7 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class DebugLogErrorBlock : DebugLogBlockBase
 	{
-		public static ILunyScriptBlock Create(String message)
+		public static IScriptActionBlock Create(String message)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			return new DebugLogErrorBlock(message);

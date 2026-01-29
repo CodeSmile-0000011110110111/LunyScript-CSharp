@@ -3,9 +3,9 @@ using LunyScript.Execution;
 
 namespace LunyScript.Blocks
 {
-	internal sealed class SceneReloadBlock : ILunyScriptBlock
+	internal sealed class SceneReloadBlock : IScriptActionBlock
 	{
-		public static ILunyScriptBlock Create() => new SceneReloadBlock();
+		public static IScriptActionBlock Create() => new SceneReloadBlock();
 
 		private SceneReloadBlock() {}
 

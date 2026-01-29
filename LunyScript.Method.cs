@@ -16,7 +16,7 @@ namespace LunyScript
 			/// </summary>
 			/// <param name="action"></param>
 			/// <returns></returns>
-			public ILunyScriptBlock Run(Action<ILunyScriptContext> action) => RunActionBlock.Create(action);
+			public IScriptActionBlock Run(Action<ILunyScriptContext> action) => RunActionBlock.Create(action);
 
 			/// <summary>
 			/// Runs the contained method/lambda when this block executes.
@@ -58,7 +58,7 @@ namespace LunyScript
 			/// </remarks>
 			/// <param name="action"></param>
 			/// <returns></returns>
-			public ILunyScriptBlock Run(Action action) => RunActionBlock.Create(_ => action());
+			public IScriptActionBlock Run(Action action) => RunActionBlock.Create(_ => action());
 		}
 	}
 }

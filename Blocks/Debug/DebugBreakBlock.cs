@@ -9,11 +9,11 @@ namespace LunyScript.Blocks
 	/// Debug-only block that triggers a breakpoint when hit.
 	/// Completely stripped in release builds unless DEBUG or LUNYSCRIPT_DEBUG defined.
 	/// </summary>
-	internal sealed class DebugBreakBlock : ILunyScriptBlock
+	internal sealed class DebugBreakBlock : IScriptActionBlock
 	{
 		private readonly String _message;
 
-		public static ILunyScriptBlock Create(String message) => new DebugBreakBlock(message);
+		public static IScriptActionBlock Create(String message) => new DebugBreakBlock(message);
 
 		private DebugBreakBlock() {}
 		private DebugBreakBlock(String message = null) => _message = message;

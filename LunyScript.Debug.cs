@@ -18,26 +18,26 @@ namespace LunyScript
 			/// Logs a debug message that is completely stripped in release builds.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 			/// </summary>
-			public ILunyScriptBlock LogInfo(String message) => DebugLogInfoBlock.Create(message);
+			public IScriptActionBlock LogInfo(String message) => DebugLogInfoBlock.Create(message);
 
 			/// <summary>
 			/// Logs a debug "warning" (yellow text) message.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
 			/// </summary>
-			public ILunyScriptBlock LogWarning(String message) => DebugLogWarningBlock.Create(message);
+			public IScriptActionBlock LogWarning(String message) => DebugLogWarningBlock.Create(message);
 
 			/// <summary>
 			/// Logs a debug "error" (red text) message.
 			/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined, stripped in release builds.
 			/// </summary>
-			public ILunyScriptBlock LogError(String message) => DebugLogErrorBlock.Create(message);
+			public IScriptActionBlock LogError(String message) => DebugLogErrorBlock.Create(message);
 
 			/// <summary>
 			/// Triggers a debugger breakpoint if debugger is attached by calling System.Diagnostics.Debugger.Break().
 			/// Completely stripped in release builds.
 			/// Only breaks when DEBUG or LUNYSCRIPT_DEBUG is defined.
 			/// </summary>
-			public ILunyScriptBlock Break(String message = null) => DebugBreakBlock.Create(message);
+			public IScriptActionBlock Break(String message = null) => DebugBreakBlock.Create(message);
 		}
 	}
 }

@@ -3,20 +3,20 @@ using System;
 
 namespace LunyScript.Blocks
 {
-	internal sealed class ObjectEnableSelfBlock : ILunyScriptBlock
+	internal sealed class ObjectEnableSelfBlock : IScriptActionBlock
 	{
-		public static ILunyScriptBlock Create() => new ObjectEnableSelfBlock();
+		public static IScriptActionBlock Create() => new ObjectEnableSelfBlock();
 
 		private ObjectEnableSelfBlock() {}
 
 		public void Execute(ILunyScriptContext context) => context.LunyObject.IsEnabled = true;
 	}
 
-	internal sealed class ObjectEnableTargetBlock : ILunyScriptBlock
+	internal sealed class ObjectEnableTargetBlock : IScriptActionBlock
 	{
 		private readonly String _name;
 
-		public static ILunyScriptBlock Create(String name) => new ObjectEnableTargetBlock(name);
+		public static IScriptActionBlock Create(String name) => new ObjectEnableTargetBlock(name);
 
 		private ObjectEnableTargetBlock(String name) => _name = name;
 

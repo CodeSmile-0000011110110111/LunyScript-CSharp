@@ -23,9 +23,9 @@ namespace LunyScript.Events
 
 		//~LunyScriptEventScheduler() => LunyTraceLogger.LogInfoFinalized(this);
 
-		private static Boolean HasBlocks(IReadOnlyList<ILunyScriptBlock> blocks) => blocks?.Count > 0;
+		private static Boolean HasBlocks(IReadOnlyList<IScriptActionBlock> blocks) => blocks?.Count > 0;
 
-		private static ILunyScriptRunnable CreateSequence(IReadOnlyList<ILunyScriptBlock> blocks) =>
+		private static ILunyScriptRunnable CreateSequence(IReadOnlyList<IScriptActionBlock> blocks) =>
 			HasBlocks(blocks) ? new LunyScriptBlockSequence(blocks) : null;
 
 		private static ILunyScriptRunnable ScheduleRunnable(ref List<ILunyScriptRunnable>[] runnablesRef, ILunyScriptRunnable runnable,
@@ -41,13 +41,13 @@ namespace LunyScript.Events
 			return runnable;
 		}
 
-		internal ILunyScriptRunnable ScheduleSequence(ILunyScriptBlock[] blocks, LunyObjectEvent objectEvent) =>
+		internal ILunyScriptRunnable ScheduleSequence(IScriptActionBlock[] blocks, LunyObjectEvent objectEvent) =>
 			ScheduleRunnable(ref _objectEventRunnables, CreateSequence(blocks), (Int32)objectEvent, s_ObjectEventCount);
 
-		internal ILunyScriptRunnable ScheduleSequence(ILunyScriptBlock[] blocks, LunySceneEvent sceneEvent) =>
+		internal ILunyScriptRunnable ScheduleSequence(IScriptActionBlock[] blocks, LunySceneEvent sceneEvent) =>
 			ScheduleRunnable(ref _sceneEventRunnables, CreateSequence(blocks), (Int32)sceneEvent, s_SceneEventCount);
 
-		internal ILunyScriptRunnable ScheduleSequence(ILunyScriptBlock[] blocks, TimeSpan timeSpan)
+		internal ILunyScriptRunnable ScheduleSequence(IScriptActionBlock[] blocks, TimeSpan timeSpan)
 		{
 			var runnable = CreateSequence(blocks);
 			if (runnable != null && !runnable.IsEmpty)
