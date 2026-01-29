@@ -27,11 +27,11 @@ namespace LunyScript.Blocks
 	}
 
 	/// <summary>
-	/// Interface for blocks that evaluate to a runtime Variable value.
+	/// Interface for blocks that evaluate to a runtime Variable.
 	/// </summary>
-	public interface IScriptValue : IScriptBlock
+	public interface IScriptVariable : IScriptBlock
 	{
-		Variable Evaluate(ILunyScriptContext context);
+		Variable GetValue(ILunyScriptContext context);
 	}
 
 	/// <summary>

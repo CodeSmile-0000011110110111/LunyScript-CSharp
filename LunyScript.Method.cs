@@ -12,18 +12,22 @@ namespace LunyScript
 			internal MethodApi(ILunyScript script) => _script = script;
 
 			/// <summary>
-			/// Run overload whose method/lambda receives the ILunyScriptContext instance.
+			/// Executes Action (or: method).
 			/// </summary>
+			/// <remarks>
+			/// Intended for quick prototyping and testing. Prefer to build your own IScriptBlock based API.
+			/// </remarks>
 			/// <param name="action"></param>
 			/// <returns></returns>
 			public IScriptActionBlock Run(Action<ILunyScriptContext> action) => RunActionBlock.Create(action);
 
 			/// <summary>
-			/// Runs the contained method/lambda when this block executes.
+			/// Executes Action (or: method).
 			/// </summary>
 			/// <remarks>
-			/// Intended for quick prototyping and testing only: lambdas are not reusable building blocks.
-			///
+			/// Intended for quick prototyping and testing. Prefer to build your own IScriptBlock based API.
+			/// </remarks>
+			/// <remarks>
 			/// Prefer to convert "Run" code into a custom IBlock class after its initial development and testing,
 			/// If not that, use named methods rather than lambdas - this ensures the block-based code continues to read like intent.
 			///
@@ -61,18 +65,24 @@ namespace LunyScript
 			public IScriptActionBlock Run(Action action) => RunActionBlock.Create(_ => action());
 
 			/// <summary>
-			/// Check overload whose method/lambda receives the ILunyScriptContext instance.
+			/// Condition block that runs a Func (or: method) returning bool.
 			/// </summary>
+			/// <remarks>
+			/// Intended for quick prototyping and testing. Prefer to build your own IScriptBlock based API.
+			/// </remarks>
 			/// <param name="func"></param>
 			/// <returns></returns>
-			public IScriptConditionBlock Check(Func<ILunyScriptContext, Boolean> func) => CheckConditionBlock.Create(func);
+			public IScriptConditionBlock IsTrue(Func<ILunyScriptContext, Boolean> func) => CheckConditionBlock.Create(func);
 
 			/// <summary>
-			/// Checks the contained method/lambda when this block executes.
+			/// Condition block that runs a Func (or: method) returning bool.
 			/// </summary>
+			/// <remarks>
+			/// Intended for quick prototyping and testing. Prefer to build your own IScriptBlock based API.
+			/// </remarks>
 			/// <param name="func"></param>
 			/// <returns></returns>
-			public IScriptConditionBlock Check(Func<Boolean> func) => CheckConditionBlock.Create(_ => func());
+			public IScriptConditionBlock IsTrue(Func<Boolean> func) => CheckConditionBlock.Create(_ => func());
 		}
 	}
 }
