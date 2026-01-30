@@ -80,7 +80,7 @@ namespace LunyScript.Execution
 		/// </summary>
 		internal LunyScriptEventScheduler Scheduler { get; }
 
-		internal static void ClearGlobalVariables() => s_GlobalVariables?.Clear();
+		internal static void ClearGlobalVariables() => s_GlobalVariables?.RemoveAll();
 
 		internal static ITable GetGlobalVariables() => s_GlobalVariables;
 
