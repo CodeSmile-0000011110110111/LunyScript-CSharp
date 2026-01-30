@@ -1,4 +1,5 @@
 using Luny;
+using Luny.Engine.Bridge;
 using Luny.Engine.Bridge.Enums;
 using Luny.Engine.Services;
 using LunyScript.Execution;
@@ -93,8 +94,11 @@ namespace LunyScript.Blocks
 		private ObjectCreatePrefabBlock(String prefabName)
 			: base(prefabName) {}
 
-		public override void Execute(ILunyScriptContext context) =>
-			throw new NotImplementedException($"{nameof(ObjectCreatePrefabBlock)}.{nameof(Execute)} is not yet implemented.");
+		public override void Execute(ILunyScriptContext context)
+		{
+			var prefab = LunyEngine.Instance.Asset.Load<ILunyPrefab>(Name);
+			Object.CreateFromPrefab(prefab);
+		}
 	}
 
 	internal sealed class ObjectCreateCloneBlock : ObjectCreateBlockBase

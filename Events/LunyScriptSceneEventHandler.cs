@@ -1,7 +1,7 @@
 ﻿using Luny;
 using Luny.Engine.Bridge;
 using Luny.Engine.Bridge.Enums;
-using Luny.Engine.Identity;
+using Luny.Engine.Bridge.Identity;
 using LunyScript.Execution;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
 ﻿using Luny;
-using Luny.Engine.Identity;
+using Luny.Engine;
+using Luny.Engine.Bridge.Identity;
 using LunyScript.Execution;
 using System;
 

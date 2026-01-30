@@ -1,4 +1,5 @@
 using Luny;
+using Luny.Engine;
 using Luny.Engine.Bridge;
 using LunyScript.Diagnostics;
 using LunyScript.Events;
