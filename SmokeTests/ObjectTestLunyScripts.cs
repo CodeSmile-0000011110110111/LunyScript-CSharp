@@ -17,6 +17,7 @@ namespace LunyScript.SmokeTests
 			When.Self.Ready(Object.Create(EmptyObjectName));
 			When.Self.Ready(Object.CreateCube(CubeObjectName));
 			When.Self.Ready(Object.CreateSphere(SphereObjectName));
+			When.Self.Ready(Prefab.Instantiate("TestPrefab"));
 		}
 	}
 }
