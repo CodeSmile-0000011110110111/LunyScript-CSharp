@@ -121,7 +121,9 @@ namespace LunyScript.Events
 		{
 			private readonly LunyScriptObjectEventHandler _objectEventHandler;
 			private readonly LunyScriptContext _context;
-			private Boolean _processingEnableDisable;
+#if DEBUG || LUNYSCRIPT_DEBUG
+			private Boolean _processingEnableDisableReentryLock;
+#endif
 
 			public ObjectEventSubscriber(LunyScriptObjectEventHandler objectEventHandler, LunyScriptContext context)
 			{
@@ -196,17 +198,25 @@ namespace LunyScript.Events
 			private void OnEnable()
 			{
 				ThrowIfAlreadyProcessingEnableDisableEvent(_context);
-				_processingEnableDisable = true;
+				SetProcessingEnableDisableReentryLock(true);
 				RunScheduledForEvent(LunyObjectEvent.OnEnable);
-				_processingEnableDisable = false;
+				SetProcessingEnableDisableReentryLock(false);
 			}
 
 			private void OnDisable()
 			{
 				ThrowIfAlreadyProcessingEnableDisableEvent(_context);
-				_processingEnableDisable = true;
+				SetProcessingEnableDisableReentryLock(true);
 				RunScheduledForEvent(LunyObjectEvent.OnDisable);
-				_processingEnableDisable = false;
+				SetProcessingEnableDisableReentryLock(false);
+			}
+
+			[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
+			private void SetProcessingEnableDisableReentryLock(Boolean locked)
+			{
+#if DEBUG || LUNYSCRIPT_DEBUG
+				_processingEnableDisableReentryLock = locked;
+#endif
 			}
 
 			[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
@@ -214,7 +224,7 @@ namespace LunyScript.Events
 			{
 #if DEBUG || LUNYSCRIPT_DEBUG
 				// Safeguard against infinite loops (OnEnable toggles to disabled, which triggers OnDisable, etc.)
-				if (_processingEnableDisable)
+				if (_processingEnableDisableReentryLock)
 				{
 					throw new LunyScriptException("Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed " +
 					                              $"(would cause an infinite loop). Script: {context}");

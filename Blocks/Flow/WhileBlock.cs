@@ -44,7 +44,10 @@ namespace LunyScript.Blocks
 
 		public void Execute(ILunyScriptContext context)
 		{
+#if DEBUG || UNITY_EDITOR
 			var iterations = 0;
+#endif
+
 			var limit = LunyScriptEngine.MaxLoopIterations;
 
 			while (EvaluateAll(context))
