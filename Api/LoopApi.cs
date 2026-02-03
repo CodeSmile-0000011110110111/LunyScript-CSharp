@@ -1,6 +1,6 @@
 using LunyScript.Blocks;
 
-namespace LunyScript
+namespace LunyScript.Api
 {
 	public readonly struct LoopApi
 	{

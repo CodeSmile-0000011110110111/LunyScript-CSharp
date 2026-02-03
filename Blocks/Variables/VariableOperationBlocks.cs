@@ -4,19 +4,19 @@ using System;
 
 namespace LunyScript.Blocks
 {
-	internal abstract class ArithmeticVariableBlockBase
+	internal abstract class VariableOperationBlockBase
 	{
 		protected readonly Table.VarHandle _handle;
 		protected readonly IScriptVariable _value;
 
-		protected ArithmeticVariableBlockBase(Table.VarHandle handle, IScriptVariable value)
+		protected VariableOperationBlockBase(Table.VarHandle handle, IScriptVariable value)
 		{
 			_handle = handle;
 			_value = value;
 		}
 	}
 
-	internal sealed class AddVariableBlock : ArithmeticVariableBlockBase, IScriptActionBlock, IScriptVariable
+	internal sealed class AddVariableBlock : VariableOperationBlockBase, IScriptActionBlock, IScriptVariable
 	{
 		public static AddVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
 
@@ -28,7 +28,7 @@ namespace LunyScript.Blocks
 		public Variable GetValue(ILunyScriptContext context) => _handle.Value + (Double)_value.GetValue(context);
 	}
 
-	internal sealed class SubtractVariableBlock : ArithmeticVariableBlockBase, IScriptActionBlock, IScriptVariable
+	internal sealed class SubtractVariableBlock : VariableOperationBlockBase, IScriptActionBlock, IScriptVariable
 	{
 		public static SubtractVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
 
@@ -40,7 +40,7 @@ namespace LunyScript.Blocks
 		public Variable GetValue(ILunyScriptContext context) => _handle.Value - (Double)_value.GetValue(context);
 	}
 
-	internal sealed class MultiplyVariableBlock : ArithmeticVariableBlockBase, IScriptActionBlock, IScriptVariable
+	internal sealed class MultiplyVariableBlock : VariableOperationBlockBase, IScriptActionBlock, IScriptVariable
 	{
 		public static MultiplyVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
 
@@ -52,7 +52,7 @@ namespace LunyScript.Blocks
 		public Variable GetValue(ILunyScriptContext context) => _handle.Value * (Double)_value.GetValue(context);
 	}
 
-	internal sealed class DivideVariableBlock : ArithmeticVariableBlockBase, IScriptActionBlock, IScriptVariable
+	internal sealed class DivideVariableBlock : VariableOperationBlockBase, IScriptActionBlock, IScriptVariable
 	{
 		public static DivideVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
 

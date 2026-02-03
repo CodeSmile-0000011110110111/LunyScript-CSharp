@@ -1,7 +1,7 @@
 using LunyScript.Blocks;
 using System;
 
-namespace LunyScript
+namespace LunyScript.Api
 {
 	public readonly struct EngineApi
 	{

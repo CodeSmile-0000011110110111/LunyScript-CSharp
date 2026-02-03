@@ -1,9 +1,8 @@
 using Luny;
 using LunyScript.Blocks;
-using LunyScript.Execution;
 using System;
 
-namespace LunyScript
+namespace LunyScript.Api
 {
 	public readonly struct VarApi
 	{

@@ -1,5 +1,6 @@
 using Luny;
 using Luny.Engine.Bridge;
+using LunyScript.Api;
 using LunyScript.Blocks;
 using LunyScript.Events;
 using LunyScript.Execution;

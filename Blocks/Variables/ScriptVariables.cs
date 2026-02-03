@@ -98,41 +98,41 @@ namespace LunyScript.Blocks
 		public IScriptActionBlock Toggle() => ToggleVariableBlock.Create(_handle);
 
 		// Conditions
-		public IScriptConditionBlock IsTrue() => VariableConditionBlock.Create(_handle, VariableComparison.IsTrue);
-		public IScriptConditionBlock IsFalse() => VariableConditionBlock.Create(_handle, VariableComparison.IsFalse);
+		public IScriptConditionBlock IsTrue() => IsVariableTrueBlock.Create(_handle);
+		public IScriptConditionBlock IsFalse() => IsVariableFalseBlock.Create(_handle);
 
 		public IScriptConditionBlock IsEqual(Variable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.Equal, Constant.Create(value));
+			IsVariableEqualToBlock.Create(_handle, Constant.Create(value));
 
-		public IScriptConditionBlock IsEqual(IScriptVariable value) => VariableConditionBlock.Create(_handle, VariableComparison.Equal, value);
+		public IScriptConditionBlock IsEqual(IScriptVariable value) => IsVariableEqualToBlock.Create(_handle, value);
 
 		public IScriptConditionBlock IsNotEqual(Variable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.NotEqual, Constant.Create(value));
+			IsVariableNotEqualToBlock.Create(_handle, Constant.Create(value));
 
 		public IScriptConditionBlock IsNotEqual(IScriptVariable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.NotEqual, value);
+			IsVariableNotEqualToBlock.Create(_handle, value);
 
 		public IScriptConditionBlock IsGreater(Variable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.Greater, Constant.Create(value));
+			IsVariableGreaterThanBlock.Create(_handle, Constant.Create(value));
 
 		public IScriptConditionBlock IsGreater(IScriptVariable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.Greater, value);
+			IsVariableGreaterThanBlock.Create(_handle, value);
 
 		public IScriptConditionBlock IsGreaterOrEqual(Variable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.GreaterOrEqual, Constant.Create(value));
+			IsVariableGreaterOrEqualThanBlock.Create(_handle, Constant.Create(value));
 
 		public IScriptConditionBlock IsGreaterOrEqual(IScriptVariable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.GreaterOrEqual, value);
+			IsVariableGreaterOrEqualThanBlock.Create(_handle, value);
 
 		public IScriptConditionBlock IsLess(Variable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.Less, Constant.Create(value));
+			IsVariableLessThanBlock.Create(_handle, Constant.Create(value));
 
-		public IScriptConditionBlock IsLess(IScriptVariable value) => VariableConditionBlock.Create(_handle, VariableComparison.Less, value);
+		public IScriptConditionBlock IsLess(IScriptVariable value) => IsVariableLessThanBlock.Create(_handle, value);
 
 		public IScriptConditionBlock IsLessOrEqual(Variable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.LessOrEqual, Constant.Create(value));
+			IsVariableLessOrEqualThanBlock.Create(_handle, Constant.Create(value));
 
 		public IScriptConditionBlock IsLessOrEqual(IScriptVariable value) =>
-			VariableConditionBlock.Create(_handle, VariableComparison.LessOrEqual, value);
+			IsVariableLessOrEqualThanBlock.Create(_handle, value);
 	}
 }

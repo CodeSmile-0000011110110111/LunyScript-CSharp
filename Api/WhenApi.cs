@@ -3,7 +3,7 @@ using LunyScript.Blocks;
 using LunyScript.Events;
 using System;
 
-namespace LunyScript
+namespace LunyScript.Api
 {
 	/// <summary>
 	/// Handles infrequent events, ie Lifecycle, Input, Collision, Messages.
