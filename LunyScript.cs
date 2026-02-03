@@ -1,6 +1,6 @@
 using Luny;
-using Luny.Engine;
 using Luny.Engine.Bridge;
+using LunyScript.Blocks;
 using LunyScript.Events;
 using LunyScript.Execution;
 using System;
@@ -15,6 +15,18 @@ namespace LunyScript
 		ITable GlobalVars { get; }
 		ITable LocalVars { get; }
 		Boolean IsEditor { get; }
+
+		DebugApi Debug { get; }
+		EditorApi Editor { get; }
+		EngineApi Engine { get; }
+		MethodApi Method { get; }
+		ObjectApi Object { get; }
+		PrefabApi Prefab { get; }
+		SceneApi Scene { get; }
+		WhenApi When { get; }
+
+		VarApi Var { get; }
+		VarApi GVar { get; }
 	}
 
 	internal interface ILunyScriptInternal
@@ -39,7 +51,7 @@ namespace LunyScript
 	///			}
 	///		}
 	/// </remarks>
-	public abstract partial class LunyScript : ILunyScript, ILunyScriptInternal
+	public abstract class LunyScript : ILunyScript, ILunyScriptInternal
 	{
 		private ILunyScriptContext _context;
 
@@ -73,23 +85,117 @@ namespace LunyScript
 		public DebugApi Debug => new(this);
 		public EditorApi Editor => new(this);
 		public EngineApi Engine => new(this);
+		/// <summary>
+		/// Provides access to loop-related dynamic values.
+		/// </summary>
+		public LoopApi Loop => new(this);
 		public MethodApi Method => new(this);
 		public ObjectApi Object => new(this);
 		public PrefabApi Prefab => new(this);
 		public SceneApi Scene => new(this);
 		public WhenApi When => new(this);
 
-		public VarApi Var => new((Table)LocalVars);
-		public VarApi GVar => new((Table)GlobalVars);
+		public VarApi Var => new((Table)_context.LocalVariables);
+		public VarApi GVar => new((Table)_context.GlobalVariables);
+
+		// these API outlines exist to get a feel for the intellisense/autocompletion behaviour ...
+
+		// planned API outline
+		public ApiPlaceholders.AnimationApi Animation => new(this);
+		public ApiPlaceholders.ApplicationApi Application => new(this);
+		public ApiPlaceholders.AssetApi Asset => new(this);
+		public ApiPlaceholders.CameraApi Camera => new(this);
+		public ApiPlaceholders.DiagnosticsApi Diagnostics => new(this);
+		public ApiPlaceholders.HUDApi HUD => new(this);
+		public ApiPlaceholders.InputApi Input => new(this);
+		public ApiPlaceholders.MenuApi Menu => new(this);
+		public ApiPlaceholders.PhysicsApi Physics => new(this);
+		public ApiPlaceholders.PlayerApi Player => new(this);
+		public ApiPlaceholders.StorageApi Storage => new(this);
+
+		// possible future expansions
+		public ApiPlaceholders.AccessibilityApi Accessibility => new(this);
+		public ApiPlaceholders.AccountApi Account => new(this);
+		public ApiPlaceholders.AIApi AI => new(this);
+		public ApiPlaceholders.AsyncApi Async => new(this);
+		public ApiPlaceholders.AvatarApi Avatar => new(this);
+		public ApiPlaceholders.CloudApi Cloud => new(this);
+		public ApiPlaceholders.CutsceneApi Cutscene => new(this);
+		public ApiPlaceholders.EnvironmentApi Environment => new(this);
+		public ApiPlaceholders.GraphicsApi Graphics => new(this);
+		public ApiPlaceholders.L18nApi L18n => new(this);
+		public ApiPlaceholders.LocaleApi Locale => new(this);
+		public ApiPlaceholders.LocalizationApi Localization => new(this);
+		public ApiPlaceholders.NavigationApi Navigation => new(this);
+		public ApiPlaceholders.NetworkApi Network => new(this);
+		public ApiPlaceholders.NPCApi NPC => new(this);
+		public ApiPlaceholders.ParticlesApi Particles => new(this);
+		public ApiPlaceholders.PoolApi Pool => new(this);
+		public ApiPlaceholders.PostFxApi PostFx => new(this);
+		public ApiPlaceholders.ProgressApi Progress => new(this);
+		public ApiPlaceholders.QualityApi Quality => new(this);
+		public ApiPlaceholders.ScriptApi Script => new(this);
+		public ApiPlaceholders.SessionApi Session => new(this);
+		public ApiPlaceholders.SettingsApi Settings => new(this);
+		public ApiPlaceholders.SpawnApi Spawn => new(this);
+		public ApiPlaceholders.SpriteApi Sprite => new(this);
+		public ApiPlaceholders.StageApi Stage => new(this);
+		public ApiPlaceholders.TerrainApi Terrain => new(this);
+		public ApiPlaceholders.TilemapApi Tilemap => new(this);
+		public ApiPlaceholders.TutorialApi Tutorial => new(this);
+		public ApiPlaceholders.UIApi UI => new(this);
+		public ApiPlaceholders.VFXApi VFX => new(this);
+		public ApiPlaceholders.VideoApi Video => new(this);
+
+		// publishing expansions
+		public ApiPlaceholders.PlatformApi Platform => new(this);
+		public ApiPlaceholders.StoreApi Store => new(this);
 
 		internal void Initialize(ILunyScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
+		/// <summary>
+		/// Conditional execution: If(conditions).Then(blocks).ElseIf(conditions).Then(blocks).Else(blocks);
+		/// Multiple conditions are implicitly AND combined.
+		/// </summary>
+		public IfBlockBuilder If(params IScriptConditionBlock[] conditions) => new(conditions);
+
+		/// <summary>
+		/// Loop execution: While(conditions).Do(blocks);
+		/// Multiple conditions are implicitly AND combined.
+		/// </summary>
+		public WhileBlockBuilder While(params IScriptConditionBlock[] conditions) => new(conditions);
+
+		/// <summary>
+		/// For loop (1-based index): For(limit).Do(blocks);
+		/// Starts at 1 and increments by 1 until limit is reached (inclusive).
+		/// </summary>
+		public ForBlockBuilder For(Int32 limit) => new(limit);
+
+		/// <summary>
+		/// For loop (1-based index): For(limit, step).Do(blocks);
+		/// If step > 0: starts at 1 and increments by step until limit is reached.
+		/// If step < 0: starts at limit and decrements by step until 1 is reached.
+		/// </summary>
+		public ForBlockBuilder For(Int32 limit, Int32 step) => new(limit, step);
+
+		/// <summary>
+		/// Logical AND: Returns true if all conditions are true.
+		/// </summary>
+		public IScriptConditionBlock AND(params IScriptConditionBlock[] conditions) => AndBlock.Create(conditions);
+
+		/// <summary>
+		/// Logical OR: Returns true if at least one condition is true.
+		/// </summary>
+		public IScriptConditionBlock OR(params IScriptConditionBlock[] conditions) => OrBlock.Create(conditions);
+
+		/// <summary>
+		/// Logical NOT: Returns the inverse of the condition.
+		/// </summary>
+		public IScriptConditionBlock NOT(IScriptConditionBlock condition) => NotBlock.Create(condition);
+
 		~LunyScript() => LunyTraceLogger.LogInfoFinalized(this);
 
-		internal void Destroy()
-		{
-			// cleanup if necessary
-		}
+		internal void Destroy() {} // placeholder for future cleanup tasks
 
 		/// <summary>
 		/// Called once when the script is initialized.
