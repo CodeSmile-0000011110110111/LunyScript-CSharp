@@ -11,7 +11,7 @@ namespace LunyScript
 
 		internal VarApi(Table table) => _table = table;
 
-		public ScriptVariable Get(String name) => ScriptVariable.From(_table.GetHandle(name), name, _table);
+		public ScriptVariable Get(String name) => ScriptVariable.From(_table.GetHandle(name));
 
 		public IScriptActionBlock Set(String name, Variable value) => Get(name).Set(value);
 		public IScriptActionBlock Set(String name, IScriptVariable value) => Get(name).Set(value);

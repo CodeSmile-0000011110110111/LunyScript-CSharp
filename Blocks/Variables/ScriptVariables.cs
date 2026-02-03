@@ -34,79 +34,68 @@ namespace LunyScript.Blocks
 	public sealed class ScriptVariable : IScriptVariable
 	{
 		private readonly Table.VarHandle _handle;
-		private readonly String _name;
-		private readonly Table _table;
 
 		// Operators
 		public static IScriptVariable operator +(ScriptVariable left, Variable right) => AddVariableBlock.Create(left._handle,
-			left._name,
-			left._table, Constant.Create(right));
+			Constant.Create(right));
 
 		public static IScriptVariable operator +(ScriptVariable left, IScriptVariable right) =>
-			AddVariableBlock.Create(left._handle, left._name, left._table, right);
+			AddVariableBlock.Create(left._handle, right);
 
 		public static IScriptVariable operator -(ScriptVariable left, Variable right) => SubtractVariableBlock.Create(left._handle,
-			left._name,
-			left._table, Constant.Create(right));
+			Constant.Create(right));
 
 		public static IScriptVariable operator -(ScriptVariable left, IScriptVariable right) =>
-			SubtractVariableBlock.Create(left._handle, left._name, left._table, right);
+			SubtractVariableBlock.Create(left._handle, right);
 
 		public static IScriptVariable operator *(ScriptVariable left, Variable right) => MultiplyVariableBlock.Create(left._handle,
-			left._name,
-			left._table, Constant.Create(right));
+			Constant.Create(right));
 
 		public static IScriptVariable operator *(ScriptVariable left, IScriptVariable right) =>
-			MultiplyVariableBlock.Create(left._handle, left._name, left._table, right);
+			MultiplyVariableBlock.Create(left._handle, right);
 
 		public static IScriptVariable operator /(ScriptVariable left, Variable right) => DivideVariableBlock.Create(left._handle,
-			left._name,
-			left._table, Constant.Create(right));
+			Constant.Create(right));
 
 		public static IScriptVariable operator /(ScriptVariable left, IScriptVariable right) =>
-			DivideVariableBlock.Create(left._handle, left._name, left._table, right);
+			DivideVariableBlock.Create(left._handle, right);
 
-		internal static ScriptVariable From(Table.VarHandle handle, String name, Table table) => new(handle, name, table);
+		internal static ScriptVariable From(Table.VarHandle handle) => new(handle);
 
-		private ScriptVariable(Table.VarHandle handle, String name, Table table)
-		{
-			_handle = handle;
-			_name = name;
-			_table = table;
-		}
+		private ScriptVariable(Table.VarHandle handle) => _handle = handle;
 
 		// IScriptVariable
 		public Variable GetValue(ILunyScriptContext context) => _handle.Value;
 
 		// Actions
-		public IScriptActionBlock Set(Variable value) => SetVariableBlock.Create(_handle, _name, _table, Constant.Create(value));
-		public IScriptActionBlock Set(IScriptVariable value) => SetVariableBlock.Create(_handle, _name, _table, value);
+		public IScriptActionBlock Set(Variable value) => SetVariableBlock.Create(_handle, Constant.Create(value));
+		public IScriptActionBlock Set(IScriptVariable value) => SetVariableBlock.Create(_handle, value);
 
-		public IScriptActionBlock Add(Variable value) => AddVariableBlock.Create(_handle, _name, _table,
+		public IScriptActionBlock Add(Variable value) => AddVariableBlock.Create(_handle,
 			Constant.Create(value));
 
 		public IScriptActionBlock Add(IScriptVariable value) =>
-			AddVariableBlock.Create(_handle, _name, _table, value);
+			AddVariableBlock.Create(_handle, value);
 
-		public IScriptActionBlock Sub(Variable value) => SubtractVariableBlock.Create(_handle, _name, _table,
+		public IScriptActionBlock Sub(Variable value) => SubtractVariableBlock.Create(_handle,
 			Constant.Create(value));
 
 		public IScriptActionBlock Sub(IScriptVariable value) =>
-			SubtractVariableBlock.Create(_handle, _name, _table, value);
+			SubtractVariableBlock.Create(_handle, value);
 
-		public IScriptActionBlock Mul(Variable value) => MultiplyVariableBlock.Create(_handle, _name, _table,
+		public IScriptActionBlock Mul(Variable value) => MultiplyVariableBlock.Create(_handle,
 			Constant.Create(value));
 
 		public IScriptActionBlock Mul(IScriptVariable value) =>
-			MultiplyVariableBlock.Create(_handle, _name, _table, value);
+			MultiplyVariableBlock.Create(_handle, value);
 
-		public IScriptActionBlock Div(Variable value) => DivideVariableBlock.Create(_handle, _name, _table,
+		public IScriptActionBlock Div(Variable value) => DivideVariableBlock.Create(_handle,
 			Constant.Create(value));
 
 		public IScriptActionBlock Div(IScriptVariable value) =>
-			DivideVariableBlock.Create(_handle, _name, _table, value);
+			DivideVariableBlock.Create(_handle, value);
 
-		public IScriptActionBlock Toggle() => ToggleVariableBlock.Create(_handle, _name, _table);
+		public IScriptActionBlock Toggle() => ToggleVariableBlock.Create(_handle);
 
 		// Conditions
 		public IScriptConditionBlock IsTrue() => VariableConditionBlock.Create(_handle, VariableComparison.IsTrue);
