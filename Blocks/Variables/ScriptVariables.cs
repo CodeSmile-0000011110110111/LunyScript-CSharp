@@ -38,33 +38,33 @@ namespace LunyScript.Blocks
 		private readonly Table _table;
 
 		// Operators
-		public static IScriptVariable operator +(ScriptVariable left, Variable right) => ArithmeticVariableBlock.Create(left._handle,
+		public static IScriptVariable operator +(ScriptVariable left, Variable right) => AddVariableBlock.Create(left._handle,
 			left._name,
-			left._table, Constant.Create(right), VariableOperation.Add);
+			left._table, Constant.Create(right));
 
 		public static IScriptVariable operator +(ScriptVariable left, IScriptVariable right) =>
-			ArithmeticVariableBlock.Create(left._handle, left._name, left._table, right, VariableOperation.Add);
+			AddVariableBlock.Create(left._handle, left._name, left._table, right);
 
-		public static IScriptVariable operator -(ScriptVariable left, Variable right) => ArithmeticVariableBlock.Create(left._handle,
+		public static IScriptVariable operator -(ScriptVariable left, Variable right) => SubtractVariableBlock.Create(left._handle,
 			left._name,
-			left._table, Constant.Create(right), VariableOperation.Sub);
+			left._table, Constant.Create(right));
 
 		public static IScriptVariable operator -(ScriptVariable left, IScriptVariable right) =>
-			ArithmeticVariableBlock.Create(left._handle, left._name, left._table, right, VariableOperation.Sub);
+			SubtractVariableBlock.Create(left._handle, left._name, left._table, right);
 
-		public static IScriptVariable operator *(ScriptVariable left, Variable right) => ArithmeticVariableBlock.Create(left._handle,
+		public static IScriptVariable operator *(ScriptVariable left, Variable right) => MultiplyVariableBlock.Create(left._handle,
 			left._name,
-			left._table, Constant.Create(right), VariableOperation.Mul);
+			left._table, Constant.Create(right));
 
 		public static IScriptVariable operator *(ScriptVariable left, IScriptVariable right) =>
-			ArithmeticVariableBlock.Create(left._handle, left._name, left._table, right, VariableOperation.Mul);
+			MultiplyVariableBlock.Create(left._handle, left._name, left._table, right);
 
-		public static IScriptVariable operator /(ScriptVariable left, Variable right) => ArithmeticVariableBlock.Create(left._handle,
+		public static IScriptVariable operator /(ScriptVariable left, Variable right) => DivideVariableBlock.Create(left._handle,
 			left._name,
-			left._table, Constant.Create(right), VariableOperation.Div);
+			left._table, Constant.Create(right));
 
 		public static IScriptVariable operator /(ScriptVariable left, IScriptVariable right) =>
-			ArithmeticVariableBlock.Create(left._handle, left._name, left._table, right, VariableOperation.Div);
+			DivideVariableBlock.Create(left._handle, left._name, left._table, right);
 
 		internal static ScriptVariable From(Table.VarHandle handle, String name, Table table) => new(handle, name, table);
 
@@ -82,29 +82,29 @@ namespace LunyScript.Blocks
 		public IScriptActionBlock Set(Variable value) => SetVariableBlock.Create(_handle, _name, _table, Constant.Create(value));
 		public IScriptActionBlock Set(IScriptVariable value) => SetVariableBlock.Create(_handle, _name, _table, value);
 
-		public IScriptActionBlock Add(Variable value) => ArithmeticVariableBlock.Create(_handle, _name, _table,
-			Constant.Create(value), VariableOperation.Add);
+		public IScriptActionBlock Add(Variable value) => AddVariableBlock.Create(_handle, _name, _table,
+			Constant.Create(value));
 
 		public IScriptActionBlock Add(IScriptVariable value) =>
-			ArithmeticVariableBlock.Create(_handle, _name, _table, value, VariableOperation.Add);
+			AddVariableBlock.Create(_handle, _name, _table, value);
 
-		public IScriptActionBlock Sub(Variable value) => ArithmeticVariableBlock.Create(_handle, _name, _table,
-			Constant.Create(value), VariableOperation.Sub);
+		public IScriptActionBlock Sub(Variable value) => SubtractVariableBlock.Create(_handle, _name, _table,
+			Constant.Create(value));
 
 		public IScriptActionBlock Sub(IScriptVariable value) =>
-			ArithmeticVariableBlock.Create(_handle, _name, _table, value, VariableOperation.Sub);
+			SubtractVariableBlock.Create(_handle, _name, _table, value);
 
-		public IScriptActionBlock Mul(Variable value) => ArithmeticVariableBlock.Create(_handle, _name, _table,
-			Constant.Create(value), VariableOperation.Mul);
+		public IScriptActionBlock Mul(Variable value) => MultiplyVariableBlock.Create(_handle, _name, _table,
+			Constant.Create(value));
 
 		public IScriptActionBlock Mul(IScriptVariable value) =>
-			ArithmeticVariableBlock.Create(_handle, _name, _table, value, VariableOperation.Mul);
+			MultiplyVariableBlock.Create(_handle, _name, _table, value);
 
-		public IScriptActionBlock Div(Variable value) => ArithmeticVariableBlock.Create(_handle, _name, _table,
-			Constant.Create(value), VariableOperation.Div);
+		public IScriptActionBlock Div(Variable value) => DivideVariableBlock.Create(_handle, _name, _table,
+			Constant.Create(value));
 
 		public IScriptActionBlock Div(IScriptVariable value) =>
-			ArithmeticVariableBlock.Create(_handle, _name, _table, value, VariableOperation.Div);
+			DivideVariableBlock.Create(_handle, _name, _table, value);
 
 		public IScriptActionBlock Toggle() => ToggleVariableBlock.Create(_handle, _name, _table);
 
