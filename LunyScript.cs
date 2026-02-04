@@ -86,9 +86,6 @@ namespace LunyScript
 		public DebugApi Debug => new(this);
 		public EditorApi Editor => new(this);
 		public EngineApi Engine => new(this);
-		/// <summary>
-		/// Provides access to loop-related dynamic values.
-		/// </summary>
 		public LoopApi Loop => new(this);
 		public MethodApi Method => new(this);
 		public ObjectApi Object => new(this);
