@@ -10,9 +10,7 @@ namespace LunyScript
 	/// </summary>
 	public interface ILunyScriptEngine
 	{
-		ITable GlobalVars { get; }
-		ITable GVars { get; }
-		ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID);
+		ITable GlobalVariables { get; }
 	}
 
 	/// <summary>
@@ -22,8 +20,7 @@ namespace LunyScript
 	{
 		private LunyScriptRunner _runner;
 		public static ILunyScriptEngine Instance { get; private set; }
-		public ITable GlobalVars => LunyScriptContext.GetGlobalVariables();
-		public ITable GVars => LunyScriptContext.GetGlobalVariables();
+		public ITable GlobalVariables => LunyScriptContext.GetGlobalVariables();
 
 		/// <summary>
 		/// Maximum allowed iterations for While/For loops to prevent engine hangs.

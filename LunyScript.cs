@@ -13,8 +13,8 @@ namespace LunyScript
 	{
 		LunyScriptID ScriptID { get; }
 		ILunyObject LunyObject { get; }
-		ITable GlobalVars { get; }
-		ITable LocalVars { get; }
+		ITable GlobalVariables { get; }
+		ITable LocalVariables { get; }
 		Boolean IsEditor { get; }
 
 		DebugApi Debug { get; }
@@ -69,12 +69,12 @@ namespace LunyScript
 		/// <summary>
 		/// Global variables which all objects and scripts can read/write.
 		/// </summary>
-		[NotNull] public ITable GlobalVars => _context.GlobalVariables;
+		[NotNull] public ITable GlobalVariables => _context.GlobalVariables;
 		/// <summary>
 		/// Local variables the current object and script owns.
 		/// If multiple objects run the same script, each object has its own unique set of local variables.
 		/// </summary>
-		[NotNull] public ITable LocalVars => _context.LocalVariables;
+		[NotNull] public ITable LocalVariables => _context.LocalVariables;
 		/// <summary>
 		/// True if the script runs within the engine's editor (play mode). False in builds.
 		/// </summary>
@@ -82,7 +82,6 @@ namespace LunyScript
 
 		LunyScriptEventScheduler ILunyScriptInternal.Scheduler => _context is LunyScriptContext context ? context.Scheduler : null;
 
-		// API properties
 		public DebugApi Debug => new(this);
 		public EditorApi Editor => new(this);
 		public EngineApi Engine => new(this);
@@ -92,9 +91,6 @@ namespace LunyScript
 		public PrefabApi Prefab => new(this);
 		public SceneApi Scene => new(this);
 		public WhenApi When => new(this);
-
-		public VariableBlock Var(String name) => ReferenceVariableBlock.From(((Table)_context.LocalVariables).GetHandle(name));
-		public VariableBlock GVar(String name) => ReferenceVariableBlock.From(((Table)_context.GlobalVariables).GetHandle(name));
 
 		// these API outlines exist to get a feel for the intellisense/autocompletion behaviour ...
 
@@ -150,6 +146,10 @@ namespace LunyScript
 		public ApiPlaceholders.StoreApi Store => new(this);
 
 		internal void Initialize(ILunyScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
+
+		// API properties
+		public VariableBlock GVar(String name) => ReferenceVariableBlock.From(_context.GlobalVariables.GetHandle(name));
+		public VariableBlock Var(String name) => ReferenceVariableBlock.From(_context.LocalVariables.GetHandle(name));
 
 		/// <summary>
 		/// Conditional execution: If(conditions).Then(blocks).ElseIf(conditions).Then(blocks).Else(blocks);

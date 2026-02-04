@@ -10,8 +10,8 @@ namespace LunyScript.SmokeTests
 		private void SetTestPassedVariable(Boolean result)
 		{
 			var name = GetType().Name;
-			if (!GlobalVars[name].AsBoolean())
-				GlobalVars[name] = result;
+			if (!GlobalVariables[name].AsBoolean())
+				GlobalVariables[name] = result;
 		}
 
 		public override void Build()
