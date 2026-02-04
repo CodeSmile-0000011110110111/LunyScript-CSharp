@@ -48,8 +48,7 @@ namespace LunyScript.Blocks
 		public static VariableBlock operator ==(VariableBlock left, Variable right) =>
 			IsEqualToVariableBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator ==(VariableBlock left, IScriptVariableBlock right) =>
-			IsEqualToVariableBlock.Create(left, right);
+		public static VariableBlock operator ==(VariableBlock left, IScriptVariableBlock right) => IsEqualToVariableBlock.Create(left, right);
 
 		public static VariableBlock operator !=(VariableBlock left, Variable right) =>
 			IsNotEqualToVariableBlock.Create(left, ConstantVariableBlock.Create(right));
@@ -66,23 +65,23 @@ namespace LunyScript.Blocks
 		public static VariableBlock operator >=(VariableBlock left, Variable right) =>
 			IsAtLeastVariableBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator >=(VariableBlock left, IScriptVariableBlock right) =>
-			IsAtLeastVariableBlock.Create(left, right);
+		public static VariableBlock operator >=(VariableBlock left, IScriptVariableBlock right) => IsAtLeastVariableBlock.Create(left, right);
 
 		public static VariableBlock operator <(VariableBlock left, Variable right) =>
 			IsLessThanVariableBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator <(VariableBlock left, IScriptVariableBlock right) =>
-			IsLessThanVariableBlock.Create(left, right);
+		public static VariableBlock operator <(VariableBlock left, IScriptVariableBlock right) => IsLessThanVariableBlock.Create(left, right);
 
 		public static VariableBlock operator <=(VariableBlock left, Variable right) =>
 			IsAtMostVariableBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator <=(VariableBlock left, IScriptVariableBlock right) =>
-			IsAtMostVariableBlock.Create(left, right);
+		public static VariableBlock operator <=(VariableBlock left, IScriptVariableBlock right) => IsAtMostVariableBlock.Create(left, right);
 
 		// Unary Operators
 		public static VariableBlock operator !(VariableBlock operand) => NotBlock.Create(operand);
+
+		public virtual Boolean Evaluate(ILunyScriptContext context) => GetValue(context).AsBoolean();
+		public abstract Variable GetValue(ILunyScriptContext context);
 
 		// Actions
 		public IScriptActionBlock Set(Variable value) => AssignmentVariableBlock.Create(GetHandle(), ConstantVariableBlock.Create(value));
@@ -127,10 +126,9 @@ namespace LunyScript.Blocks
 		public IScriptConditionBlock IsAtMost(Variable value) => this <= value;
 		public IScriptConditionBlock IsAtMost(IScriptVariableBlock value) => this <= value;
 
-		private Table.VarHandle GetHandle() => TargetHandle ?? throw new InvalidOperationException($"Cannot perform modification action on {GetType().Name}. Only variables can be modified.");
-
-		public virtual Boolean Evaluate(ILunyScriptContext context) => GetValue(context).AsBoolean();
-		public abstract Variable GetValue(ILunyScriptContext context);
+		private Table.VarHandle GetHandle() => TargetHandle ??
+		                                       throw new InvalidOperationException(
+			                                       $"Cannot perform modification action on {GetType().Name}. Only variables can be modified.");
 
 		public override Boolean Equals(Object obj) => base.Equals(obj);
 		public override Int32 GetHashCode() => base.GetHashCode();

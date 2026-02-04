@@ -44,7 +44,9 @@ namespace LunyScript.Blocks
 	internal sealed class AddVariableBlock : ArithmeticVariableBlock
 	{
 		public static AddVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
-		private AddVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right) : base(left, right) {}
+
+		private AddVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) + (Double)_right.GetValue(context);
@@ -53,7 +55,9 @@ namespace LunyScript.Blocks
 	internal sealed class SubVariableBlock : ArithmeticVariableBlock
 	{
 		public static SubVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
-		private SubVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right) : base(left, right) {}
+
+		private SubVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) - (Double)_right.GetValue(context);
@@ -62,7 +66,9 @@ namespace LunyScript.Blocks
 	internal sealed class MulVariableBlock : ArithmeticVariableBlock
 	{
 		public static MulVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
-		private MulVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right) : base(left, right) {}
+
+		private MulVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) * (Double)_right.GetValue(context);
@@ -71,7 +77,9 @@ namespace LunyScript.Blocks
 	internal sealed class DivVariableBlock : ArithmeticVariableBlock
 	{
 		public static DivVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
-		private DivVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right) : base(left, right) {}
+
+		private DivVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) / (Double)_right.GetValue(context);
