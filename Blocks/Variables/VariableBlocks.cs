@@ -5,7 +5,10 @@ using System.Runtime.CompilerServices;
 
 namespace LunyScript.Blocks
 {
-	public sealed class ReferenceVariableBlock : VariableBlock
+	/// <summary>
+	/// Block that holds a reference to a script variable.
+	/// </summary>
+	public sealed class TableVariableBlock : VariableBlock
 	{
 		private readonly Table.VarHandle _handle;
 
@@ -15,9 +18,9 @@ namespace LunyScript.Blocks
 		public String Name => _handle.Name;
 		public Variable Value => _handle.Value;
 
-		internal static ReferenceVariableBlock From(Table.VarHandle handle) => new(handle);
+		internal static TableVariableBlock Create(Table.VarHandle handle) => new(handle);
 
-		private ReferenceVariableBlock(Table.VarHandle handle) => _handle = handle;
+		private TableVariableBlock(Table.VarHandle handle) => _handle = handle;
 
 		public override String ToString() => _handle.ToString();
 

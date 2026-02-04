@@ -26,6 +26,8 @@ namespace LunyScript
 		SceneApi Scene { get; }
 		WhenApi When { get; }
 
+		VariableBlock Const(String name, Variable value);
+		VariableBlock Const(Variable value);
 		VariableBlock Var(String name);
 		VariableBlock GVar(String name);
 	}
@@ -148,8 +150,10 @@ namespace LunyScript
 		internal void Initialize(ILunyScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
 		// API properties
-		public VariableBlock GVar(String name) => ReferenceVariableBlock.From(_context.GlobalVariables.GetHandle(name));
-		public VariableBlock Var(String name) => ReferenceVariableBlock.From(_context.LocalVariables.GetHandle(name));
+		public VariableBlock Const(String name, Variable value) => throw new NotImplementedException(nameof(Const));
+		public VariableBlock Const(Variable value) => ConstantVariableBlock.Create(value);
+		public VariableBlock GVar(String name) => TableVariableBlock.Create(_context.GlobalVariables.GetHandle(name));
+		public VariableBlock Var(String name) => TableVariableBlock.Create(_context.LocalVariables.GetHandle(name));
 
 		/// <summary>
 		/// Conditional execution: If(conditions).Then(blocks).ElseIf(conditions).Then(blocks).Else(blocks);

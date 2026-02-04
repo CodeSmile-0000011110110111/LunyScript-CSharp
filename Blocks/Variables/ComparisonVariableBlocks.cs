@@ -10,7 +10,7 @@ namespace LunyScript.Blocks
 		protected readonly IScriptVariableBlock _left;
 		protected readonly IScriptVariableBlock _right;
 
-		internal override Table.VarHandle TargetHandle => (_left as VariableBlock)?.TargetHandle;
+		internal override Table.VarHandle TargetHandle => (_left as VariableBlock)?.TargetHandle ?? (_right as VariableBlock)?.TargetHandle;
 
 		protected ComparisonVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right = null)
 		{

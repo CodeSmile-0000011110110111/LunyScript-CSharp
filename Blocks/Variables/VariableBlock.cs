@@ -1,4 +1,5 @@
 using Luny;
+using LunyScript.Exceptions;
 using LunyScript.Execution;
 using System;
 
@@ -82,10 +83,31 @@ namespace LunyScript.Blocks
 
 		public virtual Boolean Evaluate(ILunyScriptContext context) => GetValue(context).AsBoolean();
 		public abstract Variable GetValue(ILunyScriptContext context);
+		private Boolean Equals(VariableBlock other) => throw new NotImplementedException($"{nameof(VariableBlock)}.{nameof(Equals)}()");
+
+		public override Boolean Equals(Object obj)
+		{
+			if (obj is null)
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			if (obj.GetType() != GetType())
+				return false;
+
+			return Equals((VariableBlock)obj);
+		}
+
+		public override Int32 GetHashCode() => throw new NotImplementedException($"{nameof(VariableBlock)}.{nameof(GetHashCode)}()");
 
 		// Actions
-		public IScriptActionBlock Set(Variable value) => AssignmentVariableBlock.Create(GetHandle(), ConstantVariableBlock.Create(value));
-		public IScriptActionBlock Set(IScriptVariableBlock value) => AssignmentVariableBlock.Create(GetHandle(), value);
+		private Table.VarHandle GetHandleOrThrow() => TargetHandle ??
+		                                              throw new LunyScriptVariableException(
+			                                              $"Cannot modify read-only variable: {GetType().Name}");
+
+		public IScriptActionBlock Set(Variable value) =>
+			AssignmentVariableBlock.Create(GetHandleOrThrow(), ConstantVariableBlock.Create(value));
+
+		public IScriptActionBlock Set(IScriptVariableBlock value) => AssignmentVariableBlock.Create(GetHandleOrThrow(), value);
 
 		public IScriptActionBlock Inc() => Add(1);
 		public IScriptActionBlock Dec() => Sub(1);
@@ -125,12 +147,5 @@ namespace LunyScript.Blocks
 
 		public IScriptConditionBlock IsAtMost(Variable value) => this <= value;
 		public IScriptConditionBlock IsAtMost(IScriptVariableBlock value) => this <= value;
-
-		private Table.VarHandle GetHandle() => TargetHandle ??
-		                                       throw new InvalidOperationException(
-			                                       $"Cannot perform modification action on {GetType().Name}. Only variables can be modified.");
-
-		public override Boolean Equals(Object obj) => base.Equals(obj);
-		public override Int32 GetHashCode() => base.GetHashCode();
 	}
 }
