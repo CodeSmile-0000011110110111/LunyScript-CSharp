@@ -5,103 +5,103 @@ using System.Runtime.CompilerServices;
 
 namespace LunyScript.Blocks
 {
-	internal abstract class VariableComparisonBlockBase
+	internal abstract class ComparisonBlockBase : ScriptVariableBlockBase
 	{
-		protected readonly Table.VarHandle _handle;
+		protected readonly IScriptVariable _left;
 		protected readonly IScriptVariable _right;
 
-		protected VariableComparisonBlockBase(Table.VarHandle handle, IScriptVariable right = null)
+		internal override ScriptVariable Variable => (_left as ScriptVariableBlockBase)?.Variable;
+
+		protected ComparisonBlockBase(IScriptVariable left, IScriptVariable right = null)
 		{
-			_handle = handle;
+			_left = left ?? throw new ArgumentNullException(nameof(left));
 			_right = right;
 		}
 	}
 
-	internal sealed class IsVariableEqualToBlock : VariableComparisonBlockBase, IScriptConditionBlock
+	internal sealed class IsEqualToBlock : ComparisonBlockBase
 	{
-		public static IsVariableEqualToBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
+		public static IsEqualToBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
 
-		private IsVariableEqualToBlock(Table.VarHandle handle, IScriptVariable right)
-			: base(handle, right) {}
+		private IsEqualToBlock(IScriptVariable left, IScriptVariable right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value == _right.GetValue(context);
+		public override Variable GetValue(ILunyScriptContext context) => Evaluate(context);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) == _right.GetValue(context);
+
+		public override String ToString() => $"{_left} == {_right}";
 	}
 
-	internal sealed class IsVariableNotEqualToBlock : VariableComparisonBlockBase, IScriptConditionBlock
+	internal sealed class IsNotEqualToBlock : ComparisonBlockBase
 	{
-		public static IsVariableNotEqualToBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
+		public static IsNotEqualToBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
 
-		private IsVariableNotEqualToBlock(Table.VarHandle handle, IScriptVariable right)
-			: base(handle, right) {}
+		private IsNotEqualToBlock(IScriptVariable left, IScriptVariable right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value != _right.GetValue(context);
+		public override Variable GetValue(ILunyScriptContext context) => Evaluate(context);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) != _right.GetValue(context);
 	}
 
-	internal sealed class IsVariableGreaterThanBlock : VariableComparisonBlockBase, IScriptConditionBlock
+	internal sealed class IsGreaterThanBlock : ComparisonBlockBase
 	{
-		public static IsVariableGreaterThanBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
+		public static IsGreaterThanBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
 
-		private IsVariableGreaterThanBlock(Table.VarHandle handle, IScriptVariable right)
-			: base(handle, right) {}
+		private IsGreaterThanBlock(IScriptVariable left, IScriptVariable right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value > (Double)_right.GetValue(context);
+		public override Variable GetValue(ILunyScriptContext context) => Evaluate(context);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) > (Double)_right.GetValue(context);
 	}
 
-	internal sealed class IsVariableAtLeastBlock : VariableComparisonBlockBase, IScriptConditionBlock
+	internal sealed class IsAtLeastBlock : ComparisonBlockBase
 	{
-		public static IsVariableAtLeastBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
+		public static IsAtLeastBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
 
-		private IsVariableAtLeastBlock(Table.VarHandle handle, IScriptVariable right)
-			: base(handle, right) {}
+		private IsAtLeastBlock(IScriptVariable left, IScriptVariable right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value >= (Double)_right.GetValue(context);
+		public override Variable GetValue(ILunyScriptContext context) => Evaluate(context);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) >= (Double)_right.GetValue(context);
 	}
 
-	internal sealed class IsVariableLessThanBlock : VariableComparisonBlockBase, IScriptConditionBlock
+	internal sealed class IsLessThanBlock : ComparisonBlockBase
 	{
-		public static IsVariableLessThanBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
+		public static IsLessThanBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
 
-		private IsVariableLessThanBlock(Table.VarHandle handle, IScriptVariable right)
-			: base(handle, right) {}
+		private IsLessThanBlock(IScriptVariable left, IScriptVariable right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value < (Double)_right.GetValue(context);
+		public override Variable GetValue(ILunyScriptContext context) => Evaluate(context);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) < (Double)_right.GetValue(context);
 	}
 
-	internal sealed class IsVariableAtMostBlock : VariableComparisonBlockBase, IScriptConditionBlock
+	internal sealed class IsAtMostBlock : ComparisonBlockBase
 	{
-		public static IsVariableAtMostBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
+		public static IsAtMostBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
 
-		private IsVariableAtMostBlock(Table.VarHandle handle, IScriptVariable right)
-			: base(handle, right) {}
+		private IsAtMostBlock(IScriptVariable left, IScriptVariable right)
+			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value <= (Double)_right.GetValue(context);
-	}
-
-	internal sealed class IsVariableTrueBlock : VariableComparisonBlockBase, IScriptConditionBlock
-	{
-		public static IsVariableTrueBlock Create(Table.VarHandle handle) => new(handle);
-
-		private IsVariableTrueBlock(Table.VarHandle handle)
-			: base(handle) {}
+		public override Variable GetValue(ILunyScriptContext context) => Evaluate(context);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value.AsBoolean();
-	}
-
-	internal sealed class IsVariableFalseBlock : VariableComparisonBlockBase, IScriptConditionBlock
-	{
-		public static IsVariableFalseBlock Create(Table.VarHandle handle) => new(handle);
-
-		private IsVariableFalseBlock(Table.VarHandle handle)
-			: base(handle) {}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Boolean Evaluate(ILunyScriptContext context) => !_handle.Value.AsBoolean();
+		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) <= (Double)_right.GetValue(context);
 	}
 }

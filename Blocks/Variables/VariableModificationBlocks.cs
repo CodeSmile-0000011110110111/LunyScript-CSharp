@@ -5,100 +5,75 @@ using System.Runtime.CompilerServices;
 
 namespace LunyScript.Blocks
 {
-	internal abstract class VariableModificationBlockBase
+	internal abstract class ArithmeticBlockBase : ScriptVariableBlockBase
 	{
-		protected readonly Table.VarHandle _handle;
-		protected readonly IScriptVariable _value;
+		protected readonly IScriptVariable _left;
+		protected readonly IScriptVariable _right;
 
-		protected VariableModificationBlockBase(Table.VarHandle handle, IScriptVariable value)
+		internal override ScriptVariable Variable => (_left as ScriptVariableBlockBase)?.Variable;
+
+		protected ArithmeticBlockBase(IScriptVariable left, IScriptVariable right)
+		{
+			_left = left ?? throw new ArgumentNullException(nameof(left));
+			_right = right ?? throw new ArgumentNullException(nameof(right));
+		}
+	}
+
+	internal sealed class SetVariableBlock : IScriptActionBlock, IScriptVariable
+	{
+		private readonly Table.VarHandle _handle;
+		private readonly IScriptVariable _value;
+
+		public static SetVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
+
+		private SetVariableBlock(Table.VarHandle handle, IScriptVariable value)
 		{
 			_handle = handle ?? throw new ArgumentNullException(nameof(handle));
 			_value = value ?? throw new ArgumentNullException(nameof(value));
 		}
-	}
-
-	internal sealed class SetVariableBlock : VariableModificationBlockBase, IScriptActionBlock, IScriptVariable
-	{
-		public static SetVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
-
-		private SetVariableBlock(Table.VarHandle handle, IScriptVariable value)
-			: base(handle, value) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Execute(ILunyScriptContext context) => _handle.Value = GetValue(context);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Variable GetValue(ILunyScriptContext context) => _value.GetValue(context);
+
+		override  public String ToString() => $"{_handle} = {_value}";
 	}
 
-	internal sealed class AddVariableBlock : VariableModificationBlockBase, IScriptActionBlock, IScriptVariable
+	internal sealed class AddBlock : ArithmeticBlockBase
 	{
-		public static AddVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
-
-		private AddVariableBlock(Table.VarHandle handle, IScriptVariable value)
-			: base(handle, value) {}
+		public static AddBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		private AddBlock(IScriptVariable left, IScriptVariable right) : base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Execute(ILunyScriptContext context) => _handle.Value = GetValue(context);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Variable GetValue(ILunyScriptContext context) => _handle.Value + (Double)_value.GetValue(context);
+		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) + (Double)_right.GetValue(context);
 	}
 
-	internal sealed class SubtractVariableBlock : VariableModificationBlockBase, IScriptActionBlock, IScriptVariable
+	internal sealed class SubBlock : ArithmeticBlockBase
 	{
-		public static SubtractVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
-
-		private SubtractVariableBlock(Table.VarHandle handle, IScriptVariable value)
-			: base(handle, value) {}
+		public static SubBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		private SubBlock(IScriptVariable left, IScriptVariable right) : base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Execute(ILunyScriptContext context) => _handle.Value = GetValue(context);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Variable GetValue(ILunyScriptContext context) => _handle.Value - (Double)_value.GetValue(context);
+		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) - (Double)_right.GetValue(context);
 	}
 
-	internal sealed class MultiplyVariableBlock : VariableModificationBlockBase, IScriptActionBlock, IScriptVariable
+	internal sealed class MulBlock : ArithmeticBlockBase
 	{
-		public static MultiplyVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
-
-		private MultiplyVariableBlock(Table.VarHandle handle, IScriptVariable value)
-			: base(handle, value) {}
+		public static MulBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		private MulBlock(IScriptVariable left, IScriptVariable right) : base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Execute(ILunyScriptContext context) => _handle.Value = GetValue(context);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Variable GetValue(ILunyScriptContext context) => _handle.Value * (Double)_value.GetValue(context);
+		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) * (Double)_right.GetValue(context);
 	}
 
-	internal sealed class DivideVariableBlock : VariableModificationBlockBase, IScriptActionBlock, IScriptVariable
+	internal sealed class DivBlock : ArithmeticBlockBase
 	{
-		public static DivideVariableBlock Create(Table.VarHandle handle, IScriptVariable value) => new(handle, value);
-
-		private DivideVariableBlock(Table.VarHandle handle, IScriptVariable value)
-			: base(handle, value) {}
+		public static DivBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		private DivBlock(IScriptVariable left, IScriptVariable right) : base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Execute(ILunyScriptContext context) => _handle.Value = GetValue(context);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Variable GetValue(ILunyScriptContext context) => _handle.Value / (Double)_value.GetValue(context);
-	}
-
-	internal sealed class ToggleBooleanVariableBlock : IScriptActionBlock, IScriptVariable
-	{
-		private readonly Table.VarHandle _handle;
-
-		public static IScriptActionBlock Create(Table.VarHandle handle) => new ToggleBooleanVariableBlock(handle);
-
-		private ToggleBooleanVariableBlock(Table.VarHandle handle) => _handle = handle;
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Execute(ILunyScriptContext context) => _handle.Value = GetValue(context);
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Variable GetValue(ILunyScriptContext context) => !_handle.Value.AsBoolean();
+		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) / (Double)_right.GetValue(context);
 	}
 }

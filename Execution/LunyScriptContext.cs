@@ -98,7 +98,7 @@ namespace LunyScript.Execution
 
 		~LunyScriptContext() => LunyTraceLogger.LogInfoFinalized(this);
 
-		internal void Activate() => _lunyObject.ActivateOnceBeforeUse();
+		internal void Activate() => _lunyObject.Initialize();
 
 		public override String ToString() => $"{ScriptID} -> {LunyObject}";
 	}
