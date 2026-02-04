@@ -1,6 +1,7 @@
-﻿using Luny;
+using Luny;
 using LunyScript.Execution;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace LunyScript.Blocks
 {
@@ -23,6 +24,7 @@ namespace LunyScript.Blocks
 		private IsVariableEqualToBlock(Table.VarHandle handle, IScriptVariable right)
 			: base(handle, right) {}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value == _right.GetValue(context);
 	}
 
@@ -33,6 +35,7 @@ namespace LunyScript.Blocks
 		private IsVariableNotEqualToBlock(Table.VarHandle handle, IScriptVariable right)
 			: base(handle, right) {}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value != _right.GetValue(context);
 	}
 
@@ -43,16 +46,18 @@ namespace LunyScript.Blocks
 		private IsVariableGreaterThanBlock(Table.VarHandle handle, IScriptVariable right)
 			: base(handle, right) {}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value > (Double)_right.GetValue(context);
 	}
 
-	internal sealed class IsVariableGreaterOrEqualThanBlock : VariableComparisonBlockBase, IScriptConditionBlock
+	internal sealed class IsVariableAtLeastBlock : VariableComparisonBlockBase, IScriptConditionBlock
 	{
-		public static IsVariableGreaterOrEqualThanBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
+		public static IsVariableAtLeastBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
 
-		private IsVariableGreaterOrEqualThanBlock(Table.VarHandle handle, IScriptVariable right)
+		private IsVariableAtLeastBlock(Table.VarHandle handle, IScriptVariable right)
 			: base(handle, right) {}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value >= (Double)_right.GetValue(context);
 	}
 
@@ -63,16 +68,18 @@ namespace LunyScript.Blocks
 		private IsVariableLessThanBlock(Table.VarHandle handle, IScriptVariable right)
 			: base(handle, right) {}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value < (Double)_right.GetValue(context);
 	}
 
-	internal sealed class IsVariableLessOrEqualThanBlock : VariableComparisonBlockBase, IScriptConditionBlock
+	internal sealed class IsVariableAtMostBlock : VariableComparisonBlockBase, IScriptConditionBlock
 	{
-		public static IsVariableLessOrEqualThanBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
+		public static IsVariableAtMostBlock Create(Table.VarHandle handle, IScriptVariable right) => new(handle, right);
 
-		private IsVariableLessOrEqualThanBlock(Table.VarHandle handle, IScriptVariable right)
+		private IsVariableAtMostBlock(Table.VarHandle handle, IScriptVariable right)
 			: base(handle, right) {}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value <= (Double)_right.GetValue(context);
 	}
 
@@ -83,6 +90,7 @@ namespace LunyScript.Blocks
 		private IsVariableTrueBlock(Table.VarHandle handle)
 			: base(handle) {}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Boolean Evaluate(ILunyScriptContext context) => _handle.Value.AsBoolean();
 	}
 
@@ -93,6 +101,7 @@ namespace LunyScript.Blocks
 		private IsVariableFalseBlock(Table.VarHandle handle)
 			: base(handle) {}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Boolean Evaluate(ILunyScriptContext context) => !_handle.Value.AsBoolean();
 	}
 }
