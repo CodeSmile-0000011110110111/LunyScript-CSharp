@@ -11,6 +11,6 @@ namespace LunyScript.Api
 		/// Returns the current iteration count of the innermost surrounding loop.
 		/// Resolves at runtime via ILunyScriptContext.
 		/// </summary>
-		public ScriptVariableBlockBase Counter => LoopCounter.Instance;
+		public VariableBlock Counter => LoopCounterVariableBlock.Instance;
 	}
 }

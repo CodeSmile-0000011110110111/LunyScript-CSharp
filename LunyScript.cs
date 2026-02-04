@@ -26,8 +26,8 @@ namespace LunyScript
 		SceneApi Scene { get; }
 		WhenApi When { get; }
 
-		ScriptVariableBlockBase Var(String name);
-		ScriptVariableBlockBase GVar(String name);
+		VariableBlock Var(String name);
+		VariableBlock GVar(String name);
 	}
 
 	internal interface ILunyScriptInternal
@@ -96,8 +96,8 @@ namespace LunyScript
 		public SceneApi Scene => new(this);
 		public WhenApi When => new(this);
 
-		public ScriptVariableBlockBase Var(String name) => ScriptVariable.From(((Table)_context.LocalVariables).GetHandle(name));
-		public ScriptVariableBlockBase GVar(String name) => ScriptVariable.From(((Table)_context.GlobalVariables).GetHandle(name));
+		public VariableBlock Var(String name) => ReferenceVariableBlock.From(((Table)_context.LocalVariables).GetHandle(name));
+		public VariableBlock GVar(String name) => ReferenceVariableBlock.From(((Table)_context.GlobalVariables).GetHandle(name));
 
 		// these API outlines exist to get a feel for the intellisense/autocompletion behaviour ...
 

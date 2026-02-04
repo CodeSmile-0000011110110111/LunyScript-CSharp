@@ -8,11 +8,11 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Logical NOT condition block.
 	/// </summary>
-	internal sealed class NotBlock : ScriptVariableBlockBase
+	internal sealed class NotBlock : VariableBlock
 	{
 		private readonly IScriptConditionBlock _condition;
 
-		internal override ScriptVariable Variable => (_condition as ScriptVariableBlockBase)?.Variable;
+		internal override Table.VarHandle TargetHandle => (_condition as VariableBlock)?.TargetHandle;
 
 		public static NotBlock Create(IScriptConditionBlock condition) => new(condition);
 

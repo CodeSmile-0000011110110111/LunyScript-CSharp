@@ -1,0 +1,138 @@
+using Luny;
+using LunyScript.Execution;
+using System;
+
+namespace LunyScript.Blocks
+{
+	public abstract class VariableBlock : IScriptVariableBlock, IScriptConditionBlock
+	{
+		internal virtual Table.VarHandle TargetHandle => null;
+
+		// Arithmetic Operators
+		public static VariableBlock operator +(VariableBlock left, Variable right) =>
+			AddVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator +(VariableBlock left, IScriptVariableBlock right) => AddVariableBlock.Create(left, right);
+
+		public static VariableBlock operator +(Variable left, VariableBlock right) =>
+			AddVariableBlock.Create(ConstantVariableBlock.Create(left), right);
+
+		public static VariableBlock operator -(VariableBlock left, Variable right) =>
+			SubVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator -(VariableBlock left, IScriptVariableBlock right) => SubVariableBlock.Create(left, right);
+
+		public static VariableBlock operator -(Variable left, VariableBlock right) =>
+			SubVariableBlock.Create(ConstantVariableBlock.Create(left), right);
+
+		public static VariableBlock operator *(VariableBlock left, Variable right) =>
+			MulVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator *(VariableBlock left, IScriptVariableBlock right) => MulVariableBlock.Create(left, right);
+
+		public static VariableBlock operator *(Variable left, VariableBlock right) =>
+			MulVariableBlock.Create(ConstantVariableBlock.Create(left), right);
+
+		public static VariableBlock operator /(VariableBlock left, Variable right) =>
+			DivVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator /(VariableBlock left, IScriptVariableBlock right) => DivVariableBlock.Create(left, right);
+
+		public static VariableBlock operator /(Variable left, VariableBlock right) =>
+			DivVariableBlock.Create(ConstantVariableBlock.Create(left), right);
+
+		public static VariableBlock operator ++(VariableBlock a) => a + 1;
+		public static VariableBlock operator --(VariableBlock a) => a - 1;
+
+		// Comparison Operators
+		public static VariableBlock operator ==(VariableBlock left, Variable right) =>
+			IsEqualToVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator ==(VariableBlock left, IScriptVariableBlock right) =>
+			IsEqualToVariableBlock.Create(left, right);
+
+		public static VariableBlock operator !=(VariableBlock left, Variable right) =>
+			IsNotEqualToVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator !=(VariableBlock left, IScriptVariableBlock right) =>
+			IsNotEqualToVariableBlock.Create(left, right);
+
+		public static VariableBlock operator >(VariableBlock left, Variable right) =>
+			IsGreaterThanVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator >(VariableBlock left, IScriptVariableBlock right) =>
+			IsGreaterThanVariableBlock.Create(left, right);
+
+		public static VariableBlock operator >=(VariableBlock left, Variable right) =>
+			IsAtLeastVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator >=(VariableBlock left, IScriptVariableBlock right) =>
+			IsAtLeastVariableBlock.Create(left, right);
+
+		public static VariableBlock operator <(VariableBlock left, Variable right) =>
+			IsLessThanVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator <(VariableBlock left, IScriptVariableBlock right) =>
+			IsLessThanVariableBlock.Create(left, right);
+
+		public static VariableBlock operator <=(VariableBlock left, Variable right) =>
+			IsAtMostVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+
+		public static VariableBlock operator <=(VariableBlock left, IScriptVariableBlock right) =>
+			IsAtMostVariableBlock.Create(left, right);
+
+		// Unary Operators
+		public static VariableBlock operator !(VariableBlock operand) => NotBlock.Create(operand);
+
+		// Actions
+		public IScriptActionBlock Set(Variable value) => AssignmentVariableBlock.Create(GetHandle(), ConstantVariableBlock.Create(value));
+		public IScriptActionBlock Set(IScriptVariableBlock value) => AssignmentVariableBlock.Create(GetHandle(), value);
+
+		public IScriptActionBlock Inc() => Add(1);
+		public IScriptActionBlock Dec() => Sub(1);
+
+		public IScriptActionBlock Add(Variable value) => Set(this + value);
+		public IScriptActionBlock Add(IScriptVariableBlock value) => Set(this + value);
+
+		public IScriptActionBlock Sub(Variable value) => Set(this - value);
+		public IScriptActionBlock Sub(IScriptVariableBlock value) => Set(this - value);
+
+		public IScriptActionBlock Mul(Variable value) => Set(this * value);
+		public IScriptActionBlock Mul(IScriptVariableBlock value) => Set(this * value);
+
+		public IScriptActionBlock Div(Variable value) => Set(this / value);
+		public IScriptActionBlock Div(IScriptVariableBlock value) => Set(this / value);
+
+		public IScriptActionBlock Toggle() => Set(!this);
+
+		// Conditions
+		public IScriptConditionBlock IsTrue() => this;
+		public IScriptConditionBlock IsFalse() => !this;
+
+		public IScriptConditionBlock IsEqualTo(Variable value) => this == value;
+		public IScriptConditionBlock IsEqualTo(IScriptVariableBlock value) => this == value;
+
+		public IScriptConditionBlock IsNotEqualTo(Variable value) => this != value;
+		public IScriptConditionBlock IsNotEqualTo(IScriptVariableBlock value) => this != value;
+
+		public IScriptConditionBlock IsGreaterThan(Variable value) => this > value;
+		public IScriptConditionBlock IsGreaterThan(IScriptVariableBlock value) => this > value;
+
+		public IScriptConditionBlock IsLessThan(Variable value) => this < value;
+		public IScriptConditionBlock IsLessThan(IScriptVariableBlock value) => this < value;
+
+		public IScriptConditionBlock IsAtLeast(Variable value) => this >= value;
+		public IScriptConditionBlock IsAtLeast(IScriptVariableBlock value) => this >= value;
+
+		public IScriptConditionBlock IsAtMost(Variable value) => this <= value;
+		public IScriptConditionBlock IsAtMost(IScriptVariableBlock value) => this <= value;
+
+		private Table.VarHandle GetHandle() => TargetHandle ?? throw new InvalidOperationException($"Cannot perform modification action on {GetType().Name}. Only variables can be modified.");
+
+		public virtual Boolean Evaluate(ILunyScriptContext context) => GetValue(context).AsBoolean();
+		public abstract Variable GetValue(ILunyScriptContext context);
+
+		public override Boolean Equals(Object obj) => base.Equals(obj);
+		public override Int32 GetHashCode() => base.GetHashCode();
+	}
+}

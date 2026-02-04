@@ -8,7 +8,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Logical AND condition block.
 	/// </summary>
-	internal sealed class AndBlock : ScriptVariableBlockBase
+	internal sealed class AndBlock : VariableBlock
 	{
 		private readonly IScriptConditionBlock[] _conditions;
 

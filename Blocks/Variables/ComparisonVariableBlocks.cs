@@ -5,25 +5,25 @@ using System.Runtime.CompilerServices;
 
 namespace LunyScript.Blocks
 {
-	internal abstract class ComparisonBlockBase : ScriptVariableBlockBase
+	internal abstract class ComparisonVariableBlock : VariableBlock
 	{
-		protected readonly IScriptVariable _left;
-		protected readonly IScriptVariable _right;
+		protected readonly IScriptVariableBlock _left;
+		protected readonly IScriptVariableBlock _right;
 
-		internal override ScriptVariable Variable => (_left as ScriptVariableBlockBase)?.Variable;
+		internal override Table.VarHandle TargetHandle => (_left as VariableBlock)?.TargetHandle;
 
-		protected ComparisonBlockBase(IScriptVariable left, IScriptVariable right = null)
+		protected ComparisonVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right = null)
 		{
 			_left = left ?? throw new ArgumentNullException(nameof(left));
 			_right = right;
 		}
 	}
 
-	internal sealed class IsEqualToBlock : ComparisonBlockBase
+	internal sealed class IsEqualToVariableBlock : ComparisonVariableBlock
 	{
-		public static IsEqualToBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		public static IsEqualToVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
 
-		private IsEqualToBlock(IScriptVariable left, IScriptVariable right)
+		private IsEqualToVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -35,11 +35,11 @@ namespace LunyScript.Blocks
 		public override String ToString() => $"{_left} == {_right}";
 	}
 
-	internal sealed class IsNotEqualToBlock : ComparisonBlockBase
+	internal sealed class IsNotEqualToVariableBlock : ComparisonVariableBlock
 	{
-		public static IsNotEqualToBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		public static IsNotEqualToVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
 
-		private IsNotEqualToBlock(IScriptVariable left, IScriptVariable right)
+		private IsNotEqualToVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,11 +49,11 @@ namespace LunyScript.Blocks
 		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) != _right.GetValue(context);
 	}
 
-	internal sealed class IsGreaterThanBlock : ComparisonBlockBase
+	internal sealed class IsGreaterThanVariableBlock : ComparisonVariableBlock
 	{
-		public static IsGreaterThanBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		public static IsGreaterThanVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
 
-		private IsGreaterThanBlock(IScriptVariable left, IScriptVariable right)
+		private IsGreaterThanVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,11 +63,11 @@ namespace LunyScript.Blocks
 		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) > (Double)_right.GetValue(context);
 	}
 
-	internal sealed class IsAtLeastBlock : ComparisonBlockBase
+	internal sealed class IsAtLeastVariableBlock : ComparisonVariableBlock
 	{
-		public static IsAtLeastBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		public static IsAtLeastVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
 
-		private IsAtLeastBlock(IScriptVariable left, IScriptVariable right)
+		private IsAtLeastVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -77,11 +77,11 @@ namespace LunyScript.Blocks
 		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) >= (Double)_right.GetValue(context);
 	}
 
-	internal sealed class IsLessThanBlock : ComparisonBlockBase
+	internal sealed class IsLessThanVariableBlock : ComparisonVariableBlock
 	{
-		public static IsLessThanBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		public static IsLessThanVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
 
-		private IsLessThanBlock(IScriptVariable left, IScriptVariable right)
+		private IsLessThanVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,11 +91,11 @@ namespace LunyScript.Blocks
 		public override Boolean Evaluate(ILunyScriptContext context) => _left.GetValue(context) < (Double)_right.GetValue(context);
 	}
 
-	internal sealed class IsAtMostBlock : ComparisonBlockBase
+	internal sealed class IsAtMostVariableBlock : ComparisonVariableBlock
 	{
-		public static IsAtMostBlock Create(IScriptVariable left, IScriptVariable right) => new(left, right);
+		public static IsAtMostVariableBlock Create(IScriptVariableBlock left, IScriptVariableBlock right) => new(left, right);
 
-		private IsAtMostBlock(IScriptVariable left, IScriptVariable right)
+		private IsAtMostVariableBlock(IScriptVariableBlock left, IScriptVariableBlock right)
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
