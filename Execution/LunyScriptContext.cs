@@ -33,8 +33,6 @@ namespace LunyScript.Execution
 		private readonly ILunyScriptDefinition _scriptDef;
 		private readonly ILunyObject _lunyObject;
 
-		private List<Double> _intervalTimers;
-
 		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
