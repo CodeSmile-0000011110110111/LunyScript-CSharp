@@ -150,7 +150,9 @@ namespace LunyScript
 		internal void Initialize(ILunyScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
 		// API properties
-		public VariableBlock Const(String name, Variable value) => throw new NotImplementedException(nameof(Const));
+		public VariableBlock Const(String name, Variable value) =>
+			TableVariableBlock.Create(_context.GlobalVariables.DefineConstant(name, value));
+
 		public VariableBlock Const(Variable value) => ConstantVariableBlock.Create(value);
 		public VariableBlock GVar(String name) => TableVariableBlock.Create(_context.GlobalVariables.GetHandle(name));
 		public VariableBlock Var(String name) => TableVariableBlock.Create(_context.LocalVariables.GetHandle(name));

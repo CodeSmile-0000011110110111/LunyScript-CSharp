@@ -100,9 +100,16 @@ namespace LunyScript.Blocks
 		public override Int32 GetHashCode() => throw new NotImplementedException($"{nameof(VariableBlock)}.{nameof(GetHashCode)}()");
 
 		// Actions
-		private Table.VarHandle GetHandleOrThrow() => TargetHandle ??
-		                                              throw new LunyScriptVariableException(
-			                                              $"Cannot modify read-only variable: {GetType().Name}");
+		private Table.VarHandle GetHandleOrThrow()
+		{
+			var handle = TargetHandle;
+			if (handle == null)
+				throw new LunyScriptVariableException($"Cannot modify read-only variable: {GetType().Name}");
+			if (handle.IsConstant)
+				throw new LunyScriptVariableException($"Cannot modify constant variable: {handle.Name}");
+
+			return handle;
+		}
 
 		public IScriptActionBlock Set(Variable value) =>
 			AssignmentVariableBlock.Create(GetHandleOrThrow(), ConstantVariableBlock.Create(value));
