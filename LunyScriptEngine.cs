@@ -11,6 +11,7 @@ namespace LunyScript
 	public interface ILunyScriptEngine
 	{
 		ITable GlobalVariables { get; }
+		ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID);
 	}
 
 	/// <summary>
