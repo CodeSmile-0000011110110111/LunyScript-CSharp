@@ -1,5 +1,6 @@
 using Luny;
 using Luny.Engine.Bridge;
+using LunyScript.Coroutines;
 using LunyScript.Diagnostics;
 using LunyScript.Events;
 using System;
@@ -73,10 +74,15 @@ namespace LunyScript.Execution
 		/// </summary>
 		internal LunyScriptBlockProfiler BlockProfiler { get; }
 
-		/// <summary>
+ 	/// <summary>
 		/// Event scheduler for managing sequences across all event types.
 		/// </summary>
 		internal LunyScriptEventScheduler Scheduler { get; }
+
+		/// <summary>
+		/// Coroutine runner for managing timers and coroutines.
+		/// </summary>
+		internal LunyScriptCoroutineRunner Coroutines { get; }
 
 		internal static void ClearGlobalVariables() => s_GlobalVariables?.RemoveAll();
 
@@ -91,6 +97,7 @@ namespace LunyScript.Execution
 			DebugHooks = new LunyScriptDebugHooks();
 			BlockProfiler = new LunyScriptBlockProfiler();
 			Scheduler = new LunyScriptEventScheduler();
+			Coroutines = new LunyScriptCoroutineRunner();
 		}
 
 		~LunyScriptContext() => LunyTraceLogger.LogInfoFinalized(this);

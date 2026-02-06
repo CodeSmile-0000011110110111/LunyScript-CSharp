@@ -148,13 +148,21 @@ namespace LunyScript.Execution
 		public void OnEngineHeartbeat(Double fixedDeltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
+			{
 				_objectEventHandler.OnFixedStep(fixedDeltaTime, context);
+				// Coroutines run AFTER non-coroutine updates
+				context.Coroutines?.OnFixedStep((Single)fixedDeltaTime, context);
+			}
 		}
 
 		public void OnEngineFrameUpdate(Double deltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
+			{
 				_objectEventHandler.OnUpdate(deltaTime, context);
+				// Coroutines run AFTER non-coroutine updates
+				context.Coroutines?.OnUpdate((Single)deltaTime, context);
+			}
 		}
 
 		public void OnEngineFrameLateUpdate(Double deltaTime)
