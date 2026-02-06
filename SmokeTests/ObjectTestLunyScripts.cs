@@ -11,13 +11,13 @@ namespace LunyScript.SmokeTests
 
 		public override void Build()
 		{
-			When.Self.Created(Object.Create(DestroyedObjectName));
-			When.Self.LateUpdates(Object.Destroy(DestroyedObjectName));
+			On.Created(Object.Create(DestroyedObjectName));
+			On.FrameEnd(Object.Destroy(DestroyedObjectName));
 
-			When.Self.Ready(Object.Create(EmptyObjectName));
-			When.Self.Ready(Object.CreateCube(CubeObjectName));
-			When.Self.Ready(Object.CreateSphere(SphereObjectName));
-			When.Self.Ready(Prefab.Instantiate("TestPrefab"));
+			On.Ready(Object.Create(EmptyObjectName));
+			On.Ready(Object.CreateCube(CubeObjectName));
+			On.Ready(Object.CreateSphere(SphereObjectName));
+			On.Ready(Prefab.Instantiate("TestPrefab"));
 		}
 	}
 }

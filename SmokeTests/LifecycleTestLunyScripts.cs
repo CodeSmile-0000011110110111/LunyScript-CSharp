@@ -1,12 +1,12 @@
-﻿namespace LunyScript.SmokeTests
+namespace LunyScript.SmokeTests
 {
 	public sealed class Assert_Runs_WhenCreated : LunyScriptSmokeTestBase
 	{
 		public override void Build()
 		{
-			When.Self.Created(Method.Run(AssertDidRun));
+			On.Created(Method.Run(AssertDidRun));
 
-			When.Self.LateUpdates(
+			On.FrameEnd(
 				//Debug.LogWarning("Reloading scene now ..."),
 				//Scene.Reload()
 			);
@@ -18,8 +18,8 @@
 	{
 		public override void Build()
 		{
-			When.Self.Created(Object.Destroy());
-			When.Self.Destroyed(Method.Run(AssertDidRun));
+			On.Created(Object.Destroy());
+			On.Destroyed(Method.Run(AssertDidRun));
 		}
 	}
 
@@ -27,7 +27,7 @@
 	{
 		public override void Build()
 		{
-			When.Self.Enabled(Method.Run(AssertDidRun));
+			On.Enabled(Method.Run(AssertDidRun));
 		}
 	}
 
@@ -35,8 +35,8 @@
 	{
 		public override void Build()
 		{
-			When.Self.Created(Object.Disable());
-			When.Self.Disabled(Method.Run(AssertDidRun));
+			On.Created(Object.Disable());
+			On.Disabled(Method.Run(AssertDidRun));
 		}
 	}
 
@@ -44,7 +44,7 @@
 	{
 		public override void Build()
 		{
-			When.Self.Ready(Method.Run(AssertDidRun));
+			On.Ready(Method.Run(AssertDidRun));
 		}
 	}
 
@@ -52,7 +52,7 @@
 	{
 		public override void Build()
 		{
-			When.Self.Steps(Method.Run(AssertDidRun),
+			On.Heartbeat(Method.Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
 		}
@@ -62,7 +62,7 @@
 	{
 		public override void Build()
 		{
-			When.Self.Updates(Method.Run(AssertDidRun),
+			On.FrameUpdate(Method.Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
 		}
@@ -72,7 +72,7 @@
 	{
 		public override void Build()
 		{
-			When.Self.LateUpdates(Method.Run(AssertDidRun),
+			On.FrameEnd(Method.Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
 		}

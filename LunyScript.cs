@@ -22,6 +22,7 @@ namespace LunyScript
 		EngineApi Engine { get; }
 		MethodApi Method { get; }
 		ObjectApi Object { get; }
+		OnApi On { get; }
 		PrefabApi Prefab { get; }
 		SceneApi Scene { get; }
 		WhenApi When { get; }
@@ -90,6 +91,7 @@ namespace LunyScript
 		public LoopApi Loop => new(this);
 		public MethodApi Method => new(this);
 		public ObjectApi Object => new(this);
+		public OnApi On => new(this);
 		public PrefabApi Prefab => new(this);
 		public SceneApi Scene => new(this);
 		public WhenApi When => new(this);
