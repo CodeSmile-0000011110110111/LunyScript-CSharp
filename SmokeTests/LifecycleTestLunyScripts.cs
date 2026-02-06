@@ -4,7 +4,6 @@
 	{
 		public override void Build()
 		{
-			base.Build();
 			When.Self.Created(Method.Run(AssertDidRun));
 
 			When.Self.LateUpdates(
@@ -19,7 +18,6 @@
 	{
 		public override void Build()
 		{
-			base.Build();
 			When.Self.Created(Object.Destroy());
 			When.Self.Destroyed(Method.Run(AssertDidRun));
 		}
@@ -29,7 +27,6 @@
 	{
 		public override void Build()
 		{
-			base.Build();
 			When.Self.Enabled(Method.Run(AssertDidRun));
 		}
 	}
@@ -38,7 +35,6 @@
 	{
 		public override void Build()
 		{
-			base.Build();
 			When.Self.Created(Object.Disable());
 			When.Self.Disabled(Method.Run(AssertDidRun));
 		}
@@ -48,7 +44,6 @@
 	{
 		public override void Build()
 		{
-			base.Build();
 			When.Self.Ready(Method.Run(AssertDidRun));
 		}
 	}
@@ -57,7 +52,6 @@
 	{
 		public override void Build()
 		{
-			base.Build();
 			When.Self.Steps(Method.Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
@@ -68,7 +62,6 @@
 	{
 		public override void Build()
 		{
-			base.Build();
 			When.Self.Updates(Method.Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
@@ -79,7 +72,6 @@
 	{
 		public override void Build()
 		{
-			base.Build();
 			When.Self.LateUpdates(Method.Run(AssertDidRun),
 				Object.Destroy() // prevent log spam
 			);
