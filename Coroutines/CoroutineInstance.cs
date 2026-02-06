@@ -4,17 +4,37 @@ using System;
 namespace LunyScript.Coroutines
 {
 	/// <summary>
+	/// Specifies how coroutine duration is measured.
+	/// </summary>
+	internal enum CoroutineDurationType
+	{
+		/// <summary>
+		/// Duration measured in seconds (affected by deltaTime and TimeScale).
+		/// </summary>
+		TimeBased,
+		/// <summary>
+		/// Duration measured in heartbeat counts (fixed steps).
+		/// </summary>
+		HeartbeatCount
+	}
+
+	/// <summary>
 	/// Represents an individual coroutine/timer instance with runtime state and control methods.
 	/// Sequences are pre-created at registration time to avoid runtime allocation.
 	/// </summary>
 	internal sealed class CoroutineInstance
 	{
-		private readonly String _name;
-		private CoroutineState _state = CoroutineState.Stopped;
-		private Single _elapsedTime;
-		private Single _duration;
-		private Single _timeScale = 1f;
-		private Boolean _wasPausedByDisable;
+ 		private readonly String _name;
+ 		private CoroutineState _state = CoroutineState.Stopped;
+ 		private CoroutineDurationType _durationType = CoroutineDurationType.TimeBased;
+ 		private Double _elapsedTime;
+ 		private Double _duration;
+ 		private Int32 _elapsedCount;
+ 		private Int32 _targetCount;
+ 		private Double _timeScale = 1.0;
+ 		private Boolean _wasPausedByDisable;
+ 		private Int32 _timeSliceInterval;
+ 		private Int32 _timeSliceOffset;
 
 		// Pre-created sequences (created once at registration, no runtime allocation)
 		private IScriptSequenceBlock _onUpdateSequence;
@@ -27,11 +47,18 @@ namespace LunyScript.Coroutines
 
 		internal String Name => _name;
 		internal CoroutineState State => _state;
-		internal Single ElapsedTime => _elapsedTime;
-		internal Single Duration => _duration;
-		internal Single TimeScale => _timeScale;
-		internal Boolean HasDuration => _duration > 0;
+		internal CoroutineDurationType DurationType => _durationType;
+		internal Double ElapsedTime => _elapsedTime;
+		internal Double Duration => _duration;
+		internal Int32 ElapsedCount => _elapsedCount;
+		internal Int32 TargetCount => _targetCount;
+		internal Double TimeScale => _timeScale;
+		internal Boolean HasDuration => _durationType == CoroutineDurationType.TimeBased ? _duration > 0 : _targetCount > 0;
+		internal Boolean IsCountBased => _durationType == CoroutineDurationType.HeartbeatCount;
 		internal Boolean WasPausedByDisable => _wasPausedByDisable;
+		internal Int32 TimeSliceInterval => _timeSliceInterval;
+		internal Int32 TimeSliceOffset => _timeSliceOffset;
+		internal Boolean IsTimeSliced => _timeSliceInterval != 0;
 
 		internal IScriptSequenceBlock OnUpdateSequence => _onUpdateSequence;
 		internal IScriptSequenceBlock OnHeartbeatSequence => _onHeartbeatSequence;
@@ -49,7 +76,22 @@ namespace LunyScript.Coroutines
 			_name = name;
 		}
 
-		internal void SetDuration(Single duration) => _duration = Math.Max(0, duration);
+		internal void SetDuration(Double duration)
+		{
+			_durationType = CoroutineDurationType.TimeBased;
+			_duration = Math.Max(0, duration);
+			_targetCount = 0;
+		}
+
+		internal void SetHeartbeatCount(Int32 count)
+		{
+			_durationType = CoroutineDurationType.HeartbeatCount;
+			_targetCount = Math.Max(0, count);
+			_duration = 0;
+		}
+
+		internal void SetTimeSliceInterval(Int32 interval) => _timeSliceInterval = interval;
+		internal void SetTimeSliceOffset(Int32 offset) => _timeSliceOffset = Math.Max(0, offset);
 
 		internal void SetOnUpdateBlocks(IScriptActionBlock[] blocks) =>
 			_onUpdateSequence = CreateSequenceIfNotEmpty(blocks);
@@ -76,65 +118,69 @@ namespace LunyScript.Coroutines
 			blocks != null && blocks.Length > 0 ? new SequenceBlock(blocks) : null;
 
 		/// <summary>
-		/// Starts or restarts the coroutine. Resets elapsed time.
+		/// Starts or restarts the coroutine. Resets elapsed time/count.
+		/// Returns true if started fresh (not restarting), indicating Started event should fire.
 		/// </summary>
-		internal void Start()
+		internal Boolean Start()
 		{
 			var wasRunning = _state == CoroutineState.Running;
+			var wasPaused = _state == CoroutineState.Paused;
 			_elapsedTime = 0;
+			_elapsedCount = 0;
 			_state = CoroutineState.Running;
 			_wasPausedByDisable = false;
 
-			// If restarting, no need to fire Started again (implicit stop)
-			if (!wasRunning && _onStartedSequence != null)
-			{
-				// Started sequence will be executed by runner
-			}
+			// Fire Started event only when starting fresh (not restarting or resuming)
+			return !wasRunning && !wasPaused;
 		}
 
 		/// <summary>
 		/// Stops the coroutine and resets state.
+		/// Returns true if the coroutine was running or paused (indicating Stopped event should fire).
 		/// </summary>
-		internal void Stop()
+		internal Boolean Stop()
 		{
 			if (_state == CoroutineState.Stopped)
-				return;
+				return false;
 
 			_state = CoroutineState.Stopped;
 			_elapsedTime = 0;
+			_elapsedCount = 0;
 			_wasPausedByDisable = false;
-			// Stopped sequence will be executed by runner
+			return true;
 		}
 
 		/// <summary>
 		/// Pauses the coroutine, preserving current elapsed time.
+		/// Returns true if the coroutine was running (indicating Paused event should fire).
 		/// </summary>
-		internal void Pause()
+		internal Boolean Pause()
 		{
 			if (_state != CoroutineState.Running)
-				return;
+				return false;
 
 			_state = CoroutineState.Paused;
-			// Paused sequence will be executed by runner
+			return true;
 		}
 
 		/// <summary>
 		/// Resumes a paused coroutine.
+		/// Returns true if the coroutine was paused (indicating Resumed event should fire).
 		/// </summary>
-		internal void Resume()
+		internal Boolean Resume()
 		{
 			if (_state != CoroutineState.Paused)
-				return;
+				return false;
 
 			_state = CoroutineState.Running;
 			_wasPausedByDisable = false;
-			// Resumed sequence will be executed by runner
+			return true;
 		}
 
 		/// <summary>
 		/// Sets the time scale. Clamped to >= 0 (no negative time).
 		/// </summary>
-		internal void SetTimeScale(Single scale) => _timeScale = Math.Max(0, scale);
+		internal void SetTimeScale(Double scale) => _timeScale = Math.Max(0, scale);
 
 		/// <summary>
 		/// Auto-pause when object is disabled.
@@ -161,16 +207,17 @@ namespace LunyScript.Coroutines
 		}
 
 		/// <summary>
-		/// Advances the coroutine by deltaTime. Returns true if elapsed (duration reached).
+		/// Advances a time-based coroutine by deltaTime. Returns true if elapsed (duration reached).
+		/// Only use for TimeBased coroutines.
 		/// </summary>
-		internal Boolean Advance(Single deltaTime)
+		internal Boolean AdvanceTime(Double deltaTime)
 		{
-			if (_state != CoroutineState.Running)
+			if (_state != CoroutineState.Running || _durationType != CoroutineDurationType.TimeBased)
 				return false;
 
 			_elapsedTime += deltaTime * _timeScale;
 
-			if (HasDuration && _elapsedTime >= _duration)
+			if (_duration > 0 && _elapsedTime >= _duration)
 			{
 				_state = CoroutineState.Stopped;
 				return true; // elapsed
@@ -179,6 +226,29 @@ namespace LunyScript.Coroutines
 			return false;
 		}
 
-		public override String ToString() => $"Coroutine({_name}, {_state}, {_elapsedTime:F2}/{_duration:F2}s)";
+		/// <summary>
+		/// Advances a count-based coroutine by one heartbeat. Returns true if elapsed (count reached).
+		/// Only use for HeartbeatCount coroutines.
+		/// </summary>
+		internal Boolean AdvanceHeartbeat()
+		{
+			if (_state != CoroutineState.Running || _durationType != CoroutineDurationType.HeartbeatCount)
+				return false;
+
+			_elapsedCount++;
+
+			if (_targetCount > 0 && _elapsedCount >= _targetCount)
+			{
+				_state = CoroutineState.Stopped;
+				return true; // elapsed
+			}
+
+			return false;
+		}
+
+		public override String ToString() =>
+			_durationType == CoroutineDurationType.TimeBased
+				? $"Coroutine({_name}, {_state}, {_elapsedTime:F2}/{_duration:F2}s)"
+				: $"Coroutine({_name}, {_state}, {_elapsedCount}/{_targetCount} heartbeats)";
 	}
 }

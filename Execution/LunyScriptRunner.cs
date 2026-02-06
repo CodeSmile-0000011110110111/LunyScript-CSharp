@@ -151,7 +151,7 @@ namespace LunyScript.Execution
 			{
 				_objectEventHandler.OnFixedStep(fixedDeltaTime, context);
 				// Coroutines run AFTER non-coroutine updates
-				context.Coroutines?.OnFixedStep((Single)fixedDeltaTime, context);
+				context.Coroutines?.OnFixedStep(fixedDeltaTime, context);
 			}
 		}
 
@@ -161,7 +161,7 @@ namespace LunyScript.Execution
 			{
 				_objectEventHandler.OnUpdate(deltaTime, context);
 				// Coroutines run AFTER non-coroutine updates
-				context.Coroutines?.OnUpdate((Single)deltaTime, context);
+				context.Coroutines?.OnUpdate(deltaTime, context);
 			}
 		}
 

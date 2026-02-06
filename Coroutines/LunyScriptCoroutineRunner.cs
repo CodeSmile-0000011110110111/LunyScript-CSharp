@@ -14,6 +14,8 @@ namespace LunyScript.Coroutines
 	internal sealed class LunyScriptCoroutineRunner
 	{
 		private readonly Dictionary<String, CoroutineInstance> _coroutines = new();
+		private Int64 _frameCount;
+		private Int64 _heartbeatCount;
 
 		/// <summary>
 		/// Registers a new coroutine. Throws if name already exists.
@@ -40,23 +42,27 @@ namespace LunyScript.Coroutines
 		internal Boolean Exists(String name) => _coroutines.ContainsKey(name);
 
 		/// <summary>
-		/// Called on frame update. Advances all running coroutines with OnUpdate sequences.
+		/// Called on frame update. Advances all running time-based coroutines.
 		/// Should be called from LunyScriptRunner AFTER non-coroutine updates.
 		/// </summary>
-		internal void OnUpdate(Single deltaTime, LunyScriptContext context)
+		internal void OnUpdate(Double deltaTime, LunyScriptContext context)
 		{
+			_frameCount++;
+
 			foreach (var coroutine in _coroutines.Values)
 			{
 				if (coroutine.State != CoroutineState.Running)
 					continue;
 
 				// Run OnUpdate sequence if any (pre-created, no allocation)
-				RunSequence(coroutine.OnUpdateSequence, context);
+				// Time-sliced coroutines only run when interval matches
+				if (ShouldRunThisTick(coroutine, _frameCount))
+					RunSequence(coroutine.OnUpdateSequence, context);
 
-				// Advance and check if elapsed (only for duration-based coroutines without heartbeat)
-				if (coroutine.HasDuration && coroutine.OnHeartbeatSequence == null)
+				// Advance time-based coroutines (count-based advance in OnFixedStep)
+				if (!coroutine.IsCountBased)
 				{
-					var elapsed = coroutine.Advance(deltaTime);
+					var elapsed = coroutine.AdvanceTime(deltaTime);
 					if (elapsed)
 						RunSequence(coroutine.OnElapsedSequence, context);
 				}
@@ -65,22 +71,27 @@ namespace LunyScript.Coroutines
 
 		/// <summary>
 		/// Called on fixed step (heartbeat). Advances all running coroutines with OnHeartbeat sequences.
+		/// Also advances count-based (heartbeat) coroutines.
 		/// Should be called from LunyScriptRunner AFTER non-coroutine updates.
 		/// </summary>
-		internal void OnFixedStep(Single fixedDeltaTime, LunyScriptContext context)
+		internal void OnFixedStep(Double fixedDeltaTime, LunyScriptContext context)
 		{
+			_heartbeatCount++;
+
 			foreach (var coroutine in _coroutines.Values)
 			{
 				if (coroutine.State != CoroutineState.Running)
 					continue;
 
 				// Run OnHeartbeat sequence if any (pre-created, no allocation)
-				RunSequence(coroutine.OnHeartbeatSequence, context);
+				// Time-sliced coroutines only run when interval matches
+				if (ShouldRunThisTick(coroutine, _heartbeatCount))
+					RunSequence(coroutine.OnHeartbeatSequence, context);
 
-				// Advance and check if elapsed (for heartbeat-based coroutines)
-				if (coroutine.HasDuration && coroutine.OnHeartbeatSequence != null)
+				// Advance count-based coroutines on each heartbeat
+				if (coroutine.IsCountBased)
 				{
-					var elapsed = coroutine.Advance(fixedDeltaTime);
+					var elapsed = coroutine.AdvanceHeartbeat();
 					if (elapsed)
 						RunSequence(coroutine.OnElapsedSequence, context);
 				}
@@ -91,6 +102,24 @@ namespace LunyScript.Coroutines
 		{
 			if (sequence != null)
 				LunyScriptRunner.Run(new[] { sequence }, context);
+		}
+
+		private static Boolean ShouldRunThisTick(CoroutineInstance coroutine, Int64 tickCount)
+		{
+			if (!coroutine.IsTimeSliced)
+				return true;
+
+			var interval = coroutine.TimeSliceInterval;
+			var offset = coroutine.TimeSliceOffset;
+
+			// Handle Even and Odd special values
+			if (interval == LunyScript.Even) // Even
+				return (tickCount + offset) % 2 == 0;
+			if (interval == LunyScript.Odd) // Odd
+				return (tickCount + offset) % 2 == 1;
+
+			// Regular interval
+			return (tickCount - offset) % interval == 0;
 		}
 
 		/// <summary>

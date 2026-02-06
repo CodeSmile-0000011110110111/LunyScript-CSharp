@@ -36,6 +36,7 @@ namespace LunyScript
 	internal interface ILunyScriptInternal
 	{
 		LunyScriptEventScheduler Scheduler { get; }
+		LunyScriptContext Context { get; }
 	}
 
 	/// <summary>
@@ -84,6 +85,7 @@ namespace LunyScript
 		public Boolean IsEditor => LunyEngine.Instance.Application.IsEditor;
 
 		LunyScriptEventScheduler ILunyScriptInternal.Scheduler => _context is LunyScriptContext context ? context.Scheduler : null;
+		LunyScriptContext ILunyScriptInternal.Context => _context as LunyScriptContext;
 
 		public DebugApi Debug => new(this);
 		public EditorApi Editor => new(this);
@@ -198,6 +200,34 @@ namespace LunyScript
 		/// Logical NOT: Returns the inverse of the condition.
 		/// </summary>
 		public IScriptConditionBlock NOT(IScriptConditionBlock condition) => NotBlock.Create(condition);
+
+		/// <summary>
+		/// Creates a named timer.
+		/// Usage: Timer("name").In(3).Seconds().Do(blocks);
+		/// </summary>
+		protected TimerBuilder Timer(String name) => new(this, name);
+
+		/// <summary>
+		/// Creates a named coroutine.
+		/// Usage: Coroutine("name").Duration(3).Seconds().OnUpdate(blocks).Elapsed(blocks);
+		/// </summary>
+		protected CoroutineBuilder Coroutine(String name) => new(this, name);
+
+		/// <summary>
+		/// Time-sliced execution: Every(n).Frames(blocks) or Every(n).Heartbeats(blocks).
+		/// Use Even or Odd constants for alternating execution.
+		/// </summary>
+		protected EveryBuilder Every(Int32 interval) => new(this, interval);
+
+		/// <summary>
+		/// Constant for Even frame/heartbeat execution (0, 2, 4, 6, ...).
+		/// </summary>
+		internal const Int32 Even = -2;
+
+		/// <summary>
+		/// Constant for Odd frame/heartbeat execution (1, 3, 5, 7, ...).
+		/// </summary>
+		internal const Int32 Odd = -1;
 
 		~LunyScript() => LunyTraceLogger.LogInfoFinalized(this);
 
