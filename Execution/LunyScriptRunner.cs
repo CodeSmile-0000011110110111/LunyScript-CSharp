@@ -145,19 +145,19 @@ namespace LunyScript.Execution
 
 		public void OnSceneUnloaded(ILunyScene unloadedScene) => _sceneEventHandler.OnSceneUnloaded(unloadedScene);
 
-		public void OnEngineFixedStep(Double fixedDeltaTime)
+		public void OnEngineHeartbeat(Double fixedDeltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
 				_objectEventHandler.OnFixedStep(fixedDeltaTime, context);
 		}
 
-		public void OnEngineUpdate(Double deltaTime)
+		public void OnEngineFrameUpdate(Double deltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
 				_objectEventHandler.OnUpdate(deltaTime, context);
 		}
 
-		public void OnEngineLateUpdate(Double deltaTime)
+		public void OnEngineFrameLateUpdate(Double deltaTime)
 		{
 			// Run all LateUpdate runnables
 			foreach (var context in _contexts.AllContexts)
