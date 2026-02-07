@@ -36,7 +36,7 @@ namespace LunyScript.Execution
 				Run(sequence, context);
 		}
 
-		private static void Run(IScriptSequenceBlock sequence, LunyScriptContext context)
+		internal static void Run(IScriptSequenceBlock sequence, LunyScriptContext context)
 		{
 			// TODO: avoid profiling overhead when not enabled
 			var timeService = LunyEngine.Instance.Time;

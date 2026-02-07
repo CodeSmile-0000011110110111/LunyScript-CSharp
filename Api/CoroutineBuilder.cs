@@ -83,88 +83,58 @@ namespace LunyScript.Api
 	public readonly struct CoroutineFinalBuilder
 	{
 		private readonly ILunyScript _script;
-		private readonly String _name;
-		private readonly Double _durationSeconds;
-		private readonly Int32 _heartbeatCount;
-		private readonly Boolean _isCountBased;
-		private readonly IScriptActionBlock[] _onUpdateBlocks;
-		private readonly IScriptActionBlock[] _onHeartbeatBlocks;
-		private readonly IScriptActionBlock[] _onElapsedBlocks;
-		private readonly IScriptActionBlock[] _onStartedBlocks;
-		private readonly IScriptActionBlock[] _onStoppedBlocks;
-		private readonly IScriptActionBlock[] _onPausedBlocks;
-		private readonly IScriptActionBlock[] _onResumedBlocks;
+		private readonly CoroutineOptions _options;
 
-		private CoroutineFinalBuilder(ILunyScript script, String name, Double durationSeconds, Int32 heartbeatCount,
-			Boolean isCountBased, IScriptActionBlock[] onUpdateBlocks = null,
-			IScriptActionBlock[] onHeartbeatBlocks = null, IScriptActionBlock[] onElapsedBlocks = null,
-			IScriptActionBlock[] onStartedBlocks = null, IScriptActionBlock[] onStoppedBlocks = null,
-			IScriptActionBlock[] onPausedBlocks = null, IScriptActionBlock[] onResumedBlocks = null)
+		private CoroutineFinalBuilder(ILunyScript script, in CoroutineOptions options)
 		{
 			_script = script;
-			_name = name;
-			_durationSeconds = durationSeconds;
-			_heartbeatCount = heartbeatCount;
-			_isCountBased = isCountBased;
-			_onUpdateBlocks = onUpdateBlocks;
-			_onHeartbeatBlocks = onHeartbeatBlocks;
-			_onElapsedBlocks = onElapsedBlocks;
-			_onStartedBlocks = onStartedBlocks;
-			_onStoppedBlocks = onStoppedBlocks;
-			_onPausedBlocks = onPausedBlocks;
-			_onResumedBlocks = onResumedBlocks;
+			_options = options;
 		}
 
 		internal static CoroutineFinalBuilder TimeBased(ILunyScript script, String name, Double durationSeconds) =>
-			new(script, name, durationSeconds, 0, isCountBased: false);
+			new(script, CoroutineOptions.ForCoroutine(name) with { Duration = durationSeconds });
 
 		internal static CoroutineFinalBuilder HeartbeatBased(ILunyScript script, String name, Int32 heartbeatCount) =>
-			new(script, name, 0, heartbeatCount, isCountBased: true);
+			new(script, CoroutineOptions.ForCoroutine(name) with { TargetCount = heartbeatCount });
 
 		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name) =>
-			new(script, name, 0, 0, isCountBased: false);
+			new(script, CoroutineOptions.ForCoroutine(name));
 
 		/// <summary>
 		/// Adds blocks to run every frame update while coroutine is running.
 		/// </summary>
 		public CoroutineFinalBuilder OnUpdate(params IScriptActionBlock[] blocks) =>
-			new(_script, _name, _durationSeconds, _heartbeatCount, _isCountBased, blocks, _onHeartbeatBlocks, _onElapsedBlocks,
-				_onStartedBlocks, _onStoppedBlocks, _onPausedBlocks, _onResumedBlocks);
+			new(_script, _options with { OnUpdate = blocks });
 
 		/// <summary>
 		/// Adds blocks to run every heartbeat (fixed step) while coroutine is running.
 		/// </summary>
 		public CoroutineFinalBuilder OnHeartbeat(params IScriptActionBlock[] blocks) =>
-			new(_script, _name, _durationSeconds, _heartbeatCount, _isCountBased, _onUpdateBlocks, blocks, _onElapsedBlocks,
-				_onStartedBlocks, _onStoppedBlocks, _onPausedBlocks, _onResumedBlocks);
+			new(_script, _options with { OnHeartbeat = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine is started (not when restarted).
 		/// </summary>
 		public CoroutineFinalBuilder Started(params IScriptActionBlock[] blocks) =>
-			new(_script, _name, _durationSeconds, _heartbeatCount, _isCountBased, _onUpdateBlocks, _onHeartbeatBlocks, _onElapsedBlocks,
-				blocks, _onStoppedBlocks, _onPausedBlocks, _onResumedBlocks);
+			new(_script, _options with { OnStarted = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine is stopped.
 		/// </summary>
 		public CoroutineFinalBuilder Stopped(params IScriptActionBlock[] blocks) =>
-			new(_script, _name, _durationSeconds, _heartbeatCount, _isCountBased, _onUpdateBlocks, _onHeartbeatBlocks, _onElapsedBlocks,
-				_onStartedBlocks, blocks, _onPausedBlocks, _onResumedBlocks);
+			new(_script, _options with { OnStopped = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine is paused.
 		/// </summary>
 		public CoroutineFinalBuilder Paused(params IScriptActionBlock[] blocks) =>
-			new(_script, _name, _durationSeconds, _heartbeatCount, _isCountBased, _onUpdateBlocks, _onHeartbeatBlocks, _onElapsedBlocks,
-				_onStartedBlocks, _onStoppedBlocks, blocks, _onResumedBlocks);
+			new(_script, _options with { OnPaused = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine is resumed.
 		/// </summary>
 		public CoroutineFinalBuilder Resumed(params IScriptActionBlock[] blocks) =>
-			new(_script, _name, _durationSeconds, _heartbeatCount, _isCountBased, _onUpdateBlocks, _onHeartbeatBlocks, _onElapsedBlocks,
-				_onStartedBlocks, _onStoppedBlocks, _onPausedBlocks, blocks);
+			new(_script, _options with { OnResumed = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine duration elapses.
@@ -172,8 +142,7 @@ namespace LunyScript.Api
 		/// </summary>
 		public IScriptCoroutineBlock Elapsed(params IScriptActionBlock[] blocks)
 		{
-			var finalBuilder = new CoroutineFinalBuilder(_script, _name, _durationSeconds, _heartbeatCount, _isCountBased,
-				_onUpdateBlocks, _onHeartbeatBlocks, blocks, _onStartedBlocks, _onStoppedBlocks, _onPausedBlocks, _onResumedBlocks);
+			var finalBuilder = new CoroutineFinalBuilder(_script, _options with { OnElapsed = blocks });
 			return finalBuilder.Build();
 		}
 
@@ -189,35 +158,7 @@ namespace LunyScript.Api
 			if (context == null)
 				return null;
 
-			var instance = context.Coroutines.Register(_name);
-
-			// Set duration based on type
-			if (_isCountBased)
-				instance.SetHeartbeatCount(_heartbeatCount);
-			else if (_durationSeconds > 0)
-				instance.SetDuration(_durationSeconds);
-
-			if (_onUpdateBlocks != null && _onUpdateBlocks.Length > 0)
-				instance.SetOnUpdateBlocks(_onUpdateBlocks);
-
-			if (_onHeartbeatBlocks != null && _onHeartbeatBlocks.Length > 0)
-				instance.SetOnHeartbeatBlocks(_onHeartbeatBlocks);
-
-			if (_onElapsedBlocks != null && _onElapsedBlocks.Length > 0)
-				instance.SetOnElapsedBlocks(_onElapsedBlocks);
-
-			if (_onStartedBlocks != null && _onStartedBlocks.Length > 0)
-				instance.SetOnStartedBlocks(_onStartedBlocks);
-
-			if (_onStoppedBlocks != null && _onStoppedBlocks.Length > 0)
-				instance.SetOnStoppedBlocks(_onStoppedBlocks);
-
-			if (_onPausedBlocks != null && _onPausedBlocks.Length > 0)
-				instance.SetOnPausedBlocks(_onPausedBlocks);
-
-			if (_onResumedBlocks != null && _onResumedBlocks.Length > 0)
-				instance.SetOnResumedBlocks(_onResumedBlocks);
-
+			var instance = context.Coroutines.Register(in _options);
 			return new CoroutineBlock(instance);
 		}
 	}

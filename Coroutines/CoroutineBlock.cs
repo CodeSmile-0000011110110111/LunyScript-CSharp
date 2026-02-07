@@ -10,9 +10,9 @@ namespace LunyScript.Coroutines
 	/// </summary>
 	internal sealed class CoroutineBlock : IScriptCoroutineBlock
 	{
-		private readonly CoroutineInstance _instance;
+		private readonly CoroutineBase _instance;
 
-		internal CoroutineBlock(CoroutineInstance instance) =>
+		internal CoroutineBlock(CoroutineBase instance) =>
 			_instance = instance ?? throw new ArgumentNullException(nameof(instance));
 
 		public void Execute(ILunyScriptContext context)
@@ -43,10 +43,10 @@ namespace LunyScript.Coroutines
 	/// </summary>
 	internal sealed class CoroutineControlBlock : IScriptActionBlock
 	{
-		private readonly CoroutineInstance _instance;
+		private readonly CoroutineBase _instance;
 		private readonly CoroutineControlAction _action;
 
-		internal CoroutineControlBlock(CoroutineInstance instance, CoroutineControlAction action)
+		internal CoroutineControlBlock(CoroutineBase instance, CoroutineControlAction action)
 		{
 			_instance = instance;
 			_action = action;

@@ -46,17 +46,10 @@ namespace LunyScript.Api
 				return null;
 
 			// Generate a unique name for this time-sliced coroutine
-			var name = $"__every_{_interval}_{(isHeartbeat ? "hb" : "fr")}_{delayOffset}_{Guid.NewGuid():N}";
-			var instance = context.Coroutines.Register(name);
+			var name = CoroutineOptions.GenerateEveryName(_interval, isHeartbeat, delayOffset);
+			var options = CoroutineOptions.ForEvery(name, _interval, delayOffset, blocks, isHeartbeat);
 
-			// Configure as time-sliced coroutine
-			instance.SetTimeSliceInterval(_interval);
-			instance.SetTimeSliceOffset(delayOffset);
-
-			if (isHeartbeat)
-				instance.SetOnHeartbeatBlocks(blocks);
-			else
-				instance.SetOnUpdateBlocks(blocks);
+			var instance = context.Coroutines.Register(in options);
 
 			// Auto-start time-sliced coroutines
 			var block = new CoroutineBlock(instance);

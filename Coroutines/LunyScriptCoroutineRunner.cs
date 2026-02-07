@@ -13,28 +13,62 @@ namespace LunyScript.Coroutines
 	/// </summary>
 	internal sealed class LunyScriptCoroutineRunner
 	{
-		private readonly Dictionary<String, CoroutineInstance> _coroutines = new();
+		private readonly Dictionary<String, CoroutineBase> _coroutines = new();
 		private Int64 _frameCount;
 		private Int64 _heartbeatCount;
 
 		/// <summary>
+		/// Gets the count of registered coroutines.
+		/// </summary>
+		internal Int32 Count => _coroutines.Count;
+
+		/// <summary>
+		/// Gets all registered coroutine names.
+		/// </summary>
+		internal IEnumerable<String> Names => _coroutines.Keys;
+
+		private static void RunSequence(IScriptSequenceBlock sequence, LunyScriptContext context)
+		{
+			if (sequence != null)
+				LunyScriptRunner.Run(sequence, context);
+		}
+
+		private static Boolean ShouldRunThisTick(CoroutineBase coroutine, Int64 tickCount)
+		{
+			if (!coroutine.IsTimeSliced)
+				return true;
+
+			var interval = coroutine.TimeSliceInterval;
+			var offset = coroutine.TimeSliceOffset;
+
+			// Handle Even and Odd special values
+			if (interval == LunyScript.Even) // Even
+				return (tickCount + offset) % 2 == 0;
+
+			if (interval == LunyScript.Odd) // Odd
+				return (tickCount + offset) % 2 == 1;
+
+			// Regular interval
+			return (tickCount - offset) % interval == 0;
+		}
+
+		/// <summary>
 		/// Registers a new coroutine. Throws if name already exists.
 		/// </summary>
-		internal CoroutineInstance Register(String name)
+		internal CoroutineBase Register(in CoroutineOptions options)
 		{
-			if (_coroutines.ContainsKey(name))
-				throw new InvalidOperationException($"Coroutine '{name}' already exists. Duplicate names are not allowed.");
+			if (_coroutines.ContainsKey(options.Name))
+				throw new InvalidOperationException($"Coroutine '{options.Name}' already exists. Duplicate names are not allowed.");
 
-			var instance = new CoroutineInstance(name);
-			_coroutines[name] = instance;
+			var instance = CoroutineBase.Create(options);
+			_coroutines[options.Name] = instance;
 			return instance;
 		}
 
 		/// <summary>
 		/// Gets an existing coroutine by name. Returns null if not found.
 		/// </summary>
-		internal CoroutineInstance Get(String name) =>
-			_coroutines.TryGetValue(name, out var instance) ? instance : null;
+		internal CoroutineBase Get(String name) => _coroutines.TryGetValue(name, out var instance) ? instance : null;
 
 		/// <summary>
 		/// Checks if a coroutine with the given name exists.
@@ -98,30 +132,6 @@ namespace LunyScript.Coroutines
 			}
 		}
 
-		private static void RunSequence(IScriptSequenceBlock sequence, LunyScriptContext context)
-		{
-			if (sequence != null)
-				LunyScriptRunner.Run(new[] { sequence }, context);
-		}
-
-		private static Boolean ShouldRunThisTick(CoroutineInstance coroutine, Int64 tickCount)
-		{
-			if (!coroutine.IsTimeSliced)
-				return true;
-
-			var interval = coroutine.TimeSliceInterval;
-			var offset = coroutine.TimeSliceOffset;
-
-			// Handle Even and Odd special values
-			if (interval == LunyScript.Even) // Even
-				return (tickCount + offset) % 2 == 0;
-			if (interval == LunyScript.Odd) // Odd
-				return (tickCount + offset) % 2 == 1;
-
-			// Regular interval
-			return (tickCount - offset) % interval == 0;
-		}
-
 		/// <summary>
 		/// Auto-pauses all running coroutines when object is disabled.
 		/// </summary>
@@ -150,16 +160,6 @@ namespace LunyScript.Coroutines
 
 			_coroutines.Clear();
 		}
-
-		/// <summary>
-		/// Gets the count of registered coroutines.
-		/// </summary>
-		internal Int32 Count => _coroutines.Count;
-
-		/// <summary>
-		/// Gets all registered coroutine names.
-		/// </summary>
-		internal IEnumerable<String> Names => _coroutines.Keys;
 
 		~LunyScriptCoroutineRunner() => LunyTraceLogger.LogInfoFinalized(this);
 	}

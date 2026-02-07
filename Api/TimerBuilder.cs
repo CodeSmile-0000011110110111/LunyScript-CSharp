@@ -76,27 +76,19 @@ namespace LunyScript.Api
 	public readonly struct TimerFinalBuilder
 	{
 		private readonly ILunyScript _script;
-		private readonly String _name;
-		private readonly Double _durationSeconds;
-		private readonly Int32 _heartbeatCount;
-		private readonly Boolean _isCountBased;
-		private readonly Boolean _isRepeating;
+		private readonly CoroutineOptions _options;
 
-		private TimerFinalBuilder(ILunyScript script, String name, Double durationSeconds, Int32 heartbeatCount, Boolean isCountBased, Boolean isRepeating)
+		private TimerFinalBuilder(ILunyScript script, in CoroutineOptions options)
 		{
 			_script = script;
-			_name = name;
-			_durationSeconds = durationSeconds;
-			_heartbeatCount = heartbeatCount;
-			_isCountBased = isCountBased;
-			_isRepeating = isRepeating;
+			_options = options;
 		}
 
 		internal static TimerFinalBuilder TimeBased(ILunyScript script, String name, Double durationSeconds, Boolean isRepeating) =>
-			new(script, name, durationSeconds, 0, isCountBased: false, isRepeating);
+			new(script, CoroutineOptions.ForTimer(name, durationSeconds, isRepeating, null));
 
 		internal static TimerFinalBuilder HeartbeatBased(ILunyScript script, String name, Int32 heartbeatCount, Boolean isRepeating) =>
-			new(script, name, 0, heartbeatCount, isCountBased: true, isRepeating);
+			new(script, CoroutineOptions.ForCountTimer(name, heartbeatCount, isRepeating, null));
 
 		/// <summary>
 		/// Completes the timer and specifies blocks to run when elapsed.
@@ -109,19 +101,8 @@ namespace LunyScript.Api
 			if (context == null)
 				return null;
 
-			var instance = context.Coroutines.Register(_name);
-
-			// Set duration based on type
-			if (_isCountBased)
-				instance.SetHeartbeatCount(_heartbeatCount);
-			else
-				instance.SetDuration(_durationSeconds);
-
-			instance.SetOnElapsedBlocks(blocks);
-
-			// For repeating timers, we need to handle restart logic in the runner
-			// For now, we mark the instance somehow (future enhancement)
-
+			var options = _options with { OnElapsed = blocks };
+			var instance = context.Coroutines.Register(in options);
 			return new CoroutineBlock(instance);
 		}
 	}
