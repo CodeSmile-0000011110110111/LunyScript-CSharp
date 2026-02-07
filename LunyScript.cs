@@ -87,6 +87,7 @@ namespace LunyScript
 		LunyScriptEventScheduler ILunyScriptInternal.Scheduler => _context is LunyScriptContext context ? context.Scheduler : null;
 		LunyScriptContext ILunyScriptInternal.Context => _context as LunyScriptContext;
 
+		// implemented APIs
 		public DebugApi Debug => new(this);
 		public EditorApi Editor => new(this);
 		public EngineApi Engine => new(this);
@@ -104,6 +105,7 @@ namespace LunyScript
 		public ApiPlaceholders.AnimationApi Animation => new(this);
 		public ApiPlaceholders.ApplicationApi Application => new(this);
 		public ApiPlaceholders.AssetApi Asset => new(this);
+		public ApiPlaceholders.AudioApi Audio => new(this);
 		public ApiPlaceholders.CameraApi Camera => new(this);
 		public ApiPlaceholders.DiagnosticsApi Diagnostics => new(this);
 		public ApiPlaceholders.HUDApi HUD => new(this);
@@ -130,6 +132,7 @@ namespace LunyScript
 		public ApiPlaceholders.NetworkApi Network => new(this);
 		public ApiPlaceholders.NPCApi NPC => new(this);
 		public ApiPlaceholders.ParticlesApi Particles => new(this);
+		public ApiPlaceholders.PlatformApi Platform => new(this);
 		public ApiPlaceholders.PoolApi Pool => new(this);
 		public ApiPlaceholders.PostFxApi PostFx => new(this);
 		public ApiPlaceholders.ProgressApi Progress => new(this);
@@ -140,6 +143,7 @@ namespace LunyScript
 		public ApiPlaceholders.SpawnApi Spawn => new(this);
 		public ApiPlaceholders.SpriteApi Sprite => new(this);
 		public ApiPlaceholders.StageApi Stage => new(this);
+		public ApiPlaceholders.StoreApi Store => new(this);
 		public ApiPlaceholders.TerrainApi Terrain => new(this);
 		public ApiPlaceholders.TilemapApi Tilemap => new(this);
 		public ApiPlaceholders.TutorialApi Tutorial => new(this);
@@ -147,19 +151,17 @@ namespace LunyScript
 		public ApiPlaceholders.VFXApi VFX => new(this);
 		public ApiPlaceholders.VideoApi Video => new(this);
 
-		// publishing expansions
-		public ApiPlaceholders.PlatformApi Platform => new(this);
-		public ApiPlaceholders.StoreApi Store => new(this);
-
 		internal void Initialize(ILunyScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
-		// API properties
+		// Variables and Constants
 		public VariableBlock Const(String name, Variable value) =>
 			TableVariableBlock.Create(_context.GlobalVariables.DefineConstant(name, value));
 
 		public VariableBlock Const(Variable value) => ConstantVariableBlock.Create(value);
 		public VariableBlock GVar(String name) => TableVariableBlock.Create(_context.GlobalVariables.GetHandle(name));
 		public VariableBlock Var(String name) => TableVariableBlock.Create(_context.LocalVariables.GetHandle(name));
+
+		// Logic Flow API
 
 		/// <summary>
 		/// Conditional execution: If(conditions).Then(blocks).ElseIf(conditions).Then(blocks).Else(blocks);
@@ -186,6 +188,8 @@ namespace LunyScript
 		/// </summary>
 		public ForBlockBuilder For(Int32 limit, Int32 step) => new(limit, step);
 
+		// Boolean Modifiers for Conditions
+
 		/// <summary>
 		/// Logical AND: Returns true if all conditions are true.
 		/// </summary>
@@ -201,6 +205,8 @@ namespace LunyScript
 		/// </summary>
 		public IScriptConditionBlock NOT(IScriptConditionBlock condition) => NotBlock.Create(condition);
 
+		// Coroutines & Timers
+
 		/// <summary>
 		/// Creates a named timer.
 		/// Usage: Timer("name").In(3).Seconds().Do(blocks);
@@ -214,20 +220,21 @@ namespace LunyScript
 		protected CoroutineBuilder Coroutine(String name) => new(this, name);
 
 		/// <summary>
-		/// Time-sliced execution: Every(n).Frames(blocks) or Every(n).Heartbeats(blocks).
+		/// Time-sliced execution: Every(n).Frames().Do(blocks) or Every(n).Heartbeats().Do(blocks).
+		/// Supports optional phase offset: Every(n).Frames().DelayBy(offset).Do(blocks).
 		/// Use Even or Odd constants for alternating execution.
 		/// </summary>
 		protected EveryBuilder Every(Int32 interval) => new(this, interval);
 
 		/// <summary>
-		/// Constant for Even frame/heartbeat execution (0, 2, 4, 6, ...).
-		/// </summary>
-		internal const Int32 Even = -2;
-
-		/// <summary>
 		/// Constant for Odd frame/heartbeat execution (1, 3, 5, 7, ...).
 		/// </summary>
-		internal const Int32 Odd = -1;
+		public const Int32 Odd = -1;
+
+		/// <summary>
+		/// Constant for Even frame/heartbeat execution (0, 2, 4, 6, ...).
+		/// </summary>
+		public const Int32 Even = -2;
 
 		~LunyScript() => LunyTraceLogger.LogInfoFinalized(this);
 

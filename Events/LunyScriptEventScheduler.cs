@@ -22,11 +22,6 @@ namespace LunyScript.Events
 
 		//~LunyScriptEventScheduler() => LunyTraceLogger.LogInfoFinalized(this);
 
-		private static Boolean HasBlocks(IReadOnlyList<IScriptActionBlock> blocks) => blocks?.Count > 0;
-
-		private static IScriptSequenceBlock CreateSequence(IReadOnlyList<IScriptActionBlock> blocks) =>
-			HasBlocks(blocks) ? new SequenceBlock(blocks) : null;
-
 		private static IScriptSequenceBlock ScheduleSequence(ref List<IScriptSequenceBlock>[] sequencesRef, IScriptSequenceBlock sequence,
 			Int32 eventIndex, Int32 eventCount)
 		{
@@ -41,14 +36,14 @@ namespace LunyScript.Events
 		}
 
 		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, LunyObjectEvent objectEvent) =>
-			ScheduleSequence(ref _objectEventSequences, CreateSequence(blocks), (Int32)objectEvent, s_ObjectEventCount);
+			ScheduleSequence(ref _objectEventSequences, SequenceBlock.TryCreate(blocks), (Int32)objectEvent, s_ObjectEventCount);
 
 		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, LunySceneEvent sceneEvent) =>
-			ScheduleSequence(ref _sceneEventSequences, CreateSequence(blocks), (Int32)sceneEvent, s_SceneEventCount);
+			ScheduleSequence(ref _sceneEventSequences, SequenceBlock.TryCreate(blocks), (Int32)sceneEvent, s_SceneEventCount);
 
 		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, TimeSpan timeSpan)
 		{
-			var sequence = CreateSequence(blocks);
+			var sequence = SequenceBlock.TryCreate(blocks);
 			if (sequence != null && !sequence.IsEmpty)
 			{
 				_intervalSequences ??= new List<(TimeSpan, IScriptSequenceBlock)>();

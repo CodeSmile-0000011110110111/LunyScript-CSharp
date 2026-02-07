@@ -20,6 +20,12 @@
 			internal AssetApi(ILunyScript script) => _script = script;
 		}
 
+		public readonly struct AudioApi
+		{
+			private readonly ILunyScript _script;
+			public AudioApi(ILunyScript script) => _script = script;
+		}
+
 		public readonly struct CameraApi
 		{
 			private readonly ILunyScript _script;

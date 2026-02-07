@@ -1,14 +1,13 @@
 using LunyScript.Blocks;
 using LunyScript.Blocks.Coroutines;
 using LunyScript.Coroutines;
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Api
 {
 	/// <summary>
 	/// Entry point for the Every fluent builder chain.
-	/// Usage: Every(3).Frames(blocks); or Every(Even).Heartbeats(blocks);
+	/// Usage: Every(3).Frames().Do(blocks); or Every(Even).Heartbeats().DelayBy(1).Do(blocks);
 	/// </summary>
 	public readonly struct EveryBuilder
 	{
@@ -22,33 +21,55 @@ namespace LunyScript.Api
 		}
 
 		/// <summary>
+		/// Selects frame-based execution.
+		/// </summary>
+		public EveryUnitBuilder Frames() => new(_script, _interval, EveryCoroutineType.Frames);
+
+		/// <summary>
+		/// Selects heartbeat-based execution.
+		/// </summary>
+		public EveryUnitBuilder Heartbeats() => new(_script, _interval, EveryCoroutineType.Heartbeats);
+	}
+
+	/// <summary>
+	/// Builder step after unit (Frames/Heartbeats) is selected.
+	/// </summary>
+	public readonly struct EveryUnitBuilder
+	{
+		private readonly ILunyScript _script;
+		private readonly Int32 _interval;
+		private readonly EveryCoroutineType _type;
+		private readonly Int32 _delay;
+
+		internal EveryUnitBuilder(ILunyScript script, Int32 interval, EveryCoroutineType type, Int32 delay = 0)
+		{
+			_script = script;
+			_interval = interval;
+			_type = type;
+			_delay = delay;
+		}
+
+		/// <summary>
 		/// Sets the phase offset (delay) for time-sliced execution.
 		/// </summary>
-		public EveryDelayedBuilder DelayBy(Int32 offset) => new(_script, _interval, offset);
+		public EveryUnitBuilder DelayBy(Int32 delay)
+		{
+			if (_delay != 0)
+				throw new ArgumentException($"{nameof(DelayBy)}() can't be used twice");
+
+			return new EveryUnitBuilder(_script, _interval, _type, delay);
+		}
 
 		/// <summary>
-		/// Runs blocks every N frames.
+		/// Completes the builder and specifies blocks to run.
 		/// </summary>
-		public IScriptCoroutineBlock Frames(params IScriptActionBlock[] blocks) =>
-			CreateTimeSlicedCoroutine(blocks, isHeartbeat: false, delayOffset: 0);
-
-		/// <summary>
-		/// Runs blocks every N heartbeats (fixed steps).
-		/// </summary>
-		public IScriptCoroutineBlock Heartbeats(params IScriptActionBlock[] blocks) =>
-			CreateTimeSlicedCoroutine(blocks, isHeartbeat: true, delayOffset: 0);
-
-		internal IScriptCoroutineBlock CreateTimeSlicedCoroutine(IScriptActionBlock[] blocks, Boolean isHeartbeat, Int32 delayOffset)
+		public IScriptCoroutineBlock Do(params IScriptActionBlock[] blocks)
 		{
 			var scriptInternal = (ILunyScriptInternal)_script;
 			var context = scriptInternal.Context;
 
-			if (context == null)
-				return null;
-
-			// Generate a unique name for this time-sliced coroutine
-			var options = CoroutineOptions.ForEvery(null, _interval, delayOffset, blocks, isHeartbeat);
-
+			// name = null => generates a unique name for this time-sliced coroutine
+			var options = CoroutineOptions.ForEvery(null, _interval, _type, _delay, blocks);
 			var instance = context.Coroutines.Register(in options);
 
 			// Auto-start time-sliced coroutines
@@ -56,41 +77,6 @@ namespace LunyScript.Api
 			instance.Start();
 
 			return block;
-		}
-	}
-
-	/// <summary>
-	/// Builder step after DelayBy is set.
-	/// </summary>
-	public readonly struct EveryDelayedBuilder
-	{
-		private readonly ILunyScript _script;
-		private readonly Int32 _interval;
-		private readonly Int32 _offset;
-
-		internal EveryDelayedBuilder(ILunyScript script, Int32 interval, Int32 offset)
-		{
-			_script = script;
-			_interval = interval;
-			_offset = offset;
-		}
-
-		/// <summary>
-		/// Runs blocks every N frames with phase offset.
-		/// </summary>
-		public IScriptCoroutineBlock Frames(params IScriptActionBlock[] blocks)
-		{
-			var builder = new EveryBuilder(_script, _interval);
-			return builder.CreateTimeSlicedCoroutine(blocks, isHeartbeat: false, _offset);
-		}
-
-		/// <summary>
-		/// Runs blocks every N heartbeats (fixed steps) with phase offset.
-		/// </summary>
-		public IScriptCoroutineBlock Heartbeats(params IScriptActionBlock[] blocks)
-		{
-			var builder = new EveryBuilder(_script, _interval);
-			return builder.CreateTimeSlicedCoroutine(blocks, isHeartbeat: true, _offset);
 		}
 	}
 }

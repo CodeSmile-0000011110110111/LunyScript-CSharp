@@ -7,11 +7,14 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Executes child blocks in sequential order.
 	/// </summary>
-	public sealed class SequenceBlock : IScriptSequenceBlock
+	internal sealed class SequenceBlock : IScriptSequenceBlock
 	{
 		public LunyScriptRunID ID { get; }
 		public IReadOnlyList<IScriptActionBlock> Blocks { get; }
 		public Boolean IsEmpty => Blocks.Count == 0;
+
+		public static IScriptSequenceBlock TryCreate(IReadOnlyList<IScriptActionBlock> blocks) =>
+			blocks?.Count > 0 ? new SequenceBlock(blocks) : null;
 
 		public SequenceBlock(IReadOnlyList<IScriptActionBlock> blocks)
 		{

@@ -3,27 +3,6 @@ using System;
 
 namespace LunyScript.Coroutines
 {
-	internal struct TimeProgress
-	{
-		public Double Elapsed;
-		public Double Duration;
-		public Double Scale;
-
-		public void Reset() => Elapsed = 0.0;
-		public void Step(Double dt) => Elapsed += dt * (Scale < 0 ? 0 : Scale);
-		public Boolean IsElapsed => Duration > 0 && Elapsed >= Duration;
-	}
-
-	internal struct CountProgress
-	{
-		public Int32 Elapsed;
-		public Int32 Target;
-
-		public void Reset() => Elapsed = 0;
-		public void Step() => Elapsed++;
-		public Boolean IsElapsed => Target > 0 && Elapsed >= Target;
-	}
-
 	/// <summary>
 	/// Represents the execution state of a coroutine or timer.
 	/// </summary>
@@ -43,6 +22,33 @@ namespace LunyScript.Coroutines
 		/// Coroutine is frozen at current time, will resume when unpaused.
 		/// </summary>
 		Paused,
+	}
+
+	internal enum EveryCoroutineType
+	{
+		Frames,
+		Heartbeats,
+	}
+
+	internal struct TimeProgress
+	{
+		public Double Elapsed;
+		public Double Duration;
+		public Double Scale;
+
+		public void Reset() => Elapsed = 0.0;
+		public void Step(Double dt) => Elapsed += dt * (Scale < 0 ? 0 : Scale);
+		public Boolean IsElapsed => Duration > 0 && Elapsed >= Duration;
+	}
+
+	internal struct CountProgress
+	{
+		public Int32 Elapsed;
+		public Int32 Target;
+
+		public void Reset() => Elapsed = 0;
+		public void Step() => Elapsed++;
+		public Boolean IsElapsed => Target > 0 && Elapsed >= Target;
 	}
 
 	/// <summary>
@@ -78,27 +84,8 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Factory method to create specialized coroutine instances.
 		/// </summary>
-		public static CoroutineBase Create(in CoroutineOptions options)
-		{
-			if (options.IsTimer)
-			{
-				if (options.TargetCount > 0)
-					return new CounterCoroutine(options);
-
-				return new TimerCoroutine(options);
-			}
-
-			if (options.TargetCount > 0 || options.TimeSliceInterval != 0)
-				return new CountBasedCoroutine(options);
-
-			if (options.Duration > 0)
-				return new TimeBasedCoroutine(options);
-
-			return new Coroutine(options);
-		}
-
-		protected static IScriptSequenceBlock CreateSequenceIfNotEmpty(IScriptActionBlock[] blocks) =>
-			blocks != null && blocks.Length > 0 ? new SequenceBlock(blocks) : null;
+		public static CoroutineBase Create(in CoroutineOptions options) => options.IsCounter ? new CounterCoroutine(options) :
+			options.IsTimer ? new TimerCoroutine(options) : new Coroutine(options);
 
 		protected CoroutineBase(in CoroutineOptions options)
 		{
@@ -106,7 +93,7 @@ namespace LunyScript.Coroutines
 				throw new ArgumentException("Coroutine name cannot be null or empty", nameof(options.Name));
 
 			_name = options.Name;
-			_onElapsedSequence = CreateSequenceIfNotEmpty(options.OnElapsed);
+			_onElapsedSequence = SequenceBlock.TryCreate(options.OnElapsed);
 		}
 
 		/// <summary>

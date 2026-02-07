@@ -26,12 +26,12 @@ namespace LunyScript.Coroutines
 		public Coroutine(in CoroutineOptions options)
 			: base(options)
 		{
-			_onUpdateSequence = CreateSequenceIfNotEmpty(options.OnUpdate);
-			_onHeartbeatSequence = CreateSequenceIfNotEmpty(options.OnHeartbeat);
-			_onStartedSequence = CreateSequenceIfNotEmpty(options.OnStarted);
-			_onStoppedSequence = CreateSequenceIfNotEmpty(options.OnStopped);
-			_onPausedSequence = CreateSequenceIfNotEmpty(options.OnPaused);
-			_onResumedSequence = CreateSequenceIfNotEmpty(options.OnResumed);
+			_onUpdateSequence = SequenceBlock.TryCreate(options.OnUpdate);
+			_onHeartbeatSequence = SequenceBlock.TryCreate(options.OnHeartbeat);
+			_onStartedSequence = SequenceBlock.TryCreate(options.OnStarted);
+			_onStoppedSequence = SequenceBlock.TryCreate(options.OnStopped);
+			_onPausedSequence = SequenceBlock.TryCreate(options.OnPaused);
+			_onResumedSequence = SequenceBlock.TryCreate(options.OnResumed);
 		}
 
 		public override String ToString() => $"Coroutine({Name}, {State}, Infinite)";
@@ -40,7 +40,7 @@ namespace LunyScript.Coroutines
 	/// <summary>
 	/// Coroutine that elapses after a specific duration in seconds.
 	/// </summary>
-	internal sealed class TimeBasedCoroutine : Coroutine
+	internal sealed class TimerCoroutine : Coroutine
 	{
 		private readonly Boolean _isRepeating;
 		private TimeProgress _progress;
@@ -48,10 +48,10 @@ namespace LunyScript.Coroutines
 		internal override Double TimeScale => _progress.Scale;
 		protected override Boolean IsRepeating => _isRepeating;
 
-		public TimeBasedCoroutine(in CoroutineOptions options)
+		public TimerCoroutine(in CoroutineOptions options)
 			: base(options)
 		{
-			_progress.Duration = Math.Max(0, options.Duration);
+			_progress.Duration = Math.Max(0, options.TimeInterval);
 			_progress.Scale = 1.0;
 			_isRepeating = options.IsRepeating;
 		}
@@ -69,7 +69,7 @@ namespace LunyScript.Coroutines
 	/// <summary>
 	/// Coroutine that elapses after a specific number of heartbeats/ticks.
 	/// </summary>
-	internal sealed class CountBasedCoroutine : Coroutine
+	internal sealed class CounterCoroutine : Coroutine
 	{
 		private readonly Int32 _timeSliceInterval;
 		private readonly Int32 _timeSliceOffset;
@@ -82,7 +82,7 @@ namespace LunyScript.Coroutines
 		internal override Int32 TimeSliceOffset => _timeSliceOffset;
 		protected override Boolean IsRepeating => _isRepeating;
 
-		public CountBasedCoroutine(in CoroutineOptions options)
+		public CounterCoroutine(in CoroutineOptions options)
 			: base(options)
 		{
 			_progress.Target = Math.Max(0, options.TargetCount);
@@ -97,71 +97,5 @@ namespace LunyScript.Coroutines
 		protected override Boolean HasElapsed() => _progress.IsElapsed;
 
 		public override String ToString() => $"Coroutine({Name}, {State}, {_progress.Elapsed}/{_progress.Target} heartbeats)";
-	}
-
-	/*
-/// <summary>
-/// Base class for timers which only run Do() blocks when elapsed.
-/// </summary>
-internal abstract class TimerCoroutineBase : CoroutineBase
-{
-	protected TimerCoroutineBase(in CoroutineOptions options)
-		: base(options) {}
-}
-*/
-
-	/// <summary>
-	/// Timer that elapses after a specific duration in seconds.
-	/// </summary>
-	internal sealed class TimerCoroutine : CoroutineBase
-	{
-		private readonly Boolean _isRepeating;
-		private TimeProgress _progress;
-
-		internal override Double TimeScale => _progress.Scale;
-		protected override Boolean IsRepeating => _isRepeating;
-
-		public TimerCoroutine(in CoroutineOptions options)
-			: base(options)
-		{
-			_progress.Duration = Math.Max(0, options.Duration);
-			_progress.Scale = 1.0;
-			_isRepeating = options.IsRepeating;
-		}
-
-		internal override void SetTimeScale(Double scale) => _progress.Scale = Math.Max(0, scale);
-
-		protected override void ResetState() => _progress.Reset();
-
-		protected override void AccumulateTime(Double deltaTime) => _progress.Step(deltaTime);
-		protected override Boolean HasElapsed() => _progress.IsElapsed;
-
-		public override String ToString() => $"Timer({Name}, {State}, {_progress.Elapsed:F2}/{_progress.Duration:F2}s)";
-	}
-
-	/// <summary>
-	/// Timer that elapses after a specific number of heartbeats/frames.
-	/// </summary>
-	internal sealed class CounterCoroutine : CoroutineBase
-	{
-		private readonly Boolean _isRepeating;
-		private CountProgress _progress;
-
-		internal override Boolean IsCountBased => true;
-		protected override Boolean IsRepeating => _isRepeating;
-
-		public CounterCoroutine(in CoroutineOptions options)
-			: base(options)
-		{
-			_progress.Target = Math.Max(0, options.TargetCount);
-			_isRepeating = options.IsRepeating;
-		}
-
-		protected override void ResetState() => _progress.Reset();
-
-		protected override void AccumulateHeartbeat() => _progress.Step();
-		protected override Boolean HasElapsed() => _progress.IsElapsed;
-
-		public override String ToString() => $"Timer({Name}, {State}, {_progress.Elapsed}/{_progress.Target} heartbeats)";
 	}
 }
