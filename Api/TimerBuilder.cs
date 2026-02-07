@@ -1,4 +1,5 @@
 using LunyScript.Blocks;
+using LunyScript.Blocks.Coroutines;
 using LunyScript.Coroutines;
 using LunyScript.Execution;
 using System;
@@ -36,38 +37,33 @@ namespace LunyScript.Api
 	/// </summary>
 	public readonly struct TimerDurationBuilder
 	{
-		private readonly ILunyScript _script;
-		private readonly String _name;
-		private readonly Int32 _amount;
-		private readonly Boolean _isRepeating;
+		private readonly TimeUnitBuilder<TimerFinalBuilder> _builder;
 
 		internal TimerDurationBuilder(ILunyScript script, String name, Int32 amount, Boolean isRepeating)
 		{
-			_script = script;
-			_name = name;
-			_amount = amount;
-			_isRepeating = isRepeating;
+			_builder = new TimeUnitBuilder<TimerFinalBuilder>(script, name, amount, isRepeating, true,
+				options => TimerFinalBuilder.FromOptions(script, options));
 		}
 
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public TimerFinalBuilder Seconds() => TimerFinalBuilder.TimeBased(_script, _name, _amount, _isRepeating);
+		public TimerFinalBuilder Seconds() => _builder.Seconds();
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public TimerFinalBuilder Milliseconds() => TimerFinalBuilder.TimeBased(_script, _name, _amount / 1000.0, _isRepeating);
+		public TimerFinalBuilder Milliseconds() => _builder.Milliseconds();
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public TimerFinalBuilder Minutes() => TimerFinalBuilder.TimeBased(_script, _name, _amount * 60.0, _isRepeating);
+		public TimerFinalBuilder Minutes() => _builder.Minutes();
 
 		/// <summary>
 		/// Duration in heartbeats (count-based, counts fixed steps).
 		/// </summary>
-		public TimerFinalBuilder Heartbeats() => TimerFinalBuilder.HeartbeatBased(_script, _name, _amount, _isRepeating);
+		public TimerFinalBuilder Heartbeats() => _builder.Heartbeats();
 	}
 
 	/// <summary>
@@ -83,6 +79,8 @@ namespace LunyScript.Api
 			_script = script;
 			_options = options;
 		}
+
+		internal static TimerFinalBuilder FromOptions(ILunyScript script, in CoroutineOptions options) => new(script, options);
 
 		internal static TimerFinalBuilder TimeBased(ILunyScript script, String name, Double durationSeconds, Boolean isRepeating) =>
 			new(script, CoroutineOptions.ForTimer(name, durationSeconds, isRepeating, null));

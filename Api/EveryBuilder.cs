@@ -1,4 +1,5 @@
 using LunyScript.Blocks;
+using LunyScript.Blocks.Coroutines;
 using LunyScript.Coroutines;
 using LunyScript.Execution;
 using System;
@@ -46,7 +47,7 @@ namespace LunyScript.Api
 				return null;
 
 			// Generate a unique name for this time-sliced coroutine
-			var name = CoroutineOptions.GenerateEveryName(_interval, isHeartbeat, delayOffset);
+			var name = CoroutineOptions.GenerateUniqueName(_interval, isHeartbeat, delayOffset);
 			var options = CoroutineOptions.ForEvery(name, _interval, delayOffset, blocks, isHeartbeat);
 
 			var instance = context.Coroutines.Register(in options);

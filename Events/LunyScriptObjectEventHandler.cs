@@ -45,7 +45,7 @@ namespace LunyScript.Events
 			_contexts.Unregister(context);
 		}
 
-		public void OnFixedStep(Double fixedDeltaTime, LunyScriptContext context)
+		public void OnHeartbeat(Double fixedDeltaTime, LunyScriptContext context)
 		{
 			if (context.LunyObject.IsEnabled)
 			{
@@ -55,50 +55,17 @@ namespace LunyScript.Events
 			}
 		}
 
-		public void OnUpdate(Double deltaTime, LunyScriptContext context)
+		public void OnFrameUpdate(Double deltaTime, LunyScriptContext context)
 		{
 			if (context.LunyObject.IsEnabled)
 			{
 				var sequences = context.Scheduler.GetSequences(LunyObjectEvent.OnUpdate);
 				if (sequences != null)
 					LunyScriptRunner.Run(sequences, context);
-
-				OnIntervalUpdate(deltaTime, context);
 			}
 		}
 
-		internal void OnIntervalUpdate(Double deltaTime, LunyScriptContext context)
-		{
-			var lunyObject = context.LunyObject;
-			if (!lunyObject.IsEnabled)
-				return;
-
-			var intervals = context.Scheduler.IntervalSequences;
-			if (intervals == null || intervals.Count == 0)
-				return;
-
-			// TODO: Junie implemented this without enough context, this needs a refactor
-			throw new NotImplementedException(nameof(OnIntervalUpdate));
-
-			/*
-			_intervalTimers ??= new List<Double>();
-			while (_intervalTimers.Count < intervals.Count)
-				_intervalTimers.Add(0);
-
-			for (int i = 0; i < intervals.Count; i++)
-			{
-				_intervalTimers[i] += deltaTime;
-				var target = intervals[i].interval.TotalSeconds;
-				if (_intervalTimers[i] >= target)
-				{
-					_intervalTimers[i] %= target;
-					LunyScriptRunner.Run(new[] { intervals[i].runnable }, this);
-				}
-			}
-		*/
-		}
-
-		public void OnLateUpdate(Double deltaTime, LunyScriptContext context)
+		public void OnFrameLateUpdate(Double deltaTime, LunyScriptContext context)
 		{
 			if (context.LunyObject.IsEnabled)
 			{

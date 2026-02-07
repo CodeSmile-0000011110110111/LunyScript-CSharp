@@ -76,39 +76,11 @@ namespace LunyScript.Coroutines
 		internal Boolean Exists(String name) => _coroutines.ContainsKey(name);
 
 		/// <summary>
-		/// Called on frame update. Advances all running time-based coroutines.
-		/// Should be called from LunyScriptRunner AFTER non-coroutine updates.
-		/// </summary>
-		internal void OnUpdate(Double deltaTime, LunyScriptContext context)
-		{
-			_frameCount++;
-
-			foreach (var coroutine in _coroutines.Values)
-			{
-				if (coroutine.State != CoroutineState.Running)
-					continue;
-
-				// Run OnUpdate sequence if any (pre-created, no allocation)
-				// Time-sliced coroutines only run when interval matches
-				if (ShouldRunThisTick(coroutine, _frameCount))
-					RunSequence(coroutine.OnUpdateSequence, context);
-
-				// Advance time-based coroutines (count-based advance in OnFixedStep)
-				if (!coroutine.IsCountBased)
-				{
-					var elapsed = coroutine.AdvanceTime(deltaTime);
-					if (elapsed)
-						RunSequence(coroutine.OnElapsedSequence, context);
-				}
-			}
-		}
-
-		/// <summary>
 		/// Called on fixed step (heartbeat). Advances all running coroutines with OnHeartbeat sequences.
 		/// Also advances count-based (heartbeat) coroutines.
 		/// Should be called from LunyScriptRunner AFTER non-coroutine updates.
 		/// </summary>
-		internal void OnFixedStep(Double fixedDeltaTime, LunyScriptContext context)
+		internal void OnHeartbeat(Double fixedDeltaTime, LunyScriptContext context)
 		{
 			_heartbeatCount++;
 
@@ -126,6 +98,34 @@ namespace LunyScript.Coroutines
 				if (coroutine.IsCountBased)
 				{
 					var elapsed = coroutine.AdvanceHeartbeat();
+					if (elapsed)
+						RunSequence(coroutine.OnElapsedSequence, context);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Called on frame update. Advances all running time-based coroutines.
+		/// Should be called from LunyScriptRunner AFTER non-coroutine updates.
+		/// </summary>
+		internal void OnFrameUpdate(Double deltaTime, LunyScriptContext context)
+		{
+			_frameCount++;
+
+			foreach (var coroutine in _coroutines.Values)
+			{
+				if (coroutine.State != CoroutineState.Running)
+					continue;
+
+				// Run OnUpdate sequence if any (pre-created, no allocation)
+				// Time-sliced coroutines only run when interval matches
+				if (ShouldRunThisTick(coroutine, _frameCount))
+					RunSequence(coroutine.OnUpdateSequence, context);
+
+				// Advance time-based coroutines (count-based advance in OnHeartbeat)
+				if (!coroutine.IsCountBased)
+				{
+					var elapsed = coroutine.AdvanceTime(deltaTime);
 					if (elapsed)
 						RunSequence(coroutine.OnElapsedSequence, context);
 				}

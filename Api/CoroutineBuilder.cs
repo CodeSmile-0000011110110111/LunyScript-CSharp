@@ -1,4 +1,5 @@
 using LunyScript.Blocks;
+using LunyScript.Blocks.Coroutines;
 using LunyScript.Coroutines;
 using LunyScript.Execution;
 using System;
@@ -29,8 +30,8 @@ namespace LunyScript.Api
 		/// Creates a coroutine without duration (runs until stopped).
 		/// Terminal method that registers the coroutine.
 		/// </summary>
-		public CoroutineFinalBuilder OnUpdate(params IScriptActionBlock[] blocks) =>
-			CoroutineFinalBuilder.NoDuration(_script, _name).OnUpdate(blocks);
+		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) =>
+			CoroutineFinalBuilder.NoDuration(_script, _name).OnFrameUpdate(blocks);
 
 		/// <summary>
 		/// Creates a coroutine without duration (runs until stopped).
@@ -45,36 +46,33 @@ namespace LunyScript.Api
 	/// </summary>
 	public readonly struct CoroutineDurationBuilder
 	{
-		private readonly ILunyScript _script;
-		private readonly String _name;
-		private readonly Int32 _amount;
+		private readonly TimeUnitBuilder<CoroutineFinalBuilder> _builder;
 
 		internal CoroutineDurationBuilder(ILunyScript script, String name, Int32 amount)
 		{
-			_script = script;
-			_name = name;
-			_amount = amount;
+			_builder = new TimeUnitBuilder<CoroutineFinalBuilder>(script, name, amount, false, false,
+				options => CoroutineFinalBuilder.FromOptions(script, options));
 		}
 
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Seconds() => CoroutineFinalBuilder.TimeBased(_script, _name, _amount);
+		public CoroutineFinalBuilder Seconds() => _builder.Seconds();
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Milliseconds() => CoroutineFinalBuilder.TimeBased(_script, _name, _amount / 1000.0);
+		public CoroutineFinalBuilder Milliseconds() => _builder.Milliseconds();
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Minutes() => CoroutineFinalBuilder.TimeBased(_script, _name, _amount * 60.0);
+		public CoroutineFinalBuilder Minutes() => _builder.Minutes();
 
 		/// <summary>
 		/// Duration in heartbeats (count-based, counts fixed steps).
 		/// </summary>
-		public CoroutineFinalBuilder Heartbeats() => CoroutineFinalBuilder.HeartbeatBased(_script, _name, _amount);
+		public CoroutineFinalBuilder Heartbeats() => _builder.Heartbeats();
 	}
 
 	/// <summary>
@@ -91,11 +89,13 @@ namespace LunyScript.Api
 			_options = options;
 		}
 
+		internal static CoroutineFinalBuilder FromOptions(ILunyScript script, in CoroutineOptions options) => new(script, options);
+
 		internal static CoroutineFinalBuilder TimeBased(ILunyScript script, String name, Double durationSeconds) =>
-			new(script, CoroutineOptions.ForCoroutine(name) with { Duration = durationSeconds });
+			new(script, CoroutineOptions.ForDuration(name, durationSeconds, false, false, false));
 
 		internal static CoroutineFinalBuilder HeartbeatBased(ILunyScript script, String name, Int32 heartbeatCount) =>
-			new(script, CoroutineOptions.ForCoroutine(name) with { TargetCount = heartbeatCount });
+			new(script, CoroutineOptions.ForDuration(name, heartbeatCount, false, true, false));
 
 		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name) =>
 			new(script, CoroutineOptions.ForCoroutine(name));
@@ -103,7 +103,7 @@ namespace LunyScript.Api
 		/// <summary>
 		/// Adds blocks to run every frame update while coroutine is running.
 		/// </summary>
-		public CoroutineFinalBuilder OnUpdate(params IScriptActionBlock[] blocks) =>
+		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) =>
 			new(_script, _options with { OnUpdate = blocks });
 
 		/// <summary>

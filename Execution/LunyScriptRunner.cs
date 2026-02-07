@@ -149,9 +149,9 @@ namespace LunyScript.Execution
 		{
 			foreach (var context in _contexts.AllContexts)
 			{
-				_objectEventHandler.OnFixedStep(fixedDeltaTime, context);
+				_objectEventHandler.OnHeartbeat(fixedDeltaTime, context);
 				// Coroutines run AFTER non-coroutine updates
-				context.Coroutines?.OnFixedStep(fixedDeltaTime, context);
+				context.Coroutines?.OnHeartbeat(fixedDeltaTime, context);
 			}
 		}
 
@@ -159,9 +159,9 @@ namespace LunyScript.Execution
 		{
 			foreach (var context in _contexts.AllContexts)
 			{
-				_objectEventHandler.OnUpdate(deltaTime, context);
+				_objectEventHandler.OnFrameUpdate(deltaTime, context);
 				// Coroutines run AFTER non-coroutine updates
-				context.Coroutines?.OnUpdate(deltaTime, context);
+				context.Coroutines?.OnFrameUpdate(deltaTime, context);
 			}
 		}
 
@@ -169,7 +169,7 @@ namespace LunyScript.Execution
 		{
 			// Run all LateUpdate runnables
 			foreach (var context in _contexts.AllContexts)
-				_objectEventHandler.OnLateUpdate(deltaTime, context);
+				_objectEventHandler.OnFrameLateUpdate(deltaTime, context);
 		}
 
 		internal void Shutdown()
