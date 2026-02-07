@@ -3,6 +3,27 @@ using System;
 
 namespace LunyScript.Coroutines
 {
+	internal struct TimeProgress
+	{
+		public Double Elapsed;
+		public Double Duration;
+		public Double Scale;
+
+		public void Reset() => Elapsed = 0.0;
+		public void Step(Double dt) => Elapsed += dt * (Scale < 0 ? 0 : Scale);
+		public Boolean IsElapsed => Duration > 0 && Elapsed >= Duration;
+	}
+
+	internal struct CountProgress
+	{
+		public Int32 Elapsed;
+		public Int32 Target;
+
+		public void Reset() => Elapsed = 0;
+		public void Step() => Elapsed++;
+		public Boolean IsElapsed => Target > 0 && Elapsed >= Target;
+	}
+
 	/// <summary>
 	/// Represents the execution state of a coroutine or timer.
 	/// </summary>
@@ -30,10 +51,10 @@ namespace LunyScript.Coroutines
 	internal abstract class CoroutineBase
 	{
 		private readonly String _name;
-		protected CoroutineState _state = CoroutineState.Stopped;
-		private Boolean _wasPausedByDisable;
 
 		protected readonly IScriptSequenceBlock _onElapsedSequence;
+		protected CoroutineState _state = CoroutineState.Stopped;
+		private Boolean _wasPausedByDisable;
 
 		internal String Name => _name;
 		internal CoroutineState State => _state;
@@ -52,6 +73,7 @@ namespace LunyScript.Coroutines
 		internal virtual Int32 TimeSliceInterval => 0;
 		internal virtual Int32 TimeSliceOffset => 0;
 		internal virtual Double TimeScale => 1.0;
+		protected virtual Boolean IsRepeating => false;
 
 		/// <summary>
 		/// Factory method to create specialized coroutine instances.
@@ -75,6 +97,9 @@ namespace LunyScript.Coroutines
 			return new Coroutine(options);
 		}
 
+		protected static IScriptSequenceBlock CreateSequenceIfNotEmpty(IScriptActionBlock[] blocks) =>
+			blocks != null && blocks.Length > 0 ? new SequenceBlock(blocks) : null;
+
 		protected CoroutineBase(in CoroutineOptions options)
 		{
 			if (String.IsNullOrEmpty(options.Name))
@@ -83,9 +108,6 @@ namespace LunyScript.Coroutines
 			_name = options.Name;
 			_onElapsedSequence = CreateSequenceIfNotEmpty(options.OnElapsed);
 		}
-
-		protected static IScriptSequenceBlock CreateSequenceIfNotEmpty(IScriptActionBlock[] blocks) =>
-			blocks != null && blocks.Length > 0 ? new SequenceBlock(blocks) : null;
 
 		/// <summary>
 		/// Starts or restarts the coroutine. Resets elapsed time/count.
@@ -174,12 +196,50 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Advances a time-based coroutine by deltaTime. Returns true if elapsed (duration reached).
 		/// </summary>
-		internal virtual Boolean AdvanceTime(Double deltaTime) => false;
+		internal Boolean AdvanceTime(Double deltaTime)
+		{
+			if (_state != CoroutineState.Running)
+				return false;
+
+			AccumulateTime(deltaTime);
+			if (!HasElapsed())
+				return false;
+
+			if (IsRepeating)
+			{
+				Start();
+				return true;
+			}
+
+			_state = CoroutineState.Stopped;
+			return true;
+		}
 
 		/// <summary>
 		/// Advances a count-based coroutine by one heartbeat. Returns true if elapsed (count reached).
 		/// </summary>
-		internal virtual Boolean AdvanceHeartbeat() => false;
+		internal Boolean AdvanceHeartbeat()
+		{
+			if (_state != CoroutineState.Running)
+				return false;
+
+			AccumulateHeartbeat();
+			if (!HasElapsed())
+				return false;
+
+			if (IsRepeating)
+			{
+				Start();
+				return true;
+			}
+
+			_state = CoroutineState.Stopped;
+			return true;
+		}
+
+		protected virtual void AccumulateTime(Double deltaTime) {}
+		protected virtual void AccumulateHeartbeat() {}
+		protected virtual Boolean HasElapsed() => false;
 
 		public abstract override String ToString();
 	}

@@ -47,8 +47,7 @@ namespace LunyScript.Api
 				return null;
 
 			// Generate a unique name for this time-sliced coroutine
-			var name = CoroutineOptions.GenerateUniqueName(_interval, isHeartbeat, delayOffset);
-			var options = CoroutineOptions.ForEvery(name, _interval, delayOffset, blocks, isHeartbeat);
+			var options = CoroutineOptions.ForEvery(null, _interval, delayOffset, blocks, isHeartbeat);
 
 			var instance = context.Coroutines.Register(in options);
 
