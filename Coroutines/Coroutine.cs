@@ -23,18 +23,18 @@ namespace LunyScript.Coroutines
 		internal override IScriptSequenceBlock OnPausedSequence => _onPausedSequence;
 		internal override IScriptSequenceBlock OnResumedSequence => _onResumedSequence;
 
-		public Coroutine(in CoroutineOptions options)
-			: base(options)
+		public Coroutine(in CoroutineConfig config)
+			: base(config)
 		{
-			_onUpdateSequence = SequenceBlock.TryCreate(options.OnUpdate);
-			_onHeartbeatSequence = SequenceBlock.TryCreate(options.OnHeartbeat);
-			_onStartedSequence = SequenceBlock.TryCreate(options.OnStarted);
-			_onStoppedSequence = SequenceBlock.TryCreate(options.OnStopped);
-			_onPausedSequence = SequenceBlock.TryCreate(options.OnPaused);
-			_onResumedSequence = SequenceBlock.TryCreate(options.OnResumed);
+			_onUpdateSequence = SequenceBlock.TryCreate(config.OnUpdate);
+			_onHeartbeatSequence = SequenceBlock.TryCreate(config.OnHeartbeat);
+			_onStartedSequence = SequenceBlock.TryCreate(config.OnStarted);
+			_onStoppedSequence = SequenceBlock.TryCreate(config.OnStopped);
+			_onPausedSequence = SequenceBlock.TryCreate(config.OnPaused);
+			_onResumedSequence = SequenceBlock.TryCreate(config.OnResumed);
 		}
 
-		public override String ToString() => $"Coroutine({Name}, {State}, Infinite)";
+		public override String ToString() => $"{GetType().Name}({Name}, {State})";
 	}
 
 	/// <summary>
@@ -48,22 +48,26 @@ namespace LunyScript.Coroutines
 		internal override Double TimeScale => _progress.Scale;
 		protected override Boolean IsRepeating => _isRepeating;
 
-		public TimerCoroutine(in CoroutineOptions options)
-			: base(options)
+		public TimerCoroutine(in CoroutineConfig config)
+			: base(config)
 		{
-			_progress.Duration = Math.Max(0, options.TimeInterval);
+			_progress.Duration = Math.Max(0.0, config.TimeInterval);
 			_progress.Scale = 1.0;
-			_isRepeating = options.IsRepeating;
+			_isRepeating = config.IsRepeating;
 		}
 
-		internal override void SetTimeScale(Double scale) => _progress.Scale = Math.Max(0, scale);
+		internal override void SetTimeScale(Double scale) => _progress.Scale = Math.Max(0.0, scale);
 
 		protected override void ResetState() => _progress.Reset();
 
-		protected override void AccumulateTime(Double deltaTime) => _progress.Step(deltaTime);
+		protected override void AdvanceTime(Double deltaTime) => _progress.AddDeltaTime(deltaTime);
 		protected override Boolean HasElapsed() => _progress.IsElapsed;
 
-		public override String ToString() => $"Coroutine({Name}, {State}, {_progress.Elapsed:F2}/{_progress.Duration:F2}s)";
+		public override String ToString()
+		{
+			var progress = HasElapsed() ? $"Elapsed: {_progress.Duration:F2}s" : $"{_progress.Progress:F2}/{_progress.Duration:F2}";
+			return $"{GetType().Name}({Name}, {State}, {progress})";
+		}
 	}
 
 	/// <summary>
@@ -76,26 +80,26 @@ namespace LunyScript.Coroutines
 		private readonly Boolean _isRepeating;
 		private CountProgress _progress;
 
-		internal override Boolean IsCountBased => true;
-		internal override Boolean IsTimeSliced => _timeSliceInterval != 0;
 		internal override Int32 TimeSliceInterval => _timeSliceInterval;
 		internal override Int32 TimeSliceOffset => _timeSliceOffset;
+		internal override Boolean IsTimeSliced => _timeSliceInterval != 0;
 		protected override Boolean IsRepeating => _isRepeating;
+		internal override Boolean IsCounter => true;
 
-		public CounterCoroutine(in CoroutineOptions options)
-			: base(options)
+		public CounterCoroutine(in CoroutineConfig config)
+			: base(config)
 		{
-			_progress.Target = Math.Max(0, options.TargetCount);
-			_timeSliceInterval = options.TimeSliceInterval;
-			_timeSliceOffset = Math.Max(0, options.TimeSliceOffset);
-			_isRepeating = options.IsRepeating;
+			_timeSliceInterval = config.TimeSliceInterval;
+			_timeSliceOffset = Math.Max(0, config.TimeSliceOffset);
+			_progress.Target = Math.Max(0, config.TargetCount);
+			_isRepeating = config.IsRepeating;
 		}
 
 		protected override void ResetState() => _progress.Reset();
 
-		protected override void AccumulateHeartbeat() => _progress.Step();
+		protected override void IncrementCount() => _progress.Increment();
 		protected override Boolean HasElapsed() => _progress.IsElapsed;
 
-		public override String ToString() => $"Coroutine({Name}, {State}, {_progress.Elapsed}/{_progress.Target} heartbeats)";
+		public override String ToString() => $"{GetType().Name}({Name}, {State}, {_progress.Progress}/{_progress.Target} heartbeats)";
 	}
 }

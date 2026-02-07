@@ -11,7 +11,7 @@ namespace LunyScript.Coroutines
 	/// Handles registration, advancing, and lifecycle integration.
 	/// Called by LunyScriptRunner after non-coroutine updates.
 	/// </summary>
-	internal sealed class LunyScriptCoroutineRunner
+	internal sealed class CoroutineRunner
 	{
 		private readonly Dictionary<String, CoroutineBase> _coroutines = new();
 		private Int64 _frameCount;
@@ -55,13 +55,13 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Registers a new coroutine. Throws if name already exists.
 		/// </summary>
-		internal CoroutineBase Register(in CoroutineOptions options)
+		internal CoroutineBase Register(in CoroutineConfig config)
 		{
-			if (_coroutines.ContainsKey(options.Name))
-				throw new InvalidOperationException($"Coroutine '{options.Name}' already exists. Duplicate names are not allowed.");
+			if (_coroutines.ContainsKey(config.Name))
+				throw new InvalidOperationException($"Coroutine '{config.Name}' already exists. Duplicate names are not allowed.");
 
-			var instance = CoroutineBase.Create(options);
-			_coroutines[options.Name] = instance;
+			var instance = CoroutineBase.Create(config);
+			_coroutines[config.Name] = instance;
 			return instance;
 		}
 
@@ -95,9 +95,9 @@ namespace LunyScript.Coroutines
 					RunSequence(coroutine.OnHeartbeatSequence, context);
 
 				// Advance count-based coroutines on each heartbeat
-				if (coroutine.IsCountBased)
+				if (coroutine.IsCounter)
 				{
-					var elapsed = coroutine.AdvanceHeartbeat();
+					var elapsed = coroutine.Step();
 					if (elapsed)
 						RunSequence(coroutine.OnElapsedSequence, context);
 				}
@@ -123,9 +123,9 @@ namespace LunyScript.Coroutines
 					RunSequence(coroutine.OnUpdateSequence, context);
 
 				// Advance time-based coroutines (count-based advance in OnHeartbeat)
-				if (!coroutine.IsCountBased)
+				if (!coroutine.IsCounter)
 				{
-					var elapsed = coroutine.AdvanceTime(deltaTime);
+					var elapsed = coroutine.Update(deltaTime);
 					if (elapsed)
 						RunSequence(coroutine.OnElapsedSequence, context);
 				}
@@ -161,6 +161,6 @@ namespace LunyScript.Coroutines
 			_coroutines.Clear();
 		}
 
-		~LunyScriptCoroutineRunner() => LunyTraceLogger.LogInfoFinalized(this);
+		~CoroutineRunner() => LunyTraceLogger.LogInfoFinalized(this);
 	}
 }

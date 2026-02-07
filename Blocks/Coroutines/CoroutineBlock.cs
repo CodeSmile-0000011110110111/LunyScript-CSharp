@@ -1,5 +1,5 @@
-using LunyScript.Execution;
 using LunyScript.Coroutines;
+using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks.Coroutines
@@ -12,8 +12,7 @@ namespace LunyScript.Blocks.Coroutines
 	{
 		private readonly CoroutineBase _instance;
 
-		internal CoroutineBlock(CoroutineBase instance) =>
-			_instance = instance ?? throw new ArgumentNullException(nameof(instance));
+		internal CoroutineBlock(CoroutineBase instance) => _instance = instance ?? throw new ArgumentNullException(nameof(instance));
 
 		public void Execute(ILunyScriptContext context) => new CoroutineStartBlock(_instance).Execute(context);
 

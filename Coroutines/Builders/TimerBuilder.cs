@@ -1,10 +1,8 @@
 using LunyScript.Blocks;
 using LunyScript.Blocks.Coroutines;
-using LunyScript.Coroutines;
-using LunyScript.Execution;
 using System;
 
-namespace LunyScript.Api
+namespace LunyScript.Coroutines.Builders
 {
 	/// <summary>
 	/// Entry point for the Timer fluent builder chain.
@@ -18,18 +16,18 @@ namespace LunyScript.Api
 		internal TimerBuilder(ILunyScript script, String name)
 		{
 			_script = script ?? throw new ArgumentNullException(nameof(script));
-			_name = !String.IsNullOrEmpty(name) ? name : throw new ArgumentException("Timer name cannot be null or empty", nameof(name));
+			_name = !String.IsNullOrEmpty(name) ? name : throw new ArgumentException("Timer name is null or empty", nameof(name));
 		}
 
 		/// <summary>
 		/// Sets the timer to fire once after the specified duration.
 		/// </summary>
-		public TimerDurationBuilder In(Int32 amount) => new(_script, _name, amount, isRepeating: false);
+		public TimerDurationBuilder In(Double duration) => new(_script, _name, duration, CoroutineContinuation.Finite);
 
 		/// <summary>
 		/// Sets the timer to fire repeatedly at the specified interval.
 		/// </summary>
-		public TimerDurationBuilder Every(Int32 amount) => new(_script, _name, amount, isRepeating: true);
+		public TimerDurationBuilder Every(Double interval) => new(_script, _name, interval, CoroutineContinuation.Repeating);
 	}
 
 	/// <summary>
@@ -37,13 +35,10 @@ namespace LunyScript.Api
 	/// </summary>
 	public readonly struct TimerDurationBuilder
 	{
-		private readonly TimeUnitBuilder<TimerFinalBuilder> _builder;
+		private readonly DurationBuilder<TimerFinalBuilder> _builder;
 
-		internal TimerDurationBuilder(ILunyScript script, String name, Int32 amount, Boolean isRepeating)
-		{
-			_builder = new TimeUnitBuilder<TimerFinalBuilder>(script, name, amount, isRepeating, true,
-				options => TimerFinalBuilder.FromOptions(script, options));
-		}
+		internal TimerDurationBuilder(ILunyScript script, String name, Double amount, CoroutineContinuation continuation) => _builder =
+			new DurationBuilder<TimerFinalBuilder>(name, amount, config => TimerFinalBuilder.FromOptions(script, config), continuation);
 
 		/// <summary>
 		/// Duration in seconds (time-based).
@@ -64,6 +59,11 @@ namespace LunyScript.Api
 		/// Duration in heartbeats (count-based, counts fixed steps).
 		/// </summary>
 		public TimerFinalBuilder Heartbeats() => _builder.Heartbeats();
+
+		/// <summary>
+		/// Duration in frames (count-based, counts frames).
+		/// </summary>
+		public TimerFinalBuilder Frames() => _builder.Frames();
 	}
 
 	/// <summary>
@@ -72,35 +72,24 @@ namespace LunyScript.Api
 	public readonly struct TimerFinalBuilder
 	{
 		private readonly ILunyScript _script;
-		private readonly CoroutineOptions _options;
+		private readonly CoroutineConfig _config;
 
-		private TimerFinalBuilder(ILunyScript script, in CoroutineOptions options)
+		private TimerFinalBuilder(ILunyScript script, in CoroutineConfig config)
 		{
 			_script = script;
-			_options = options;
+			_config = config;
 		}
 
-		internal static TimerFinalBuilder FromOptions(ILunyScript script, in CoroutineOptions options) => new(script, options);
-
-		internal static TimerFinalBuilder TimeBased(ILunyScript script, String name, Double durationSeconds, Boolean isRepeating) =>
-			new(script, CoroutineOptions.ForTimer(name, durationSeconds, isRepeating, null));
-
-		internal static TimerFinalBuilder HeartbeatBased(ILunyScript script, String name, Int32 heartbeatCount, Boolean isRepeating) =>
-			new(script, CoroutineOptions.ForCountTimer(name, heartbeatCount, isRepeating, null));
+		internal static TimerFinalBuilder FromOptions(ILunyScript script, in CoroutineConfig config) => new(script, config);
 
 		/// <summary>
 		/// Completes the timer and specifies blocks to run when elapsed.
 		/// </summary>
 		public IScriptTimerBlock Do(params IScriptActionBlock[] blocks)
 		{
+			var options = _config with { OnElapsed = blocks };
 			var scriptInternal = (ILunyScriptInternal)_script;
-			var context = scriptInternal.Context;
-
-			if (context == null)
-				return null;
-
-			var options = _options with { OnElapsed = blocks };
-			var instance = context.Coroutines.Register(in options);
+			var instance = scriptInternal.Context.Coroutines.Register(in options);
 			return new CoroutineBlock(instance);
 		}
 	}

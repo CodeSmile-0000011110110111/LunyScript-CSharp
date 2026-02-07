@@ -2,6 +2,7 @@ using Luny;
 using Luny.Engine.Bridge;
 using LunyScript.Api;
 using LunyScript.Blocks;
+using LunyScript.Coroutines.Builders;
 using LunyScript.Events;
 using LunyScript.Execution;
 using System;

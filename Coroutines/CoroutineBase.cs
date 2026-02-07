@@ -24,31 +24,37 @@ namespace LunyScript.Coroutines
 		Paused,
 	}
 
-	internal enum EveryCoroutineType
+	internal enum CoroutineCountMode
 	{
 		Frames,
 		Heartbeats,
 	}
 
+	internal enum CoroutineContinuation
+	{
+		Finite,
+		Repeating,
+	}
+
 	internal struct TimeProgress
 	{
-		public Double Elapsed;
+		public Double Progress;
 		public Double Duration;
 		public Double Scale;
 
-		public void Reset() => Elapsed = 0.0;
-		public void Step(Double dt) => Elapsed += dt * (Scale < 0 ? 0 : Scale);
-		public Boolean IsElapsed => Duration > 0 && Elapsed >= Duration;
+		public void Reset() => Progress = 0.0;
+		public void AddDeltaTime(Double dt) => Progress += dt * (Scale < 0.0 ? 0.0 : Scale);
+		public Boolean IsElapsed => Duration > 0.0 && Progress >= Duration;
 	}
 
 	internal struct CountProgress
 	{
-		public Int32 Elapsed;
+		public Int32 Progress;
 		public Int32 Target;
 
-		public void Reset() => Elapsed = 0;
-		public void Step() => Elapsed++;
-		public Boolean IsElapsed => Target > 0 && Elapsed >= Target;
+		public void Reset() => Progress = 0;
+		public void Increment() => Progress++;
+		public Boolean IsElapsed => Target > 0 && Progress >= Target;
 	}
 
 	/// <summary>
@@ -74,7 +80,7 @@ namespace LunyScript.Coroutines
 		internal virtual IScriptSequenceBlock OnPausedSequence => null;
 		internal virtual IScriptSequenceBlock OnResumedSequence => null;
 
-		internal virtual Boolean IsCountBased => false;
+		internal virtual Boolean IsCounter => false;
 		internal virtual Boolean IsTimeSliced => false;
 		internal virtual Int32 TimeSliceInterval => 0;
 		internal virtual Int32 TimeSliceOffset => 0;
@@ -84,16 +90,16 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Factory method to create specialized coroutine instances.
 		/// </summary>
-		public static CoroutineBase Create(in CoroutineOptions options) => options.IsCounter ? new CounterCoroutine(options) :
-			options.IsTimer ? new TimerCoroutine(options) : new Coroutine(options);
+		public static CoroutineBase Create(in CoroutineConfig config) => config.IsCounter ? new CounterCoroutine(config) :
+			config.IsTimer ? new TimerCoroutine(config) : new Coroutine(config);
 
-		protected CoroutineBase(in CoroutineOptions options)
+		protected CoroutineBase(in CoroutineConfig config)
 		{
-			if (String.IsNullOrEmpty(options.Name))
-				throw new ArgumentException("Coroutine name cannot be null or empty", nameof(options.Name));
+			if (String.IsNullOrEmpty(config.Name))
+				throw new ArgumentException("Coroutine name cannot be null or empty", nameof(config.Name));
 
-			_name = options.Name;
-			_onElapsedSequence = SequenceBlock.TryCreate(options.OnElapsed);
+			_name = config.Name;
+			_onElapsedSequence = SequenceBlock.TryCreate(config.OnElapsed);
 		}
 
 		/// <summary>
@@ -183,12 +189,12 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Advances a time-based coroutine by deltaTime. Returns true if elapsed (duration reached).
 		/// </summary>
-		internal Boolean AdvanceTime(Double deltaTime)
+		internal Boolean Update(Double deltaTime)
 		{
 			if (_state != CoroutineState.Running)
 				return false;
 
-			AccumulateTime(deltaTime);
+			AdvanceTime(deltaTime);
 			if (!HasElapsed())
 				return false;
 
@@ -205,12 +211,12 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Advances a count-based coroutine by one heartbeat. Returns true if elapsed (count reached).
 		/// </summary>
-		internal Boolean AdvanceHeartbeat()
+		internal Boolean Step()
 		{
 			if (_state != CoroutineState.Running)
 				return false;
 
-			AccumulateHeartbeat();
+			IncrementCount();
 			if (!HasElapsed())
 				return false;
 
@@ -224,8 +230,8 @@ namespace LunyScript.Coroutines
 			return true;
 		}
 
-		protected virtual void AccumulateTime(Double deltaTime) {}
-		protected virtual void AccumulateHeartbeat() {}
+		protected virtual void AdvanceTime(Double deltaTime) {}
+		protected virtual void IncrementCount() {}
 		protected virtual Boolean HasElapsed() => false;
 
 		public abstract override String ToString();

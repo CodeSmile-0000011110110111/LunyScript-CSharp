@@ -82,7 +82,7 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Coroutine runner for managing timers and coroutines.
 		/// </summary>
-		internal LunyScriptCoroutineRunner Coroutines { get; }
+		internal CoroutineRunner Coroutines { get; }
 
 		internal static void ClearGlobalVariables() => s_GlobalVariables?.RemoveAll();
 
@@ -97,7 +97,7 @@ namespace LunyScript.Execution
 			DebugHooks = new LunyScriptDebugHooks();
 			BlockProfiler = new LunyScriptBlockProfiler();
 			Scheduler = new LunyScriptEventScheduler();
-			Coroutines = new LunyScriptCoroutineRunner();
+			Coroutines = new CoroutineRunner();
 		}
 
 		~LunyScriptContext() => LunyTraceLogger.LogInfoFinalized(this);

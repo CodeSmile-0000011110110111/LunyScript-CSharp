@@ -16,9 +16,6 @@ namespace LunyScript.Events
 		// Fast array-based storage for lifecycle events (hot path)
 		private List<IScriptSequenceBlock>[] _objectEventSequences;
 		private List<IScriptSequenceBlock>[] _sceneEventSequences;
-		private List<(TimeSpan interval, IScriptSequenceBlock sequence)> _intervalSequences;
-
-		internal IReadOnlyList<(TimeSpan interval, IScriptSequenceBlock sequence)> IntervalSequences => _intervalSequences;
 
 		//~LunyScriptEventScheduler() => LunyTraceLogger.LogInfoFinalized(this);
 
@@ -40,18 +37,6 @@ namespace LunyScript.Events
 
 		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, LunySceneEvent sceneEvent) =>
 			ScheduleSequence(ref _sceneEventSequences, SequenceBlock.TryCreate(blocks), (Int32)sceneEvent, s_SceneEventCount);
-
-		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, TimeSpan timeSpan)
-		{
-			var sequence = SequenceBlock.TryCreate(blocks);
-			if (sequence != null && !sequence.IsEmpty)
-			{
-				_intervalSequences ??= new List<(TimeSpan, IScriptSequenceBlock)>();
-				_intervalSequences.Add((timeSpan, sequence));
-			}
-
-			return sequence;
-		}
 
 		/// <summary>
 		/// Gets all sequences scheduled for a specific lifecycle event.
