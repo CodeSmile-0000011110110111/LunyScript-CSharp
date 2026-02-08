@@ -22,22 +22,28 @@ namespace LunyScript.Execution
 		[NotNull] private LunyScriptEngine _scriptEngine;
 		[NotNull] private LunyScriptDefinitionRegistry _scripts;
 		[NotNull] private LunyScriptContextRegistry _contexts;
-		[NotNull] private LunyScriptObjectEventHandler _objectEventHandler;
+		[NotNull] private LunyScriptObjectLifecycle _objectLifecycle;
 		[NotNull] private LunyScriptSceneEventHandler _sceneEventHandler;
 
 		internal LunyScriptDefinitionRegistry Scripts => _scripts;
 		internal LunyScriptContextRegistry Contexts => _contexts;
-		internal LunyScriptObjectEventHandler ObjectEventHandler => _objectEventHandler;
+		internal LunyScriptObjectLifecycle ObjectLifecycle => _objectLifecycle;
 		internal LunyScriptSceneEventHandler SceneEventHandler => _sceneEventHandler;
 
 		internal static void Run(IEnumerable<IScriptSequenceBlock> sequences, LunyScriptContext context)
 		{
+			if (sequences == null)
+				return;
+
 			foreach (var sequence in sequences)
 				Run(sequence, context);
 		}
 
 		internal static void Run(IScriptSequenceBlock sequence, LunyScriptContext context)
 		{
+			if (sequence == null)
+				return;
+
 			// TODO: avoid profiling overhead when not enabled
 			var timeService = LunyEngine.Instance.Time;
 			var blockType = sequence.GetType();
@@ -81,7 +87,7 @@ namespace LunyScript.Execution
 			_scriptEngine = new LunyScriptEngine(this); // public API interface (split to ensure users don't call OnStartup etc)
 			_scripts = new LunyScriptDefinitionRegistry(); // performs LunyScript type discovery
 			_contexts = new LunyScriptContextRegistry();
-			_objectEventHandler = new LunyScriptObjectEventHandler(_contexts);
+			_objectLifecycle = new LunyScriptObjectLifecycle(_contexts);
 			_sceneEventHandler = new LunyScriptSceneEventHandler(_contexts);
 
 			LunyTraceLogger.LogInfoInitialized(this);
@@ -137,7 +143,6 @@ namespace LunyScript.Execution
 			var context = _contexts.GetByNativeObjectID(lunyObject.NativeObjectID);
 			if (context != null)
 			{
-				// _objectEventHandler.Unregister(context);
 				// _sceneEventHandler.Unregister(context);
 				_contexts.Unregister(context);
 			}
@@ -148,28 +153,20 @@ namespace LunyScript.Execution
 		public void OnEngineHeartbeat(Double fixedDeltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
-			{
-				_objectEventHandler.OnHeartbeat(fixedDeltaTime, context);
-				// Coroutines run AFTER non-coroutine updates
-				context.Coroutines?.OnHeartbeat(fixedDeltaTime, context);
-			}
+				_objectLifecycle.OnHeartbeat(fixedDeltaTime, context);
 		}
 
 		public void OnEngineFrameUpdate(Double deltaTime)
 		{
 			foreach (var context in _contexts.AllContexts)
-			{
-				_objectEventHandler.OnFrameUpdate(deltaTime, context);
-				// Coroutines run AFTER non-coroutine updates
-				context.Coroutines?.OnFrameUpdate(deltaTime, context);
-			}
+				_objectLifecycle.OnFrameUpdate(deltaTime, context);
 		}
 
 		public void OnEngineFrameLateUpdate(Double deltaTime)
 		{
 			// Run all LateUpdate runnables
 			foreach (var context in _contexts.AllContexts)
-				_objectEventHandler.OnFrameLateUpdate(deltaTime, context);
+				_objectLifecycle.OnFrameLateUpdate(deltaTime, context);
 		}
 
 		internal void Shutdown()
@@ -183,7 +180,7 @@ namespace LunyScript.Execution
 					context.LunyObject.Destroy();
 
 				// final cleanup of pending object destroy
-				_objectEventHandler.Shutdown();
+				_objectLifecycle.Shutdown();
 				_sceneEventHandler.Shutdown();
 				_contexts.Shutdown();
 				_scripts.Shutdown();
@@ -197,7 +194,7 @@ namespace LunyScript.Execution
 			finally
 			{
 				_scriptEngine = null;
-				_objectEventHandler = null;
+				_objectLifecycle = null;
 
 				LunyTraceLogger.LogInfoShutdownComplete(this);
 			}

@@ -9,20 +9,21 @@ namespace LunyScript.Coroutines
 	internal record CoroutineConfig
 	{
 		private static Int32 s_UniqueNameCounter;
+
 		public String Name { get; init; }
-		public Double TimeInterval { get; init; } // Used only by TimerCoroutine
-		public Int32 TargetCount { get; init; } // Used only by CounterCoroutine
-		public Int32 TimeSliceInterval { get; init; } // Used only by CounterCoroutine
-		public Int32 TimeSliceOffset { get; init; } // Used only by CounterCoroutine
-		public Boolean IsRepeating { get; init; }
+		public Double TimerInterval { get; init; } // Used only by TimerCoroutine
+		public Int32 CounterTarget { get; init; } // Used only by CounterCoroutine
+		public Int32 CounterTimeSliceInterval { get; init; } // Used only by CounterCoroutine
+		public Int32 CounterTimeSliceOffset { get; init; } // Used only by CounterCoroutine
+		public CoroutineContinuationMode ContinuationMode { get; init; }
 
 		// Computed properties
-		public Boolean IsTimer => TimeInterval > 0d;
-		public Boolean IsCounter => TargetCount > 0 || IsTimeSliced;
-		public Boolean IsTimeSliced => TimeSliceInterval != 0;
+		public Boolean IsTimer => TimerInterval > 0d;
+		public Boolean IsCounter => CounterTarget > 0 || IsCounterTimeSliced;
+		public Boolean IsCounterTimeSliced => CounterTimeSliceInterval != 0;
 
 		// Handlers
-		public IScriptActionBlock[] OnUpdate { get; init; }
+		public IScriptActionBlock[] OnFrameUpdate { get; init; }
 		public IScriptActionBlock[] OnHeartbeat { get; init; }
 		public IScriptActionBlock[] OnElapsed { get; init; }
 		public IScriptActionBlock[] OnStarted { get; init; }
@@ -30,33 +31,33 @@ namespace LunyScript.Coroutines
 		public IScriptActionBlock[] OnPaused { get; init; }
 		public IScriptActionBlock[] OnResumed { get; init; }
 
-		public static CoroutineConfig ForCoroutine(String name) => new() { Name = name };
+		public static CoroutineConfig ForOpenEnded(String name) => new() { Name = name };
 
-		public static CoroutineConfig ForTimeInterval(String name, Double duration, Boolean isRepeating) => new()
+		public static CoroutineConfig ForTimer(String name, Double duration, CoroutineContinuationMode continuationMode) => new()
 		{
 			Name = name,
-			TimeInterval = duration,
-			IsRepeating = isRepeating,
+			TimerInterval = duration,
+			ContinuationMode = continuationMode,
 		};
 
-		public static CoroutineConfig ForTargetCount(String name, Int32 count, Boolean isRepeating) => new()
+		public static CoroutineConfig ForCounter(String name, Int32 count, CoroutineContinuationMode continuationMode) => new()
 		{
 			Name = name,
-			TargetCount = count,
-			IsRepeating = isRepeating,
+			CounterTarget = count,
+			ContinuationMode = continuationMode,
 		};
 
-		public static CoroutineConfig ForEvery(String name, Int32 everyInterval, CoroutineCountMode countMode, Int32 delay,
+		public static CoroutineConfig ForEveryInterval(String name, Int32 everyInterval, CoroutineCountMode countMode, Int32 delay,
 			IScriptActionBlock[] doBlocks) => new()
 		{
 			Name = name ?? GenerateUniqueName(everyInterval, delay, countMode),
-			TimeSliceInterval = everyInterval,
-			TimeSliceOffset = delay,
-			OnUpdate = countMode == CoroutineCountMode.Frames ? doBlocks : null,
+			CounterTimeSliceInterval = everyInterval < 0 ? 2 : everyInterval,
+			CounterTimeSliceOffset = everyInterval == LunyScript.Odd ? 1 : delay,
+			OnFrameUpdate = countMode == CoroutineCountMode.Frames ? doBlocks : null,
 			OnHeartbeat = countMode == CoroutineCountMode.Heartbeats ? doBlocks : null,
 		};
 
-		private static String GenerateUniqueName(Int32 interval, Int32 offset, CoroutineCountMode countMode) =>
-			$"[{++s_UniqueNameCounter}]__Every({interval}).{countMode}().DelayBy({offset})";
+		private static String GenerateUniqueName(Int32 interval, Int32 delay, CoroutineCountMode countMode) =>
+			$"[{++s_UniqueNameCounter}]__Every({interval}).{countMode}().DelayBy({delay})";
 	}
 }

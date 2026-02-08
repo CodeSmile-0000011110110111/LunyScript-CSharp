@@ -74,7 +74,7 @@ namespace LunyScript.Blocks
 		/// <summary>
 		/// Sets the time scale. Values >= 0; negative values are clamped to 0.
 		/// </summary>
-		void TimeScale(Double scale);
+		void SetTimeScale(Double scale);
 	}
 
 	/// <summary>

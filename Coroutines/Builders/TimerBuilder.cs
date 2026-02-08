@@ -22,12 +22,12 @@ namespace LunyScript.Coroutines.Builders
 		/// <summary>
 		/// Sets the timer to fire once after the specified duration.
 		/// </summary>
-		public TimerDurationBuilder In(Double duration) => new(_script, _name, duration, CoroutineContinuation.Finite);
+		public TimerDurationBuilder In(Double duration) => new(_script, _name, duration, CoroutineContinuationMode.Finite);
 
 		/// <summary>
 		/// Sets the timer to fire repeatedly at the specified interval.
 		/// </summary>
-		public TimerDurationBuilder Every(Double interval) => new(_script, _name, interval, CoroutineContinuation.Repeating);
+		public TimerDurationBuilder Every(Double interval) => new(_script, _name, interval, CoroutineContinuationMode.Repeating);
 	}
 
 	/// <summary>
@@ -37,7 +37,7 @@ namespace LunyScript.Coroutines.Builders
 	{
 		private readonly DurationBuilder<TimerFinalBuilder> _builder;
 
-		internal TimerDurationBuilder(ILunyScript script, String name, Double amount, CoroutineContinuation continuation) => _builder =
+		internal TimerDurationBuilder(ILunyScript script, String name, Double amount, CoroutineContinuationMode continuation) => _builder =
 			new DurationBuilder<TimerFinalBuilder>(name, amount, config => TimerFinalBuilder.FromOptions(script, config), continuation);
 
 		/// <summary>

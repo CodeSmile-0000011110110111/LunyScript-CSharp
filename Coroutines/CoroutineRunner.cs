@@ -1,5 +1,4 @@
 ﻿using Luny;
-using LunyScript.Blocks;
 using LunyScript.Execution;
 using System;
 using System.Collections.Generic;
@@ -27,30 +26,8 @@ namespace LunyScript.Coroutines
 		/// </summary>
 		internal IEnumerable<String> Names => _coroutines.Keys;
 
-		private static void RunSequence(IScriptSequenceBlock sequence, LunyScriptContext context)
-		{
-			if (sequence != null)
-				LunyScriptRunner.Run(sequence, context);
-		}
-
-		private static Boolean ShouldRunThisTick(CoroutineBase coroutine, Int64 tickCount)
-		{
-			if (!coroutine.IsTimeSliced)
-				return true;
-
-			var interval = coroutine.TimeSliceInterval;
-			var offset = coroutine.TimeSliceOffset;
-
-			// Handle Even and Odd special values
-			if (interval == LunyScript.Even) // Even
-				return (tickCount + offset) % 2 == 0;
-
-			if (interval == LunyScript.Odd) // Odd
-				return (tickCount + offset) % 2 == 1;
-
-			// Regular interval
-			return (tickCount - offset) % interval == 0;
-		}
+		private static Boolean ShouldRunTickBlocks(CoroutineBase coroutine, Int64 tickCount) => !coroutine.IsTimeSliced ||
+			(tickCount - coroutine.TimeSliceOffset) % coroutine.TimeSliceInterval == 0;
 
 		/// <summary>
 		/// Registers a new coroutine. Throws if name already exists.
@@ -91,15 +68,16 @@ namespace LunyScript.Coroutines
 
 				// Run OnHeartbeat sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches
-				if (ShouldRunThisTick(coroutine, _heartbeatCount))
-					RunSequence(coroutine.OnHeartbeatSequence, context);
+				var tickBlocks = coroutine.OnHeartbeatSequence;
+				if (tickBlocks != null && ShouldRunTickBlocks(coroutine, _heartbeatCount))
+					LunyScriptRunner.Run(tickBlocks, context);
 
 				// Advance count-based coroutines on each heartbeat
 				if (coroutine.IsCounter)
 				{
-					var elapsed = coroutine.Step();
+					var elapsed = coroutine.ProcessHeartbeat(fixedDeltaTime);
 					if (elapsed)
-						RunSequence(coroutine.OnElapsedSequence, context);
+						LunyScriptRunner.Run(coroutine.OnElapsedSequence, context);
 				}
 			}
 		}
@@ -119,44 +97,27 @@ namespace LunyScript.Coroutines
 
 				// Run OnUpdate sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches
-				if (ShouldRunThisTick(coroutine, _frameCount))
-					RunSequence(coroutine.OnUpdateSequence, context);
+				var tickBlocks = coroutine.OnFrameUpdateSequence;
+				if (tickBlocks != null && ShouldRunTickBlocks(coroutine, _frameCount))
+					LunyScriptRunner.Run(tickBlocks, context);
 
 				// Advance time-based coroutines (count-based advance in OnHeartbeat)
-				if (!coroutine.IsCounter)
+				if (coroutine.IsTimer)
 				{
-					var elapsed = coroutine.Update(deltaTime);
+					var elapsed = coroutine.ProcessFrameUpdate(deltaTime);
 					if (elapsed)
-						RunSequence(coroutine.OnElapsedSequence, context);
+						LunyScriptRunner.Run(coroutine.OnElapsedSequence, context);
 				}
 			}
 		}
 
 		/// <summary>
-		/// Auto-pauses all running coroutines when object is disabled.
-		/// </summary>
-		internal void OnObjectDisabled()
-		{
-			foreach (var coroutine in _coroutines.Values)
-				coroutine.PauseByDisable();
-		}
-
-		/// <summary>
-		/// Auto-resumes coroutines that were paused by disable when object is re-enabled.
-		/// </summary>
-		internal void OnObjectEnabled()
-		{
-			foreach (var coroutine in _coroutines.Values)
-				coroutine.ResumeByEnable();
-		}
-
-		/// <summary>
 		/// Stops all coroutines when object is destroyed.
 		/// </summary>
-		internal void OnObjectDestroyed()
+		public void OnObjectDestroyed()
 		{
 			foreach (var coroutine in _coroutines.Values)
-				coroutine.Stop();
+				coroutine.OnObjectDestroyed();
 
 			_coroutines.Clear();
 		}

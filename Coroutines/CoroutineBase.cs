@@ -4,94 +4,42 @@ using System;
 namespace LunyScript.Coroutines
 {
 	/// <summary>
-	/// Represents the execution state of a coroutine or timer.
-	/// </summary>
-	internal enum CoroutineState
-	{
-		/// <summary>
-		/// Coroutine is not running and has no accumulated time.
-		/// </summary>
-		Stopped,
-
-		/// <summary>
-		/// Coroutine is actively running and accumulating time.
-		/// </summary>
-		Running,
-
-		/// <summary>
-		/// Coroutine is frozen at current time, will resume when unpaused.
-		/// </summary>
-		Paused,
-	}
-
-	internal enum CoroutineCountMode
-	{
-		Frames,
-		Heartbeats,
-	}
-
-	internal enum CoroutineContinuation
-	{
-		Finite,
-		Repeating,
-	}
-
-	internal struct TimeProgress
-	{
-		public Double Progress;
-		public Double Duration;
-		public Double Scale;
-
-		public void Reset() => Progress = 0.0;
-		public void AddDeltaTime(Double dt) => Progress += dt * (Scale < 0.0 ? 0.0 : Scale);
-		public Boolean IsElapsed => Duration > 0.0 && Progress >= Duration;
-	}
-
-	internal struct CountProgress
-	{
-		public Int32 Progress;
-		public Int32 Target;
-
-		public void Reset() => Progress = 0;
-		public void Increment() => Progress++;
-		public Boolean IsElapsed => Target > 0 && Progress >= Target;
-	}
-
-	/// <summary>
 	/// Base class for coroutines and timers with runtime state and control methods.
 	/// </summary>
 	internal abstract class CoroutineBase
 	{
 		private readonly String _name;
-
-		protected readonly IScriptSequenceBlock _onElapsedSequence;
-		protected CoroutineState _state = CoroutineState.Stopped;
-		private Boolean _wasPausedByDisable;
+		private CoroutineState _state = CoroutineState.Stopped;
 
 		internal String Name => _name;
 		internal CoroutineState State => _state;
-		internal Boolean WasPausedByDisable => _wasPausedByDisable;
 
-		internal virtual IScriptSequenceBlock OnUpdateSequence => null;
+		internal virtual IScriptSequenceBlock OnFrameUpdateSequence => null;
 		internal virtual IScriptSequenceBlock OnHeartbeatSequence => null;
-		internal virtual IScriptSequenceBlock OnElapsedSequence => _onElapsedSequence;
+		internal virtual IScriptSequenceBlock OnElapsedSequence => null;
 		internal virtual IScriptSequenceBlock OnStartedSequence => null;
 		internal virtual IScriptSequenceBlock OnStoppedSequence => null;
 		internal virtual IScriptSequenceBlock OnPausedSequence => null;
 		internal virtual IScriptSequenceBlock OnResumedSequence => null;
 
-		internal virtual Boolean IsCounter => false;
-		internal virtual Boolean IsTimeSliced => false;
+		/// <summary>
+		/// Sets the time scale. Clamped to >= 0 (no negative time).
+		/// </summary>
+		internal virtual Double TimeScale { get => 1.0; set => throw new NotImplementedException(nameof(TimeScale)); }
 		internal virtual Int32 TimeSliceInterval => 0;
 		internal virtual Int32 TimeSliceOffset => 0;
-		internal virtual Double TimeScale => 1.0;
-		protected virtual Boolean IsRepeating => false;
+		internal virtual Boolean IsCounter => false;
+		internal Boolean IsTimer => !IsCounter;
+		internal virtual Boolean IsTimeSliced => false;
+		protected CoroutineContinuationMode ContinuationMode { get; set; } = CoroutineContinuationMode.Finite;
 
 		/// <summary>
 		/// Factory method to create specialized coroutine instances.
 		/// </summary>
 		public static CoroutineBase Create(in CoroutineConfig config) => config.IsCounter ? new CounterCoroutine(config) :
-			config.IsTimer ? new TimerCoroutine(config) : new Coroutine(config);
+			config.IsTimer ? new TimerCoroutine(config) : new PerpetualCoroutine(config);
+
+		private CoroutineBase() {} // hide default ctor
 
 		protected CoroutineBase(in CoroutineConfig config)
 		{
@@ -99,14 +47,13 @@ namespace LunyScript.Coroutines
 				throw new ArgumentException("Coroutine name cannot be null or empty", nameof(config.Name));
 
 			_name = config.Name;
-			_onElapsedSequence = SequenceBlock.TryCreate(config.OnElapsed);
 		}
 
 		/// <summary>
-		/// Starts or restarts the coroutine. Resets elapsed time/count.
-		/// Returns true if started fresh (not restarting), indicating Started event should fire.
+		/// Starts or restarts the coroutine. Always calls Stop() first to reset coroutine state (eg time/count).
 		/// </summary>
-		internal virtual Boolean Start()
+		/// <returns>True if coroutine was in stopped state. False if coroutine was running or paused (restarting).</returns>
+		internal Boolean Start()
 		{
 			Stop();
 			_state = CoroutineState.Running;
@@ -117,18 +64,17 @@ namespace LunyScript.Coroutines
 		/// Stops the coroutine and resets state.
 		/// Returns true if the coroutine was running or paused (indicating Stopped event should fire).
 		/// </summary>
-		internal virtual Boolean Stop()
+		internal Boolean Stop()
 		{
 			if (_state == CoroutineState.Stopped)
 				return false;
 
 			_state = CoroutineState.Stopped;
-			_wasPausedByDisable = false;
 			ResetState();
 			return true;
 		}
 
-		protected virtual void ResetState() {}
+		protected abstract void ResetState();
 
 		/// <summary>
 		/// Pauses the coroutine, preserving current elapsed time.
@@ -153,87 +99,53 @@ namespace LunyScript.Coroutines
 				return false;
 
 			_state = CoroutineState.Running;
-			_wasPausedByDisable = false;
 			return true;
 		}
 
 		/// <summary>
-		/// Sets the time scale. Clamped to >= 0 (no negative time).
+		/// Stop coroutine when object is destroyed.
 		/// </summary>
-		internal virtual void SetTimeScale(Double scale) {}
+		internal void OnObjectDestroyed() => Stop();
 
 		/// <summary>
-		/// Auto-pause when object is disabled.
+		/// Updates coroutine heartbeat state. Returns true if coroutine elapsed.
 		/// </summary>
-		internal void PauseByDisable()
-		{
-			if (_state != CoroutineState.Running)
-				return;
-
-			_state = CoroutineState.Paused;
-			_wasPausedByDisable = true;
-		}
-
-		/// <summary>
-		/// Auto-resume when object is re-enabled (only if was paused by disable).
-		/// </summary>
-		internal void ResumeByEnable()
-		{
-			if (_state != CoroutineState.Paused || !_wasPausedByDisable)
-				return;
-
-			_state = CoroutineState.Running;
-			_wasPausedByDisable = false;
-		}
-
-		/// <summary>
-		/// Advances a time-based coroutine by deltaTime. Returns true if elapsed (duration reached).
-		/// </summary>
-		internal Boolean Update(Double deltaTime)
+		internal Boolean ProcessHeartbeat(Double fixedDeltaTime)
 		{
 			if (_state != CoroutineState.Running)
 				return false;
 
-			AdvanceTime(deltaTime);
-			if (!HasElapsed())
+			var elapsed = OnHeartbeat(fixedDeltaTime);
+			return ResolveState(elapsed);
+		}
+
+		/// <summary>
+		/// Updates coroutine frame update state. Returns true if coroutine elapsed.
+		/// </summary>
+		internal Boolean ProcessFrameUpdate(Double deltaTime)
+		{
+			if (_state != CoroutineState.Running)
 				return false;
 
-			if (IsRepeating)
-			{
+			var elapsed = OnFrameUpdate(deltaTime);
+			return ResolveState(elapsed);
+		}
+
+		private Boolean ResolveState(Boolean elapsed)
+		{
+			if (!elapsed)
+				return false;
+
+			if (ContinuationMode == CoroutineContinuationMode.Repeating)
 				Start();
-				return true;
-			}
+			else
+				Stop();
 
-			_state = CoroutineState.Stopped;
 			return true;
 		}
 
-		/// <summary>
-		/// Advances a count-based coroutine by one heartbeat. Returns true if elapsed (count reached).
-		/// </summary>
-		internal Boolean Step()
-		{
-			if (_state != CoroutineState.Running)
-				return false;
-
-			IncrementCount();
-			if (!HasElapsed())
-				return false;
-
-			if (IsRepeating)
-			{
-				Start();
-				return true;
-			}
-
-			_state = CoroutineState.Stopped;
-			return true;
-		}
-
-		protected virtual void AdvanceTime(Double deltaTime) {}
-		protected virtual void IncrementCount() {}
-		protected virtual Boolean HasElapsed() => false;
-
-		public abstract override String ToString();
+		protected abstract Boolean OnFrameUpdate(Double deltaTime);
+		protected abstract Boolean OnHeartbeat(Double fixedDeltaTime);
+		public abstract override String ToString(); // force implementation of ToString()
 	}
 }

@@ -92,12 +92,12 @@ namespace LunyScript.Coroutines.Builders
 
 		internal static CoroutineFinalBuilder FromConfig(ILunyScript script, in CoroutineConfig config) => new(script, config);
 
-		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name) => new(script, CoroutineConfig.ForCoroutine(name));
+		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name) => new(script, CoroutineConfig.ForOpenEnded(name));
 
 		/// <summary>
 		/// Adds blocks to run every frame update while coroutine is running.
 		/// </summary>
-		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) => new(_script, _config with { OnUpdate = blocks });
+		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) => new(_script, _config with { OnFrameUpdate = blocks });
 
 		/// <summary>
 		/// Adds blocks to run every heartbeat (fixed step) while coroutine is running.

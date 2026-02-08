@@ -10,16 +10,13 @@ namespace LunyScript.Blocks.Coroutines
 	/// </summary>
 	internal sealed class CoroutineBlock : IScriptCoroutineBlock
 	{
-		private readonly CoroutineBase _instance;
-
-		internal CoroutineBlock(CoroutineBase instance) => _instance = instance ?? throw new ArgumentNullException(nameof(instance));
-
-		public void Execute(ILunyScriptContext context) => new CoroutineStartBlock(_instance).Execute(context);
-
-		public IScriptActionBlock Start() => new CoroutineStartBlock(_instance);
-		public IScriptActionBlock Stop() => new CoroutineStopBlock(_instance);
-		public IScriptActionBlock Pause() => new CoroutinePauseBlock(_instance);
-		public IScriptActionBlock Resume() => new CoroutineResumeBlock(_instance);
-		public void TimeScale(Double scale) => _instance.SetTimeScale(scale);
+		private readonly CoroutineBase _coroutine;
+		internal CoroutineBlock(CoroutineBase instance) => _coroutine = instance ?? throw new ArgumentNullException(nameof(instance));
+		public void Execute(ILunyScriptContext context) => new CoroutineStartBlock(_coroutine).Execute(context);
+		public IScriptActionBlock Start() => new CoroutineStartBlock(_coroutine);
+		public IScriptActionBlock Stop() => new CoroutineStopBlock(_coroutine);
+		public IScriptActionBlock Pause() => new CoroutinePauseBlock(_coroutine);
+		public IScriptActionBlock Resume() => new CoroutineResumeBlock(_coroutine);
+		public void SetTimeScale(Double scale) => _coroutine.TimeScale = scale;
 	}
 }

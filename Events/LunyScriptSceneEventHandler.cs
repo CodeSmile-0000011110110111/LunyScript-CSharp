@@ -51,10 +51,9 @@ namespace LunyScript.Events
 			var context = _contexts.GetByLunyObjectID(subscriberID);
 			var sequences = context?.Scheduler?.GetSequences(sceneEvent);
 			if (sequences != null)
-			{
 				LunyLogger.LogInfo($"Running {nameof(sceneEvent)} for {context}", this);
-				LunyScriptRunner.Run(sequences, context);
-			}
+
+			LunyScriptRunner.Run(sequences, context);
 		}
 
 		public void Shutdown() => _subscriberObjectIDs.Clear();

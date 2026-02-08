@@ -93,9 +93,10 @@ namespace LunyScript.Execution
 			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
 			_lunyObject = lunyObject ?? throw new ArgumentNullException(nameof(lunyObject));
 
-			// TODO: don't create these unless enabled
+			// TODO: don't create these hooks unless enabled
 			DebugHooks = new LunyScriptDebugHooks();
 			BlockProfiler = new LunyScriptBlockProfiler();
+
 			Scheduler = new LunyScriptEventScheduler();
 			Coroutines = new CoroutineRunner();
 		}

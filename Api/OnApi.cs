@@ -49,13 +49,13 @@ namespace LunyScript.Api
 		/// Runs every frame while object is enabled.
 		/// </summary>
 		public IScriptSequenceBlock FrameUpdate(params IScriptActionBlock[] blocks) =>
-			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnUpdate);
+			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnFrameUpdate);
 
 		/// <summary>
 		/// Runs after frame update while object is enabled.
 		/// </summary>
 		public IScriptSequenceBlock FrameEnd(params IScriptActionBlock[] blocks) =>
-			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnLateUpdate);
+			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnFrameLateUpdate);
 
 		/// <summary>
 		/// Runs on fixed-rate stepping while object is enabled.
@@ -63,6 +63,6 @@ namespace LunyScript.Api
 		/// May run multiple times per frame and may not run in every frame.
 		/// </summary>
 		public IScriptSequenceBlock Heartbeat(params IScriptActionBlock[] blocks) =>
-			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnFixedStep);
+			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnHeartbeat);
 	}
 }

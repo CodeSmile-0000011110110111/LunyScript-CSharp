@@ -54,7 +54,7 @@ namespace LunyScript.Execution
 		{
 			var sw = Stopwatch.StartNew();
 
-			var objectEventHandler = scriptRunner.ObjectEventHandler;
+			var objectEventHandler = scriptRunner.ObjectLifecycle;
 			var sceneEventHandler = scriptRunner.SceneEventHandler;
 
 			var activatedCount = 0;
@@ -73,7 +73,7 @@ namespace LunyScript.Execution
 			LunyLogger.LogInfo($"Built {activatedCount} script(s) in {ms} ms", nameof(LunyScriptActivator));
 		}
 
-		public static void BuildAndActivateLunyScript(LunyScriptContext context, LunyScriptObjectEventHandler objectEventHandler,
+		public static void BuildAndActivateLunyScript(LunyScriptContext context, LunyScriptObjectLifecycle objectLifecycle,
 			LunyScriptSceneEventHandler sceneEventHandler)
 		{
 			try
@@ -87,7 +87,7 @@ namespace LunyScript.Execution
 				scriptInstance.Destroy();
 
 				// hook up events
-				objectEventHandler.Register(context);
+				objectLifecycle.Register(context);
 				sceneEventHandler.Register(context);
 			}
 			catch (Exception ex)

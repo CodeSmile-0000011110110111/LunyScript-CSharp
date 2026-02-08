@@ -56,7 +56,7 @@ namespace LunyScript.Coroutines.Builders
 			if (_delay != 0)
 				throw new ArgumentException($"{nameof(DelayBy)}() can't be used twice");
 
-			return new EveryUnitBuilder((ILunyScript)_script, _interval, _countMode, delay);
+			return new EveryUnitBuilder(_script, _interval, _countMode, delay);
 		}
 
 		/// <summary>
@@ -65,13 +65,13 @@ namespace LunyScript.Coroutines.Builders
 		public IScriptCoroutineBlock Do(params IScriptActionBlock[] blocks)
 		{
 			// name = null => generates a unique name for this time-sliced coroutine
-			var options = CoroutineConfig.ForEvery(null, _interval, _countMode, _delay, blocks);
+			var options = CoroutineConfig.ForEveryInterval(null, _interval, _countMode, _delay, blocks);
 			var scriptInternal = (ILunyScriptInternal)_script;
-			var instance = scriptInternal.Context.Coroutines.Register(in options);
+			var coroutine = scriptInternal.Context.Coroutines.Register(in options);
 
 			// Auto-start time-sliced coroutines
-			var block = new CoroutineBlock(instance);
-			instance.Start();
+			var block = new CoroutineBlock(coroutine);
+			coroutine.Start();
 
 			return block;
 		}
