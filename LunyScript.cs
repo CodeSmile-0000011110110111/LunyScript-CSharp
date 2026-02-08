@@ -59,6 +59,15 @@ namespace LunyScript
 	/// </remarks>
 	public abstract class LunyScript : ILunyScript, ILunyScriptInternal
 	{
+		/// <summary>
+		/// Constant for Odd frame/heartbeat execution (1, 3, 5, 7, ...).
+		/// </summary>
+		public const Int32 Odd = -1;
+
+		/// <summary>
+		/// Constant for Even frame/heartbeat execution (0, 2, 4, 6, ...).
+		/// </summary>
+		public const Int32 Even = -2;
 		private ILunyScriptContext _context;
 
 		/// <summary>
@@ -226,16 +235,6 @@ namespace LunyScript
 		/// Use Even or Odd constants for alternating execution.
 		/// </summary>
 		protected EveryBuilder Every(Int32 interval) => new(this, interval);
-
-		/// <summary>
-		/// Constant for Odd frame/heartbeat execution (1, 3, 5, 7, ...).
-		/// </summary>
-		public const Int32 Odd = -1;
-
-		/// <summary>
-		/// Constant for Even frame/heartbeat execution (0, 2, 4, 6, ...).
-		/// </summary>
-		public const Int32 Even = -2;
 
 		~LunyScript() => LunyTraceLogger.LogInfoFinalized(this);
 

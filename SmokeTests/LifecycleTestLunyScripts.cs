@@ -25,10 +25,7 @@ namespace LunyScript.SmokeTests
 
 	public sealed class Assert_Runs_WhenEnabled : LunyScriptSmokeTestBase
 	{
-		public override void Build()
-		{
-			On.Enabled(Method.Run(AssertDidRun));
-		}
+		public override void Build() => On.Enabled(Method.Run(AssertDidRun));
 	}
 
 	public sealed class Assert_Runs_WhenDisabled : LunyScriptSmokeTestBase
@@ -42,39 +39,27 @@ namespace LunyScript.SmokeTests
 
 	public sealed class Assert_Runs_WhenReady : LunyScriptSmokeTestBase
 	{
-		public override void Build()
-		{
-			On.Ready(Method.Run(AssertDidRun));
-		}
+		public override void Build() => On.Ready(Method.Run(AssertDidRun));
 	}
 
 	public sealed class Assert_Runs_EveryFixedStep : LunyScriptSmokeTestBase
 	{
-		public override void Build()
-		{
-			On.Heartbeat(Method.Run(AssertDidRun),
-				Object.Destroy() // prevent log spam
-			);
-		}
+		public override void Build() => On.Heartbeat(Method.Run(AssertDidRun),
+			Object.Destroy() // prevent log spam
+		);
 	}
 
 	public sealed class Assert_Runs_EveryFrame : LunyScriptSmokeTestBase
 	{
-		public override void Build()
-		{
-			On.FrameUpdate(Method.Run(AssertDidRun),
-				Object.Destroy() // prevent log spam
-			);
-		}
+		public override void Build() => On.FrameUpdate(Method.Run(AssertDidRun),
+			Object.Destroy() // prevent log spam
+		);
 	}
 
 	public sealed class Assert_Runs_EveryFrameEnds : LunyScriptSmokeTestBase
 	{
-		public override void Build()
-		{
-			On.FrameEnd(Method.Run(AssertDidRun),
-				Object.Destroy() // prevent log spam
-			);
-		}
+		public override void Build() => On.FrameEnd(Method.Run(AssertDidRun),
+			Object.Destroy() // prevent log spam
+		);
 	}
 }

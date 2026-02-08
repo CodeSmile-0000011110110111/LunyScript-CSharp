@@ -29,8 +29,7 @@ namespace LunyScript.Api
 		/// <summary>
 		/// Runs once per lifetime just before the object starts processing frame/time-step events.
 		/// </summary>
-		public IScriptSequenceBlock Ready(params IScriptActionBlock[] blocks) =>
-			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnReady);
+		public IScriptSequenceBlock Ready(params IScriptActionBlock[] blocks) => Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnReady);
 
 		/// <summary>
 		/// Runs every time the object's state changes to 'disabled' (not visible, not participating).

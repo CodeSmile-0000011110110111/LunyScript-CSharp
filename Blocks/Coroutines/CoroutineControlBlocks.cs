@@ -19,10 +19,7 @@ namespace LunyScript.Blocks.Coroutines
 		public CoroutineStartBlock(CoroutineBase coroutine)
 			: base(coroutine) {}
 
-		public override void Execute(ILunyScriptContext context)
-		{
-			_coroutine.Start(context);
-		}
+		public override void Execute(ILunyScriptContext context) => _coroutine.Start(context);
 	}
 
 	internal sealed class CoroutineStopBlock : CoroutineControlBlockBase
@@ -30,10 +27,7 @@ namespace LunyScript.Blocks.Coroutines
 		public CoroutineStopBlock(CoroutineBase coroutine)
 			: base(coroutine) {}
 
-		public override void Execute(ILunyScriptContext context)
-		{
-			_coroutine.Stop(context);
-		}
+		public override void Execute(ILunyScriptContext context) => _coroutine.Stop(context);
 	}
 
 	internal sealed class CoroutinePauseBlock : CoroutineControlBlockBase
