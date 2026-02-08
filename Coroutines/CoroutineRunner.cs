@@ -13,8 +13,6 @@ namespace LunyScript.Coroutines
 	internal sealed class CoroutineRunner
 	{
 		private readonly Dictionary<String, CoroutineBase> _coroutines = new();
-		private Int64 _frameCount;
-		private Int64 _heartbeatCount;
 
 		/// <summary>
 		/// Gets the count of registered coroutines.
@@ -59,7 +57,7 @@ namespace LunyScript.Coroutines
 		/// </summary>
 		internal void OnHeartbeat(LunyScriptContext context)
 		{
-			_heartbeatCount++;
+			var heartbeatCount = LunyEngine.Instance.Time.HeartbeatCount;
 
 			foreach (var coroutine in _coroutines.Values)
 			{
@@ -71,7 +69,7 @@ namespace LunyScript.Coroutines
 				// Run OnHeartbeat sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches
 				var tickBlocks = coroutine.OnHeartbeatSequence;
-				if (tickBlocks != null && ShouldRunTickBlocks(coroutine, _heartbeatCount))
+				if (tickBlocks != null && ShouldRunTickBlocks(coroutine, heartbeatCount))
 					LunyScriptRunner.Run(tickBlocks, context);
 
 				// Advance count-based coroutines on each heartbeat
@@ -90,7 +88,7 @@ namespace LunyScript.Coroutines
 		/// </summary>
 		internal void OnFrameUpdate(LunyScriptContext context)
 		{
-			_frameCount++;
+			var frameCount = LunyEngine.Instance.Time.FrameCount;
 
 			foreach (var coroutine in _coroutines.Values)
 			{
@@ -102,7 +100,7 @@ namespace LunyScript.Coroutines
 				// Run OnUpdate sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches
 				var tickBlocks = coroutine.OnFrameUpdateSequence;
-				if (tickBlocks != null && ShouldRunTickBlocks(coroutine, _frameCount))
+				if (tickBlocks != null && ShouldRunTickBlocks(coroutine, frameCount))
 					LunyScriptRunner.Run(tickBlocks, context);
 
 				// Advance time-based coroutines (count-based advance in OnHeartbeat)

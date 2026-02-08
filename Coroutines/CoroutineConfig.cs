@@ -8,19 +8,19 @@ namespace LunyScript.Coroutines
 	/// </summary>
 	internal record CoroutineConfig
 	{
-		private static Int32 s_UniqueNameCounter;
+		private static Int32 s_UniqueNameID;
 
 		public String Name { get; init; }
 		public Double TimerInterval { get; init; } // Used only by TimerCoroutine
-		public Int32 CounterTarget { get; init; } // Used only by CounterCoroutine
-		public Int32 CounterTimeSliceInterval { get; init; } // Used only by CounterCoroutine
-		public Int32 CounterTimeSliceOffset { get; init; } // Used only by CounterCoroutine
+		public Int32 CounterTarget { get; init; } // Used by CounterCoroutine and TimeSliceCoroutine
+		public Int32 TimeSliceInterval { get; init; } // Used only by TimeSliceCoroutine
+		public Int32 TimeSliceOffset { get; init; } // Used only by TimeSliceCoroutine
 		public CoroutineContinuationMode ContinuationMode { get; init; }
 
 		// Computed properties
 		public Boolean IsTimer => TimerInterval > 0d;
-		public Boolean IsCounter => CounterTarget > 0 || IsCounterTimeSliced;
-		public Boolean IsCounterTimeSliced => CounterTimeSliceInterval != 0;
+		public Boolean IsCounter => CounterTarget > 0 || IsTimeSliced;
+		public Boolean IsTimeSliced => TimeSliceInterval != 0;
 
 		// Handlers
 		public IScriptActionBlock[] OnFrameUpdate { get; init; }
@@ -51,13 +51,13 @@ namespace LunyScript.Coroutines
 			IScriptActionBlock[] doBlocks) => new()
 		{
 			Name = name ?? GenerateUniqueName(everyInterval, delay, countMode),
-			CounterTimeSliceInterval = everyInterval < 0 ? 2 : everyInterval,
-			CounterTimeSliceOffset = everyInterval == LunyScript.Odd ? 1 : delay,
+			TimeSliceInterval = everyInterval == LunyScript.Odd || everyInterval == LunyScript.Even ? 2 : everyInterval,
+			TimeSliceOffset = everyInterval == LunyScript.Odd ? 1 : delay,
 			OnFrameUpdate = countMode == CoroutineCountMode.Frames ? doBlocks : null,
 			OnHeartbeat = countMode == CoroutineCountMode.Heartbeats ? doBlocks : null,
 		};
 
 		private static String GenerateUniqueName(Int32 interval, Int32 delay, CoroutineCountMode countMode) =>
-			$"[{++s_UniqueNameCounter}]__Every({interval}).{countMode}().DelayBy({delay})";
+			$"[{++s_UniqueNameID}]__Every({interval}).{countMode}().DelayBy({delay})";
 	}
 }

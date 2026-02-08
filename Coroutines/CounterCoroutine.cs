@@ -9,16 +9,11 @@ namespace LunyScript.Coroutines
 	{
 		private CountProgress _progress;
 
-		internal override Int32 TimeSliceInterval { get; }
-		internal override Int32 TimeSliceOffset { get; }
-		internal override Boolean IsTimeSliced => TimeSliceInterval != 0;
-		internal override Boolean IsCounter { get; } = true;
+		internal override Boolean IsCounter => true;
 
 		public CounterCoroutine(in CoroutineConfig config)
 			: base(config)
 		{
-			TimeSliceInterval = config.CounterTimeSliceInterval;
-			TimeSliceOffset = Math.Max(0, config.CounterTimeSliceOffset);
 			_progress.Target = Math.Max(0, config.CounterTarget);
 			ContinuationMode = config.ContinuationMode;
 		}
@@ -33,17 +28,8 @@ namespace LunyScript.Coroutines
 
 		public override String ToString()
 		{
-			var progress = _progress.IsElapsed ? $"Elapsed: {_progress.Target:F2}s" : $"{_progress.Current:F2}/{_progress.Target:F2}";
+			var progress = _progress.IsElapsed ? $"Elapsed: {_progress.Target:F2}s" : $"{_progress.Current:F2}s/{_progress.Target:F2}s";
 			return $"{GetType().Name}({Name}, {State}, {progress})";
-		}
-
-		private struct CountProgress
-		{
-			public Int32 Current;
-			public Int32 Target;
-			public void Reset() => Current = 0;
-			public void IncrementCount() => Current++;
-			public Boolean IsElapsed => Target > 0 && Current >= Target;
 		}
 	}
 }

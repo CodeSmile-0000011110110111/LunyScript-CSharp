@@ -38,8 +38,11 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Factory method to create specialized coroutine instances.
 		/// </summary>
-		public static CoroutineBase Create(in CoroutineConfig config) => config.IsCounter ? new CounterCoroutine(config) :
-			config.IsTimer ? new TimerCoroutine(config) : new PerpetualCoroutine(config);
+		public static CoroutineBase Create(in CoroutineConfig config) => 
+			config.IsTimeSliced ? new TimeSliceCoroutine(config) :
+			config.IsCounter ? new CounterCoroutine(config) :
+			config.IsTimer ? new TimerCoroutine(config) : 
+			new PerpetualCoroutine(config);
 
 		private CoroutineBase() {} // hide default ctor
 

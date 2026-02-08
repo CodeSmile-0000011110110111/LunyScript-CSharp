@@ -30,18 +30,8 @@ namespace LunyScript.Coroutines
 
 		public override String ToString()
 		{
-			var progress = _progress.IsElapsed ? $"Elapsed: {_progress.Duration:F2}s" : $"{_progress.Current:F2}/{_progress.Duration:F2}";
+			var progress = _progress.IsElapsed ? $"Elapsed: {_progress.Duration:F2}s" : $"{_progress.Current:F2}s/{_progress.Duration:F2}s";
 			return $"{GetType().Name}({Name}, {State}, {progress})";
-		}
-
-		private struct TimeProgress
-		{
-			public Double Current;
-			public Double Duration;
-			public Double TimeScale;
-			public void Reset() => Current = 0.0;
-			public void AddDeltaTime(Double dt) => Current += dt * TimeScale;
-			public Boolean IsElapsed => Duration > 0.0 && Current >= Duration;
 		}
 	}
 }

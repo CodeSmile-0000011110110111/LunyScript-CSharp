@@ -127,7 +127,7 @@ namespace LunyScript.Execution
 			LunyScriptActivator.BuildAndActivateLunyScripts(this, newScriptedObjects);
 		}
 
-		public void OnObjectCreated(ILunyObject lunyObject)
+		public void OnObjectRegistered(ILunyObject lunyObject)
 		{
 			// Check if object is already scripted to avoid double activation
 			if (_contexts.GetByNativeObjectID(lunyObject.NativeObjectID) != null)
@@ -137,7 +137,7 @@ namespace LunyScript.Execution
 			LunyScriptActivator.BuildAndActivateLunyScripts(this, new[] { lunyObject });
 		}
 
-		public void OnObjectDestroyed(ILunyObject lunyObject)
+		public void OnObjectUnregistered(ILunyObject lunyObject)
 		{
 			// Cleanup context for destroyed object
 			var context = _contexts.GetByNativeObjectID(lunyObject.NativeObjectID);
