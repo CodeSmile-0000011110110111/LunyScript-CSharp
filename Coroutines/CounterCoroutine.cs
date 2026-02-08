@@ -1,3 +1,4 @@
+using Luny.Engine.Services;
 using System;
 
 namespace LunyScript.Coroutines
@@ -25,7 +26,7 @@ namespace LunyScript.Coroutines
 
 		protected override void ResetState() => _progress.Reset();
 
-		protected override Boolean OnHeartbeat(Double fixedDeltaTime)
+		protected override Boolean OnHeartbeat()
 		{
 			_progress.IncrementCount();
 			return _progress.IsElapsed;

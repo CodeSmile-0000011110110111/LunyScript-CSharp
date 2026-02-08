@@ -1,3 +1,5 @@
+using Luny;
+using Luny.Engine.Services;
 using System;
 
 namespace LunyScript.Coroutines
@@ -21,9 +23,9 @@ namespace LunyScript.Coroutines
 
 		protected override void ResetState() => _progress.Reset();
 
-		protected override Boolean OnFrameUpdate(Double deltaTime)
+		protected override Boolean OnFrameUpdate()
 		{
-			_progress.AddDeltaTime(deltaTime);
+			_progress.AddDeltaTime(LunyEngine.Instance.Time.DeltaTime);
 			return _progress.IsElapsed;
 		}
 

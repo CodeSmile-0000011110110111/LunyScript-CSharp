@@ -128,24 +128,24 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Updates coroutine heartbeat state. Returns true if coroutine elapsed.
 		/// </summary>
-		internal Boolean ProcessHeartbeat(Double fixedDeltaTime, ILunyScriptContext context)
+		internal Boolean ProcessHeartbeat(ILunyScriptContext context)
 		{
 			if (_state != CoroutineState.Running)
 				return false;
 
-			var elapsed = OnHeartbeat(fixedDeltaTime);
+			var elapsed = OnHeartbeat();
 			return ResolveState(elapsed, context);
 		}
 
 		/// <summary>
 		/// Updates coroutine frame update state. Returns true if coroutine elapsed.
 		/// </summary>
-		internal Boolean ProcessFrameUpdate(Double deltaTime, ILunyScriptContext context)
+		internal Boolean ProcessFrameUpdate(ILunyScriptContext context)
 		{
 			if (_state != CoroutineState.Running)
 				return false;
 
-			var elapsed = OnFrameUpdate(deltaTime);
+			var elapsed = OnFrameUpdate();
 			return ResolveState(elapsed, context);
 		}
 
@@ -162,8 +162,8 @@ namespace LunyScript.Coroutines
 			return true;
 		}
 
-		protected abstract Boolean OnFrameUpdate(Double deltaTime);
-		protected abstract Boolean OnHeartbeat(Double fixedDeltaTime);
+		protected abstract Boolean OnFrameUpdate();
+		protected abstract Boolean OnHeartbeat();
 		public abstract override String ToString(); // force implementation of ToString()
 	}
 }

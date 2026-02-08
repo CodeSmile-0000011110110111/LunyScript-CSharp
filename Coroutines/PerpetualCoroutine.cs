@@ -1,4 +1,5 @@
-﻿using LunyScript.Blocks;
+﻿using Luny.Engine.Services;
+using LunyScript.Blocks;
 using System;
 
 namespace LunyScript.Coroutines
@@ -30,8 +31,8 @@ namespace LunyScript.Coroutines
 		}
 
 		protected override void ResetState() {}
-		protected override Boolean OnFrameUpdate(Double deltaTime) => false;
-		protected override Boolean OnHeartbeat(Double fixedDeltaTime) => false;
+		protected override Boolean OnFrameUpdate() => false;
+		protected override Boolean OnHeartbeat() => false;
 		public override String ToString() => $"{GetType().Name}({Name}, {State})";
 	}
 }

@@ -45,29 +45,29 @@ namespace LunyScript.Events
 			_contexts.Unregister(context);
 		}
 
-		public void OnHeartbeat(Double fixedDeltaTime, LunyScriptContext context)
+		public void OnHeartbeat(LunyScriptContext context)
 		{
 			if (context.LunyObject.IsEnabled)
 			{
 				var sequences = context.Scheduler.GetSequences(LunyObjectEvent.OnHeartbeat);
 				LunyScriptRunner.Run(sequences, context);
 
-				context.Coroutines?.OnHeartbeat(fixedDeltaTime, context);
+				context.Coroutines?.OnHeartbeat(context);
 			}
 		}
 
-		public void OnFrameUpdate(Double deltaTime, LunyScriptContext context)
+		public void OnFrameUpdate(LunyScriptContext context)
 		{
 			if (context.LunyObject.IsEnabled)
 			{
 				var sequences = context.Scheduler.GetSequences(LunyObjectEvent.OnFrameUpdate);
 				LunyScriptRunner.Run(sequences, context);
 
-				context.Coroutines?.OnFrameUpdate(deltaTime, context);
+				context.Coroutines?.OnFrameUpdate(context);
 			}
 		}
 
-		public void OnFrameLateUpdate(Double deltaTime, LunyScriptContext context)
+		public void OnFrameLateUpdate(LunyScriptContext context)
 		{
 			if (context.LunyObject.IsEnabled)
 			{

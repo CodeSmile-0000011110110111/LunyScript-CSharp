@@ -1,6 +1,7 @@
 using Luny;
 using Luny.Engine;
 using Luny.Engine.Bridge;
+using Luny.Engine.Services;
 using LunyScript.Blocks;
 using LunyScript.Diagnostics;
 using LunyScript.Events;
@@ -150,23 +151,23 @@ namespace LunyScript.Execution
 
 		public void OnSceneUnloaded(ILunyScene unloadedScene) => _sceneEventHandler.OnSceneUnloaded(unloadedScene);
 
-		public void OnEngineHeartbeat(Double fixedDeltaTime)
+		public void OnEngineHeartbeat()
 		{
 			foreach (var context in _contexts.AllContexts)
-				_objectLifecycle.OnHeartbeat(fixedDeltaTime, context);
+				_objectLifecycle.OnHeartbeat(context);
 		}
 
-		public void OnEngineFrameUpdate(Double deltaTime)
+		public void OnEngineFrameUpdate()
 		{
 			foreach (var context in _contexts.AllContexts)
-				_objectLifecycle.OnFrameUpdate(deltaTime, context);
+				_objectLifecycle.OnFrameUpdate(context);
 		}
 
-		public void OnEngineFrameLateUpdate(Double deltaTime)
+		public void OnEngineFrameLateUpdate()
 		{
 			// Run all LateUpdate runnables
 			foreach (var context in _contexts.AllContexts)
-				_objectLifecycle.OnFrameLateUpdate(deltaTime, context);
+				_objectLifecycle.OnFrameLateUpdate(context);
 		}
 
 		internal void Shutdown()

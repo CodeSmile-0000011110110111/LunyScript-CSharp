@@ -57,7 +57,7 @@ namespace LunyScript.Coroutines
 		/// Also advances count-based (heartbeat) coroutines.
 		/// Should be called from LunyScriptRunner AFTER non-coroutine updates.
 		/// </summary>
-		internal void OnHeartbeat(Double fixedDeltaTime, LunyScriptContext context)
+		internal void OnHeartbeat(LunyScriptContext context)
 		{
 			_heartbeatCount++;
 
@@ -77,7 +77,7 @@ namespace LunyScript.Coroutines
 				// Advance count-based coroutines on each heartbeat
 				if (coroutine.IsCounter)
 				{
-					var elapsed = coroutine.ProcessHeartbeat(fixedDeltaTime, context);
+					var elapsed = coroutine.ProcessHeartbeat(context);
 					if (elapsed)
 						LunyScriptRunner.Run(coroutine.OnElapsedSequence, context);
 				}
@@ -88,7 +88,7 @@ namespace LunyScript.Coroutines
 		/// Called on frame update. Advances all running time-based coroutines.
 		/// Should be called from LunyScriptRunner AFTER non-coroutine updates.
 		/// </summary>
-		internal void OnFrameUpdate(Double deltaTime, LunyScriptContext context)
+		internal void OnFrameUpdate(LunyScriptContext context)
 		{
 			_frameCount++;
 
@@ -108,7 +108,7 @@ namespace LunyScript.Coroutines
 				// Advance time-based coroutines (count-based advance in OnHeartbeat)
 				if (coroutine.IsTimer)
 				{
-					var elapsed = coroutine.ProcessFrameUpdate(deltaTime, context);
+					var elapsed = coroutine.ProcessFrameUpdate(context);
 					if (elapsed)
 						LunyScriptRunner.Run(coroutine.OnElapsedSequence, context);
 				}
