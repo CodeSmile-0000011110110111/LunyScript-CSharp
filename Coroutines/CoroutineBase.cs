@@ -1,4 +1,5 @@
 using LunyScript.Blocks;
+using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Coroutines
@@ -9,7 +10,7 @@ namespace LunyScript.Coroutines
 	internal abstract class CoroutineBase
 	{
 		private readonly String _name;
-		private CoroutineState _state = CoroutineState.Stopped;
+		private CoroutineState _state = CoroutineState.New;
 
 		internal String Name => _name;
 		internal CoroutineState State => _state;
@@ -28,9 +29,10 @@ namespace LunyScript.Coroutines
 		internal virtual Double TimeScale { get => 1.0; set => throw new NotImplementedException(nameof(TimeScale)); }
 		internal virtual Int32 TimeSliceInterval => 0;
 		internal virtual Int32 TimeSliceOffset => 0;
+		internal virtual Boolean IsTimeSliced => false;
 		internal virtual Boolean IsCounter => false;
 		internal Boolean IsTimer => !IsCounter;
-		internal virtual Boolean IsTimeSliced => false;
+		internal Boolean CanProcess => _state != CoroutineState.Stopped && _state != CoroutineState.Paused;
 		protected CoroutineContinuationMode ContinuationMode { get; set; } = CoroutineContinuationMode.Finite;
 
 		/// <summary>
@@ -50,27 +52,41 @@ namespace LunyScript.Coroutines
 		}
 
 		/// <summary>
+		/// First-time initialization of coroutine. Will Start() the coroutine
+		/// </summary>
+		internal void Init(ILunyScriptContext context)
+		{
+			if (_state != CoroutineState.New)
+				return;
+
+			ResetState();
+			_state = CoroutineState.Stopped; // avoid Stop blocks executing
+			Start(context);
+		}
+
+		/// <summary>
 		/// Starts or restarts the coroutine. Always calls Stop() first to reset coroutine state (eg time/count).
 		/// </summary>
-		/// <returns>True if coroutine was in stopped state. False if coroutine was running or paused (restarting).</returns>
-		internal Boolean Start()
+		internal void Start(ILunyScriptContext context)
 		{
-			Stop();
+			Stop(context);
+
 			_state = CoroutineState.Running;
-			return true;
+			OnStartedSequence?.Execute(context);
 		}
 
 		/// <summary>
 		/// Stops the coroutine and resets state.
 		/// Returns true if the coroutine was running or paused (indicating Stopped event should fire).
 		/// </summary>
-		internal Boolean Stop()
+		internal Boolean Stop(ILunyScriptContext context)
 		{
 			if (_state == CoroutineState.Stopped)
 				return false;
 
 			_state = CoroutineState.Stopped;
 			ResetState();
+			OnStoppedSequence?.Execute(context);
 			return true;
 		}
 
@@ -80,12 +96,13 @@ namespace LunyScript.Coroutines
 		/// Pauses the coroutine, preserving current elapsed time.
 		/// Returns true if the coroutine was running (indicating Paused event should fire).
 		/// </summary>
-		internal Boolean Pause()
+		internal Boolean Pause(ILunyScriptContext context)
 		{
 			if (_state != CoroutineState.Running)
 				return false;
 
 			_state = CoroutineState.Paused;
+			OnPausedSequence?.Execute(context);
 			return true;
 		}
 
@@ -93,53 +110,54 @@ namespace LunyScript.Coroutines
 		/// Resumes a paused coroutine.
 		/// Returns true if the coroutine was paused (indicating Resumed event should fire).
 		/// </summary>
-		internal Boolean Resume()
+		internal Boolean Resume(ILunyScriptContext context)
 		{
 			if (_state != CoroutineState.Paused)
 				return false;
 
 			_state = CoroutineState.Running;
+			OnResumedSequence?.Execute(context);
 			return true;
 		}
 
 		/// <summary>
 		/// Stop coroutine when object is destroyed.
 		/// </summary>
-		internal void OnObjectDestroyed() => Stop();
+		internal void OnObjectDestroyed(ILunyScriptContext context) => Stop(context);
 
 		/// <summary>
 		/// Updates coroutine heartbeat state. Returns true if coroutine elapsed.
 		/// </summary>
-		internal Boolean ProcessHeartbeat(Double fixedDeltaTime)
+		internal Boolean ProcessHeartbeat(Double fixedDeltaTime, ILunyScriptContext context)
 		{
 			if (_state != CoroutineState.Running)
 				return false;
 
 			var elapsed = OnHeartbeat(fixedDeltaTime);
-			return ResolveState(elapsed);
+			return ResolveState(elapsed, context);
 		}
 
 		/// <summary>
 		/// Updates coroutine frame update state. Returns true if coroutine elapsed.
 		/// </summary>
-		internal Boolean ProcessFrameUpdate(Double deltaTime)
+		internal Boolean ProcessFrameUpdate(Double deltaTime, ILunyScriptContext context)
 		{
 			if (_state != CoroutineState.Running)
 				return false;
 
 			var elapsed = OnFrameUpdate(deltaTime);
-			return ResolveState(elapsed);
+			return ResolveState(elapsed, context);
 		}
 
-		private Boolean ResolveState(Boolean elapsed)
+		private Boolean ResolveState(Boolean elapsed, ILunyScriptContext context)
 		{
 			if (!elapsed)
 				return false;
 
 			if (ContinuationMode == CoroutineContinuationMode.Repeating)
-				Start();
+				Start(context);
 			else
-				Stop();
+				Stop(context);
 
 			return true;
 		}

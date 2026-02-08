@@ -23,11 +23,13 @@ namespace LunyScript.Execution
 		Int32 LoopCount { get; }
 	}
 
+	internal interface ILunyScriptContextInternal {}
+
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered sequences.
 	/// </summary>
-	internal sealed class LunyScriptContext : ILunyScriptContext
+	internal sealed class LunyScriptContext : ILunyScriptContext, ILunyScriptContextInternal
 	{
 		private static readonly ITable s_GlobalVariables = new Table();
 
@@ -74,7 +76,7 @@ namespace LunyScript.Execution
 		/// </summary>
 		internal LunyScriptBlockProfiler BlockProfiler { get; }
 
- 	/// <summary>
+		/// <summary>
 		/// Event scheduler for managing sequences across all event types.
 		/// </summary>
 		internal LunyScriptEventScheduler Scheduler { get; }

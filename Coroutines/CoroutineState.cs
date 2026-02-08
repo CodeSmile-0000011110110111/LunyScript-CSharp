@@ -6,6 +6,11 @@ namespace LunyScript.Coroutines
 	internal enum CoroutineState
 	{
 		/// <summary>
+		/// Coroutine has not run before.
+		/// </summary>
+		New,
+
+		/// <summary>
 		/// Coroutine is not running and has no accumulated time.
 		/// </summary>
 		Stopped,

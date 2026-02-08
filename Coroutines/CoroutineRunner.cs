@@ -63,8 +63,10 @@ namespace LunyScript.Coroutines
 
 			foreach (var coroutine in _coroutines.Values)
 			{
-				if (coroutine.State != CoroutineState.Running)
+				if (!coroutine.CanProcess)
 					continue;
+
+				coroutine.Init(context);
 
 				// Run OnHeartbeat sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches
@@ -75,7 +77,7 @@ namespace LunyScript.Coroutines
 				// Advance count-based coroutines on each heartbeat
 				if (coroutine.IsCounter)
 				{
-					var elapsed = coroutine.ProcessHeartbeat(fixedDeltaTime);
+					var elapsed = coroutine.ProcessHeartbeat(fixedDeltaTime, context);
 					if (elapsed)
 						LunyScriptRunner.Run(coroutine.OnElapsedSequence, context);
 				}
@@ -92,8 +94,10 @@ namespace LunyScript.Coroutines
 
 			foreach (var coroutine in _coroutines.Values)
 			{
-				if (coroutine.State != CoroutineState.Running)
+				if (!coroutine.CanProcess)
 					continue;
+
+				coroutine.Init(context);
 
 				// Run OnUpdate sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches
@@ -104,7 +108,7 @@ namespace LunyScript.Coroutines
 				// Advance time-based coroutines (count-based advance in OnHeartbeat)
 				if (coroutine.IsTimer)
 				{
-					var elapsed = coroutine.ProcessFrameUpdate(deltaTime);
+					var elapsed = coroutine.ProcessFrameUpdate(deltaTime, context);
 					if (elapsed)
 						LunyScriptRunner.Run(coroutine.OnElapsedSequence, context);
 				}
@@ -114,10 +118,10 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Stops all coroutines when object is destroyed.
 		/// </summary>
-		public void OnObjectDestroyed()
+		public void OnObjectDestroyed(ILunyScriptContext context)
 		{
 			foreach (var coroutine in _coroutines.Values)
-				coroutine.OnObjectDestroyed();
+				coroutine.OnObjectDestroyed(context);
 
 			_coroutines.Clear();
 		}

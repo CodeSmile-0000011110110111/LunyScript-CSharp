@@ -12,7 +12,10 @@ namespace LunyScript.Blocks.Coroutines
 	{
 		private readonly CoroutineBase _coroutine;
 		internal CoroutineBlock(CoroutineBase instance) => _coroutine = instance ?? throw new ArgumentNullException(nameof(instance));
-		public void Execute(ILunyScriptContext context) => new CoroutineStartBlock(_coroutine).Execute(context);
+
+		public void Execute(ILunyScriptContext context) =>
+			throw new NotImplementedException($"{nameof(CoroutineBlock)} should not be used in a block sequence");
+
 		public IScriptActionBlock Start() => new CoroutineStartBlock(_coroutine);
 		public IScriptActionBlock Stop() => new CoroutineStopBlock(_coroutine);
 		public IScriptActionBlock Pause() => new CoroutinePauseBlock(_coroutine);

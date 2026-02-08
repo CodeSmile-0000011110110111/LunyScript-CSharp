@@ -68,12 +68,7 @@ namespace LunyScript.Coroutines.Builders
 			var options = CoroutineConfig.ForEveryInterval(null, _interval, _countMode, _delay, blocks);
 			var scriptInternal = (ILunyScriptInternal)_script;
 			var coroutine = scriptInternal.Context.Coroutines.Register(in options);
-
-			// Auto-start time-sliced coroutines
-			var block = new CoroutineBlock(coroutine);
-			coroutine.Start();
-
-			return block;
+			return new CoroutineBlock(coroutine);
 		}
 	}
 }

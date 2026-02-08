@@ -18,7 +18,7 @@ namespace LunyScript.Events
 	internal sealed class LunyScriptObjectLifecycle : ILunyScriptLifecycleInternal
 	{
 		[NotNull] private readonly LunyScriptContextRegistry _contexts;
-		private readonly Dictionary<LunyScriptContext, ObjectEventSubscriber> _subscribers = new();
+		private readonly Dictionary<LunyScriptContext, ObjectEventHandler> _subscribers = new();
 
 		internal LunyScriptObjectLifecycle(LunyScriptContextRegistry contextRegistry) =>
 			_contexts = contextRegistry ?? throw new ArgumentNullException(nameof(contextRegistry));
@@ -31,7 +31,7 @@ namespace LunyScript.Events
 		/// </summary>
 		internal void Register(LunyScriptContext context)
 		{
-			var subscriber = new ObjectEventSubscriber(this, context);
+			var subscriber = new ObjectEventHandler(this, context);
 			_subscribers[context] = subscriber;
 		}
 
@@ -85,7 +85,7 @@ namespace LunyScript.Events
 			_subscribers.Clear();
 		}
 
-		private sealed class ObjectEventSubscriber
+		private sealed class ObjectEventHandler
 		{
 			private readonly LunyScriptObjectLifecycle _objectLifecycle;
 			private readonly LunyScriptContext _context;
@@ -93,7 +93,7 @@ namespace LunyScript.Events
 			private Boolean _processingEnableDisableReentryLock;
 #endif
 
-			public ObjectEventSubscriber(LunyScriptObjectLifecycle objectLifecycle, LunyScriptContext context)
+			public ObjectEventHandler(LunyScriptObjectLifecycle objectLifecycle, LunyScriptContext context)
 			{
 				_objectLifecycle = objectLifecycle;
 				_context = context;
@@ -153,7 +153,7 @@ namespace LunyScript.Events
 			{
 				RunScheduledForEvent(LunyObjectEvent.OnDestroy);
 				UnregisterAllCallbacks(); // no more events
-				_context.Coroutines.OnObjectDestroyed();
+				_context.Coroutines.OnObjectDestroyed(_context);
 				_objectLifecycle.Unregister(_context);
 			}
 
