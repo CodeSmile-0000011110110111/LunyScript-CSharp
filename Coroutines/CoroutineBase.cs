@@ -61,21 +61,24 @@ namespace LunyScript.Coroutines
 			if (_state != CoroutineState.New)
 				return;
 
-			ResetState();
+			OnStop();
 			_state = CoroutineState.Stopped; // avoid Stop blocks executing
 			Start(context);
 		}
 
 		/// <summary>
-		/// Starts or restarts the coroutine. Always calls Stop() first to reset coroutine state (eg time/count).
+		/// Starts or restarts the coroutine.
 		/// </summary>
 		internal void Start(ILunyScriptContext context = null)
 		{
 			Stop(context);
 
 			_state = CoroutineState.Running;
+			OnStart();
 			OnStartedSequence?.Execute(context);
 		}
+
+		protected abstract void OnStart();
 
 		/// <summary>
 		/// Stops the coroutine and resets state.
@@ -87,12 +90,12 @@ namespace LunyScript.Coroutines
 				return false;
 
 			_state = CoroutineState.Stopped;
-			ResetState();
+			OnStop();
 			OnStoppedSequence?.Execute(context);
 			return true;
 		}
 
-		protected abstract void ResetState();
+		protected abstract void OnStop();
 
 		/// <summary>
 		/// Pauses the coroutine, preserving current elapsed time.

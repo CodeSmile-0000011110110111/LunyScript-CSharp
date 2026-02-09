@@ -8,29 +8,41 @@ namespace LunyScript.Coroutines
 	/// </summary>
 	internal sealed class TimerCoroutine : Coroutine
 	{
-		private TimeProgress _progress;
+		private Timer _timer;
+		private Boolean _elapsedThisTick;
 
-		internal override Double TimeScale { get => _progress.TimeScale; set => _progress.TimeScale = Math.Max(0.0, value); }
+		internal override Double TimeScale
+		{
+			get => _timer.TimeScale;
+			set => _timer.TimeScale = Math.Max(0.0, value);
+		}
 
 		public TimerCoroutine(in CoroutineConfig config)
 			: base(config)
 		{
-			_progress.Duration = Math.Max(0.0, config.TimerInterval);
-			_progress.TimeScale = 1.0;
+			var duration = Math.Max(0.0, config.TimerInterval);
+			_timer = Timer.FromSeconds(duration);
+			_timer.AutoRepeat = config.ContinuationMode == CoroutineContinuationMode.Repeating;
+			_timer.OnElapsed += () => _elapsedThisTick = true;
 			ContinuationMode = config.ContinuationMode;
 		}
 
-		protected override void ResetState() => _progress.Reset();
+		protected override void OnStart() => _timer.Start();
+		protected override void OnStop()
+		{
+			_timer.Stop();
+		}
 
 		protected override Boolean OnFrameUpdate()
 		{
-			_progress.AddDeltaTime(LunyEngine.Instance.Time.DeltaTime);
-			return _progress.IsElapsed;
+			_elapsedThisTick = false;
+			_timer.Tick(LunyEngine.Instance.Time.DeltaTime);
+			return _elapsedThisTick;
 		}
 
 		public override String ToString()
 		{
-			var progress = _progress.IsElapsed ? $"Elapsed: {_progress.Duration:F2}s" : $"{_progress.Current:F2}s/{_progress.Duration:F2}s";
+			var progress = $"{_timer.Current:F2}s/{_timer.Duration:F2}s";
 			return $"{GetType().Name}({Name}, {State}, {progress})";
 		}
 	}

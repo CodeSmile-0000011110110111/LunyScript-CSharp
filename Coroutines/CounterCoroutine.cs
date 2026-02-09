@@ -1,3 +1,4 @@
+using Luny;
 using System;
 
 namespace LunyScript.Coroutines
@@ -7,28 +8,37 @@ namespace LunyScript.Coroutines
 	/// </summary>
 	internal sealed class CounterCoroutine : Coroutine
 	{
-		private CountProgress _progress;
+		private Counter _counter;
+		private Boolean _elapsedThisTick;
 
 		internal override Boolean IsCounter => true;
 
 		public CounterCoroutine(in CoroutineConfig config)
 			: base(config)
 		{
-			_progress.Target = Math.Max(0, config.CounterTarget);
+			_counter = new Counter(Math.Max(0, config.CounterTarget));
+			_counter.AutoRepeat = config.ContinuationMode == CoroutineContinuationMode.Repeating;
+			_counter.OnElapsed += () => _elapsedThisTick = true;
 			ContinuationMode = config.ContinuationMode;
 		}
 
-		protected override void ResetState() => _progress.Reset();
+		protected override void OnStart() => _counter.Start();
+
+		protected override void OnStop()
+		{
+			_counter.Stop();
+		}
 
 		protected override Boolean OnHeartbeat()
 		{
-			_progress.IncrementCount();
-			return _progress.IsElapsed;
+			_elapsedThisTick = false;
+			_counter.Increment();
+			return _elapsedThisTick;
 		}
 
 		public override String ToString()
 		{
-			var progress = _progress.IsElapsed ? $"Elapsed: {_progress.Target:F2}s" : $"{_progress.Current:F2}s/{_progress.Target:F2}s";
+			var progress = $"{_counter.Current}/{_counter.Target}";
 			return $"{GetType().Name}({Name}, {State}, {progress})";
 		}
 	}

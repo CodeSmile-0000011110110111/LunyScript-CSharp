@@ -65,12 +65,12 @@ namespace LunyScript.Coroutines.Builders
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Milliseconds() => CreateFinal(CoroutineConfig.ForTimer(_name, UnitConverter.ToMilliseconds(_amount), CoroutineContinuationMode.Finite));
+		public CoroutineFinalBuilder Milliseconds() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount / 1000.0, CoroutineContinuationMode.Finite));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Minutes() => CreateFinal(CoroutineConfig.ForTimer(_name, UnitConverter.ToMinutes(_amount), CoroutineContinuationMode.Finite));
+		public CoroutineFinalBuilder Minutes() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount * 60.0, CoroutineContinuationMode.Finite));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based, counts fixed steps).

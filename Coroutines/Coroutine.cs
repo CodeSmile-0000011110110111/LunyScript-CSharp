@@ -29,7 +29,8 @@ namespace LunyScript.Coroutines
 			OnElapsedSequence = SequenceBlock.TryCreate(config.OnElapsed);
 		}
 
-		protected override void ResetState() {}
+		protected override void OnStart() {}
+		protected override void OnStop() {}
 		protected override Boolean OnFrameUpdate() => false;
 		protected override Boolean OnHeartbeat() => false;
 		public override String ToString() => $"{GetType().Name}({Name}, {State})";

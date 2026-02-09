@@ -2,6 +2,7 @@ using Luny;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace LunyScript.Execution
 {

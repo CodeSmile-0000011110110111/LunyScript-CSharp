@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace LunyScript.Execution
 {

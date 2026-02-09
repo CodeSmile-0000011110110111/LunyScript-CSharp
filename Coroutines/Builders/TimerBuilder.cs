@@ -58,12 +58,12 @@ namespace LunyScript.Coroutines.Builders
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public TimerFinalBuilder Milliseconds() => CreateFinal(CoroutineConfig.ForTimer(_name, UnitConverter.ToMilliseconds(_amount), _continuation));
+		public TimerFinalBuilder Milliseconds() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount / 1000.0, _continuation));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public TimerFinalBuilder Minutes() => CreateFinal(CoroutineConfig.ForTimer(_name, UnitConverter.ToMinutes(_amount), _continuation));
+		public TimerFinalBuilder Minutes() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount * 60.0, _continuation));
 	}
 
 	/// <summary>

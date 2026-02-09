@@ -1,14 +1,14 @@
+using Luny;
 using System;
 
 namespace LunyScript.Coroutines
 {
 	/// <summary>
-	/// Coroutine that elapses after a specific number of heartbeats/ticks, 
-	/// and only executes its sequences on specific heartbeat intervals (time-sliced).
+	/// Coroutine that never elapses and only executes its sequences on specific heartbeat/frame intervals (time-sliced).
 	/// </summary>
 	internal sealed class TimeSliceCoroutine : Coroutine
 	{
-		private CountProgress _progress;
+		private Counter _counter;
 
 		internal override Int32 TimeSliceInterval { get; }
 		internal override Int32 TimeSliceOffset { get; }
@@ -20,22 +20,21 @@ namespace LunyScript.Coroutines
 		{
 			TimeSliceInterval = config.TimeSliceInterval;
 			TimeSliceOffset = Math.Max(0, config.TimeSliceOffset);
-			_progress.Target = Math.Max(0, config.CounterTarget);
-			ContinuationMode = config.ContinuationMode;
+			ContinuationMode = config.ContinuationMode; // ignored; time-sliced never elapses
+
+			_counter = new Counter(Int32.MaxValue);
+			_counter.AutoRepeat = true;
 		}
 
-		protected override void ResetState() => _progress.Reset();
+		protected override void OnStart() => _counter.Start();
+		protected override void OnStop() => _counter.Stop();
 
 		protected override Boolean OnHeartbeat()
 		{
-			_progress.IncrementCount();
-			return _progress.IsElapsed;
+			_counter.Increment();
+			return false; // time-sliced coroutines don't elapse
 		}
 
-		public override String ToString()
-		{
-			var progress = _progress.IsElapsed ? $"Elapsed: {_progress.Target:F2}s" : $"{_progress.Current:F2}s/{_progress.Target:F2}s";
-			return $"{GetType().Name}({Name}, {State}, {progress}, Interval: {TimeSliceInterval}, Offset: {TimeSliceOffset})";
-		}
+		public override String ToString() => $"{GetType().Name}({Name}, {State}, Count: {_counter.Current}, Interval: {TimeSliceInterval}, Offset: {TimeSliceOffset})";
 	}
 }
