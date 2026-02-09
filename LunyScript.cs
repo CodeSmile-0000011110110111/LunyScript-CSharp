@@ -225,6 +225,12 @@ namespace LunyScript
 		protected TimerBuilder Timer(String name) => new(this, name);
 
 		/// <summary>
+		/// Creates a named counter.
+		/// Usage: Counter("name").In(5).Frames().Do(blocks);
+		/// </summary>
+		protected CounterBuilder Counter(String name) => new(this, name);
+
+		/// <summary>
 		/// Creates a named coroutine.
 		/// Usage: Coroutine("name").Duration(3).Seconds().OnUpdate(blocks).Elapsed(blocks);
 		/// </summary>

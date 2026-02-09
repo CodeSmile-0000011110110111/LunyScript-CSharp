@@ -44,36 +44,43 @@ namespace LunyScript.Coroutines.Builders
 	/// </summary>
 	public readonly struct CoroutineDurationBuilder
 	{
-		private readonly DurationBuilder<CoroutineFinalBuilder> _builder;
+		private readonly ILunyScript _script;
+		private readonly String _name;
+		private readonly Double _amount;
 
-		internal CoroutineDurationBuilder(ILunyScript script, String name, Double duration) => _builder =
-			new DurationBuilder<CoroutineFinalBuilder>(name, duration, config => CoroutineFinalBuilder.FromConfig(script, config));
+		internal CoroutineDurationBuilder(ILunyScript script, String name, Double duration)
+		{
+			_script = script;
+			_name = name;
+			_amount = duration;
+		}
+
+		private CoroutineFinalBuilder CreateFinal(CoroutineConfig config) => CoroutineFinalBuilder.FromConfig(_script, config);
 
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Seconds() => _builder.Seconds();
+		public CoroutineFinalBuilder Seconds() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount, CoroutineContinuationMode.Finite));
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Milliseconds() => _builder.Milliseconds();
+		public CoroutineFinalBuilder Milliseconds() => CreateFinal(CoroutineConfig.ForTimer(_name, UnitConverter.ToMilliseconds(_amount), CoroutineContinuationMode.Finite));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Minutes() => _builder.Minutes();
+		public CoroutineFinalBuilder Minutes() => CreateFinal(CoroutineConfig.ForTimer(_name, UnitConverter.ToMinutes(_amount), CoroutineContinuationMode.Finite));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based, counts fixed steps).
 		/// </summary>
-		public CoroutineFinalBuilder Heartbeats() => _builder.Heartbeats();
+		public CoroutineFinalBuilder Heartbeats() => CreateFinal(CoroutineConfig.ForCounter(_name, (Int32)_amount, CoroutineContinuationMode.Finite));
 
 		/// <summary>
 		/// Duration in frames (count-based, counts frames).
 		/// </summary>
-		/// <returns></returns>
-		public CoroutineFinalBuilder Frames() => _builder.Frames();
+		public CoroutineFinalBuilder Frames() => CreateFinal(CoroutineConfig.ForCounter(_name, (Int32)_amount, CoroutineContinuationMode.Finite));
 	}
 
 	/// <summary>
@@ -142,7 +149,7 @@ namespace LunyScript.Coroutines.Builders
 		{
 			var scriptInternal = (ILunyScriptInternal)_script;
 			var instance = scriptInternal.Context.Coroutines.Register(in _config);
-			return new CoroutineBlock(instance);
+			return CoroutineBlock.Create<IScriptCoroutineBlock>(instance);
 		}
 	}
 }

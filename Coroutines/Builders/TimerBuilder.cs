@@ -35,35 +35,35 @@ namespace LunyScript.Coroutines.Builders
 	/// </summary>
 	public readonly struct TimerDurationBuilder
 	{
-		private readonly DurationBuilder<TimerFinalBuilder> _builder;
+		private readonly ILunyScript _script;
+		private readonly String _name;
+		private readonly Double _amount;
+		private readonly CoroutineContinuationMode _continuation;
 
-		internal TimerDurationBuilder(ILunyScript script, String name, Double amount, CoroutineContinuationMode continuation) => _builder =
-			new DurationBuilder<TimerFinalBuilder>(name, amount, config => TimerFinalBuilder.FromOptions(script, config), continuation);
+		internal TimerDurationBuilder(ILunyScript script, String name, Double amount, CoroutineContinuationMode continuation)
+		{
+			_script = script;
+			_name = name;
+			_amount = amount;
+			_continuation = continuation;
+		}
+
+		private TimerFinalBuilder CreateFinal(CoroutineConfig config) => TimerFinalBuilder.FromOptions(_script, config);
 
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public TimerFinalBuilder Seconds() => _builder.Seconds();
+		public TimerFinalBuilder Seconds() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount, _continuation));
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public TimerFinalBuilder Milliseconds() => _builder.Milliseconds();
+		public TimerFinalBuilder Milliseconds() => CreateFinal(CoroutineConfig.ForTimer(_name, UnitConverter.ToMilliseconds(_amount), _continuation));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public TimerFinalBuilder Minutes() => _builder.Minutes();
-
-		/// <summary>
-		/// Duration in heartbeats (count-based, counts fixed steps).
-		/// </summary>
-		public TimerFinalBuilder Heartbeats() => _builder.Heartbeats();
-
-		/// <summary>
-		/// Duration in frames (count-based, counts frames).
-		/// </summary>
-		public TimerFinalBuilder Frames() => _builder.Frames();
+		public TimerFinalBuilder Minutes() => CreateFinal(CoroutineConfig.ForTimer(_name, UnitConverter.ToMinutes(_amount), _continuation));
 	}
 
 	/// <summary>
@@ -90,7 +90,7 @@ namespace LunyScript.Coroutines.Builders
 			var options = _config with { OnElapsed = blocks };
 			var scriptInternal = (ILunyScriptInternal)_script;
 			var instance = scriptInternal.Context.Coroutines.Register(in options);
-			return new CoroutineTimerBlock(instance);
+			return CoroutineBlock.Create<IScriptCoroutineTimerBlock>(instance);
 		}
 	}
 }

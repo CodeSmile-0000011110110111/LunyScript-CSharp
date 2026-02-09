@@ -11,7 +11,15 @@ namespace LunyScript.Blocks.Coroutines
 	internal class CoroutineBlock : IScriptCoroutineBlock
 	{
 		protected readonly CoroutineBase _coroutine;
-		internal CoroutineBlock(CoroutineBase instance) => _coroutine = instance ?? throw new ArgumentNullException(nameof(instance));
+
+		internal static T Create<T>(CoroutineBase coroutine) where T : class, IScriptCoroutineBlock => coroutine switch
+		{
+			TimerCoroutine => new CoroutineTimerBlock(coroutine),
+			CounterCoroutine or TimeSliceCoroutine => new CoroutineCounterBlock(coroutine),
+			var _ => new CoroutineBlock(coroutine),
+		} as T;
+
+		protected CoroutineBlock(CoroutineBase coroutine) => _coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
 
 		public virtual void Execute(ILunyScriptContext context) =>
 			throw new NotImplementedException($"{nameof(CoroutineBlock)} cannot be used in a block sequence");
@@ -24,15 +32,15 @@ namespace LunyScript.Blocks.Coroutines
 
 	internal sealed class CoroutineTimerBlock : CoroutineBlock, IScriptCoroutineTimerBlock
 	{
-		internal CoroutineTimerBlock(CoroutineBase instance)
-			: base(instance) {}
+		internal CoroutineTimerBlock(CoroutineBase coroutine)
+			: base(coroutine) {}
 
 		public IScriptActionBlock TimeScale(Double scale) => new CoroutineSetTimeScaleBlock(_coroutine, scale);
 	}
 
 	internal sealed class CoroutineCounterBlock : CoroutineBlock, IScriptCoroutineCounterBlock
 	{
-		internal CoroutineCounterBlock(CoroutineBase instance)
-			: base(instance) {}
+		internal CoroutineCounterBlock(CoroutineBase coroutine)
+			: base(coroutine) {}
 	}
 }

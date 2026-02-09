@@ -62,13 +62,13 @@ namespace LunyScript.Coroutines.Builders
 		/// <summary>
 		/// Completes the builder and specifies blocks to run.
 		/// </summary>
-		public IScriptCoroutineBlock Do(params IScriptActionBlock[] blocks)
+		public IScriptCoroutineCounterBlock Do(params IScriptActionBlock[] blocks)
 		{
 			// name = null => generates a unique name for this time-sliced coroutine
 			var options = CoroutineConfig.ForEveryInterval(null, _interval, _countMode, _delay, blocks);
 			var scriptInternal = (ILunyScriptInternal)_script;
 			var coroutine = scriptInternal.Context.Coroutines.Register(in options);
-			return new CoroutineBlock(coroutine);
+			return CoroutineBlock.Create<IScriptCoroutineCounterBlock>(coroutine);
 		}
 	}
 }
