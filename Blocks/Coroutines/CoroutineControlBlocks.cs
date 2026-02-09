@@ -25,7 +25,10 @@ namespace LunyScript.Blocks.Coroutines
 	internal sealed class CoroutineStopBlock : CoroutineControlBlockBase
 	{
 		public CoroutineStopBlock(CoroutineBase coroutine)
-			: base(coroutine) {}
+			: base(coroutine)
+		{
+			_coroutine.Stop(null);
+		}
 
 		public override void Execute(ILunyScriptContext context) => _coroutine.Stop(context);
 	}

@@ -1,4 +1,7 @@
-﻿namespace LunyScript.Api
+﻿using Luny;
+using System;
+
+namespace LunyScript.Api
 {
 	public sealed class ApiPlaceholders
 	{
@@ -364,6 +367,18 @@
 				private readonly ILunyScript _script;
 				internal SteamApi(ILunyScript script) => _script = script;
 			}
+		}
+
+		public readonly struct TimeApi
+		{
+			private readonly ILunyScript _script;
+			internal TimeApi(ILunyScript script)
+			{
+				_script = script;
+				ElapsedSeconds = Double.NaN;
+			}
+
+			public readonly Double ElapsedSeconds; // TODO: implementation
 		}
 	}
 }

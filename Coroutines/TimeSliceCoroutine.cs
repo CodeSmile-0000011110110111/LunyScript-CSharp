@@ -6,7 +6,7 @@ namespace LunyScript.Coroutines
 	/// Coroutine that elapses after a specific number of heartbeats/ticks, 
 	/// and only executes its sequences on specific heartbeat intervals (time-sliced).
 	/// </summary>
-	internal sealed class TimeSliceCoroutine : PerpetualCoroutine
+	internal sealed class TimeSliceCoroutine : Coroutine
 	{
 		private CountProgress _progress;
 

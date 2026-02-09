@@ -46,45 +46,45 @@ namespace LunyScript.Blocks
 	}
 
 	/// <summary>
-	/// Represents a timer block that can be controlled (started, stopped, paused, resumed).
-	/// Timers fire after a duration elapses.
+	/// Represents a coroutine block that runs perpetually (indefinitely).
+	/// Coroutines can be started, stopped, paused, resumed.
 	/// </summary>
-	public interface IScriptTimerBlock : IScriptActionBlock
+	public interface IScriptCoroutineBlock : IScriptActionBlock
 	{
 		/// <summary>
-		/// Starts or restarts the timer.
+		/// Starts or restarts the coroutine.
 		/// </summary>
 		IScriptActionBlock Start();
 
 		/// <summary>
-		/// Stops the timer and resets its state.
+		/// Stops the coroutine and resets its state.
 		/// </summary>
 		IScriptActionBlock Stop();
 
 		/// <summary>
-		/// Pauses the timer, preserving current elapsed time.
+		/// Pauses the coroutine, preserving current state.
 		/// </summary>
 		IScriptActionBlock Pause();
 
 		/// <summary>
-		/// Resumes a paused timer.
+		/// Resumes a paused coroutine.
 		/// </summary>
 		IScriptActionBlock Resume();
-
-		/// <summary>
-		/// Sets the time scale. Values >= 0; negative values are clamped to 0.
-		/// </summary>
-		void SetTimeScale(Double scale);
 	}
 
 	/// <summary>
-	/// Represents a coroutine block that extends timer functionality with per-frame/heartbeat execution.
-	/// Coroutines can run blocks on each update/heartbeat while running.
+	/// Represents a coroutine timer block. Timers fire after a duration elapses.
 	/// </summary>
-	public interface IScriptCoroutineBlock : IScriptTimerBlock
+	public interface IScriptCoroutineTimerBlock : IScriptCoroutineBlock
 	{
-		// Inherits all timer control methods.
-		// Coroutines differ from timers in that they can run blocks per frame/heartbeat,
-		// not just when elapsed.
+		/// <summary>
+		/// Sets the time scale. Values >= 0; negative values are clamped to 0.
+		/// </summary>
+		IScriptActionBlock TimeScale(Double scale);
 	}
+
+	/// <summary>
+	/// Represents a coroutine counter block. Counters elapse after a specific number of frames/heartbeats have passed.
+	/// </summary>
+	public interface IScriptCoroutineCounterBlock : IScriptCoroutineBlock {}
 }

@@ -7,7 +7,7 @@ namespace LunyScript.Coroutines
 	/// Coroutine that never elapses automatically (runs until explicitly stopped).
 	/// Base for all other coroutine types that utilize full lifecycle events.
 	/// </summary>
-	internal class PerpetualCoroutine : CoroutineBase
+	internal class Coroutine : CoroutineBase
 	{
 		internal override IScriptSequenceBlock OnFrameUpdateSequence { get; }
 		internal override IScriptSequenceBlock OnHeartbeatSequence { get; }
@@ -17,7 +17,7 @@ namespace LunyScript.Coroutines
 		internal override IScriptSequenceBlock OnResumedSequence { get; }
 		internal override IScriptSequenceBlock OnElapsedSequence { get; }
 
-		public PerpetualCoroutine(in CoroutineConfig config)
+		public Coroutine(in CoroutineConfig config)
 			: base(config)
 		{
 			OnFrameUpdateSequence = SequenceBlock.TryCreate(config.OnFrameUpdate);

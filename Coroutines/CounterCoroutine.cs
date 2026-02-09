@@ -5,7 +5,7 @@ namespace LunyScript.Coroutines
 	/// <summary>
 	/// Coroutine that elapses after a specific number of heartbeats/ticks.
 	/// </summary>
-	internal sealed class CounterCoroutine : PerpetualCoroutine
+	internal sealed class CounterCoroutine : Coroutine
 	{
 		private CountProgress _progress;
 

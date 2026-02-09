@@ -27,6 +27,9 @@ namespace LunyScript.Blocks
 
 		public void Execute(ILunyScriptContext context)
 		{
+			if (context == null)
+				return;
+
 			foreach (var block in Blocks)
 				block?.Execute(context);
 		}

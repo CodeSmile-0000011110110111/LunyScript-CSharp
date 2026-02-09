@@ -6,7 +6,7 @@ namespace LunyScript.Coroutines
 	/// <summary>
 	/// Coroutine that elapses after a specific duration in seconds.
 	/// </summary>
-	internal sealed class TimerCoroutine : PerpetualCoroutine
+	internal sealed class TimerCoroutine : Coroutine
 	{
 		private TimeProgress _progress;
 

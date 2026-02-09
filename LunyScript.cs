@@ -124,6 +124,7 @@ namespace LunyScript
 		public ApiPlaceholders.PhysicsApi Physics => new(this);
 		public ApiPlaceholders.PlayerApi Player => new(this);
 		public ApiPlaceholders.StorageApi Storage => new(this);
+		public ApiPlaceholders.TimeApi Time => new(this);
 
 		// possible future expansions
 		public ApiPlaceholders.AccessibilityApi Accessibility => new(this);

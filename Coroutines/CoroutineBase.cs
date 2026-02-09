@@ -41,7 +41,7 @@ namespace LunyScript.Coroutines
 		public static CoroutineBase Create(in CoroutineConfig config) => config.IsTimeSliced ? new TimeSliceCoroutine(config) :
 			config.IsCounter ? new CounterCoroutine(config) :
 			config.IsTimer ? new TimerCoroutine(config) :
-			new PerpetualCoroutine(config);
+			new Coroutine(config);
 
 		private CoroutineBase() {} // hide default ctor
 
@@ -69,7 +69,7 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Starts or restarts the coroutine. Always calls Stop() first to reset coroutine state (eg time/count).
 		/// </summary>
-		internal void Start(ILunyScriptContext context)
+		internal void Start(ILunyScriptContext context = null)
 		{
 			Stop(context);
 
@@ -81,7 +81,7 @@ namespace LunyScript.Coroutines
 		/// Stops the coroutine and resets state.
 		/// Returns true if the coroutine was running or paused (indicating Stopped event should fire).
 		/// </summary>
-		internal Boolean Stop(ILunyScriptContext context)
+		internal Boolean Stop(ILunyScriptContext context = null)
 		{
 			if (_state == CoroutineState.Stopped)
 				return false;
@@ -98,7 +98,7 @@ namespace LunyScript.Coroutines
 		/// Pauses the coroutine, preserving current elapsed time.
 		/// Returns true if the coroutine was running (indicating Paused event should fire).
 		/// </summary>
-		internal Boolean Pause(ILunyScriptContext context)
+		internal Boolean Pause(ILunyScriptContext context = null)
 		{
 			if (_state != CoroutineState.Running)
 				return false;
@@ -112,7 +112,7 @@ namespace LunyScript.Coroutines
 		/// Resumes a paused coroutine.
 		/// Returns true if the coroutine was paused (indicating Resumed event should fire).
 		/// </summary>
-		internal Boolean Resume(ILunyScriptContext context)
+		internal Boolean Resume(ILunyScriptContext context = null)
 		{
 			if (_state != CoroutineState.Paused)
 				return false;
