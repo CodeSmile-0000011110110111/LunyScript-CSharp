@@ -61,10 +61,8 @@ namespace LunyScript.Coroutines
 
 			foreach (var coroutine in _coroutines.Values)
 			{
-				if (!coroutine.CanProcess)
+				if (!coroutine.ShouldProcess)
 					continue;
-
-				coroutine.Init(context);
 
 				// Run OnHeartbeat sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches
@@ -92,10 +90,8 @@ namespace LunyScript.Coroutines
 
 			foreach (var coroutine in _coroutines.Values)
 			{
-				if (!coroutine.CanProcess)
+				if (!coroutine.ShouldProcess)
 					continue;
-
-				coroutine.Init(context);
 
 				// Run OnUpdate sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches

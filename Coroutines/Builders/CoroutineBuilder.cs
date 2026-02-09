@@ -6,7 +6,7 @@ namespace LunyScript.Coroutines.Builders
 {
 	/// <summary>
 	/// Entry point for the Coroutine fluent builder chain.
-	/// Usage: Coroutine("name").Duration(3).Seconds().OnUpdate(blocks);
+	/// Usage: Coroutine("name").For(3).Seconds().OnFrameUpdate(blocks).Elapsed(blocks);
 	/// </summary>
 	public readonly struct CoroutineBuilder
 	{
@@ -25,15 +25,13 @@ namespace LunyScript.Coroutines.Builders
 		public CoroutineDurationBuilder For(Double duration) => new(_script, _name, duration);
 
 		/// <summary>
-		/// Creates a coroutine without duration (runs until stopped).
-		/// Terminal method that registers the coroutine.
+		/// Creates a coroutine without duration (runs until stopped) which runs the blocks after all scripts ran On.FrameUpdate() event, but before On.FrameLateUpdate().
 		/// </summary>
 		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) =>
 			CoroutineFinalBuilder.NoDuration(_script, _name).OnFrameUpdate(blocks);
 
 		/// <summary>
-		/// Creates a coroutine without duration (runs until stopped).
-		/// Terminal method that registers the coroutine.
+		/// Creates a coroutine without duration (runs until stopped) which runs the blocks after all scripts ran On.Hearbeat() event.
 		/// </summary>
 		public CoroutineFinalBuilder OnHeartbeat(params IScriptActionBlock[] blocks) =>
 			CoroutineFinalBuilder.NoDuration(_script, _name).OnHeartbeat(blocks);

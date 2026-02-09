@@ -1,7 +1,7 @@
 using Luny;
+using LunyScript.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace LunyScript.Execution
@@ -33,7 +33,7 @@ namespace LunyScript.Execution
 			sw.Stop();
 
 			var ms = (Int32)Math.Round(sw.Elapsed.TotalMilliseconds, MidpointRounding.AwayFromZero);
-			LunyLogger.LogInfo($"Discovered {_scriptsById.Count} LunyScript(s) in {ms} ms.", this);
+			LunyLogger.LogInfo($"Registered {_scriptsById.Count} LunyScript(s) in {ms} ms.", this);
 		}
 
 		/// <summary>
@@ -45,16 +45,13 @@ namespace LunyScript.Execution
 				throw new ArgumentNullException(nameof(scriptType));
 
 			if (_scriptsByName.ContainsKey(scriptType.Name))
-			{
-				LunyLogger.LogError($"{scriptType.Name} already registered", this);
-				return;
-			}
+				throw new LunyScriptException($"{scriptType.Name}: duplicate type name");
 
 			var definition = new LunyScriptDefinition(scriptType);
 			_scriptsById[definition.ScriptID] = definition;
 			_scriptsByName[definition.Name] = definition;
 
-			LunyLogger.LogInfo($"{definition} registered", this);
+			//LunyLogger.LogInfo($"{definition} registered", this);
 		}
 
 		/// <summary>

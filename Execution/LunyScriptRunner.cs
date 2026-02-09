@@ -1,6 +1,7 @@
 using Luny;
 using Luny.Engine;
 using Luny.Engine.Bridge;
+using Luny.Engine.Services;
 using LunyScript.Blocks;
 using LunyScript.Diagnostics;
 using LunyScript.Events;
@@ -89,15 +90,26 @@ namespace LunyScript.Execution
 			_contexts = new LunyScriptContextRegistry();
 			_objectLifecycle = new LunyScriptObjectLifecycle(_contexts);
 			_sceneEventHandler = new LunyScriptSceneEventHandler(_contexts);
+			_engineTime = LunyEngine.Instance.Time;
 
 			LunyTraceLogger.LogInfoInitialized(this);
 		}
+
+		private ILunyTimeService _engineTime;
+		private Table.VarHandle gvar_Time_HeartbeatCount;
+		private Table.VarHandle gvar_Time_FrameCount;
+		private Table.VarHandle gvar_Time_ElapsedSeconds;
 
 		public void OnEngineStartup()
 		{
 			try
 			{
 				LunyTraceLogger.LogInfoStartingUp(this);
+
+				var gvars = LunyScriptContext.GetGlobalVariables();
+				gvar_Time_HeartbeatCount = gvars.GetHandle("Time.HeartbeatCount");
+				gvar_Time_FrameCount = gvars.GetHandle("Time.FrameCount");
+				gvar_Time_ElapsedSeconds = gvars.GetHandle("Time.ElapsedSeconds");
 			}
 			catch (Exception)
 			{
@@ -150,14 +162,23 @@ namespace LunyScript.Execution
 
 		public void OnSceneUnloaded(ILunyScene unloadedScene) => _sceneEventHandler.OnSceneUnloaded(unloadedScene);
 
+		//public void OnEngineFrameBegins() {}
+		//public void OnEngineFrameEnds() {}
+
 		public void OnEngineHeartbeat()
 		{
+			gvar_Time_ElapsedSeconds.Value = _engineTime.ElapsedSeconds;
+			gvar_Time_HeartbeatCount.Value = _engineTime.HeartbeatCount;
+
 			foreach (var context in _contexts.AllContexts)
 				_objectLifecycle.OnHeartbeat(context);
 		}
 
 		public void OnEngineFrameUpdate()
 		{
+			gvar_Time_ElapsedSeconds.Value = _engineTime.ElapsedSeconds;
+			gvar_Time_FrameCount.Value = _engineTime.FrameCount;
+
 			foreach (var context in _contexts.AllContexts)
 				_objectLifecycle.OnFrameUpdate(context);
 		}

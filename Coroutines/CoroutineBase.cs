@@ -1,3 +1,4 @@
+using Luny;
 using LunyScript.Blocks;
 using LunyScript.Execution;
 using System;
@@ -32,16 +33,16 @@ namespace LunyScript.Coroutines
 		internal virtual Boolean IsTimeSliced => false;
 		internal virtual Boolean IsCounter => false;
 		internal Boolean IsTimer => !IsCounter;
-		internal Boolean CanProcess => _state != CoroutineState.Stopped && _state != CoroutineState.Paused;
+		internal Boolean ShouldProcess => _state != CoroutineState.Stopped && _state != CoroutineState.Paused;
 		protected CoroutineContinuationMode ContinuationMode { get; set; } = CoroutineContinuationMode.Finite;
 
 		/// <summary>
 		/// Factory method to create specialized coroutine instances.
 		/// </summary>
-		public static CoroutineBase Create(in CoroutineConfig config) => config.IsTimeSliced ? new TimeSliceCoroutine(config) :
-			config.IsCounter ? new CounterCoroutine(config) :
-			config.IsTimer ? new TimerCoroutine(config) :
-			new Coroutine(config);
+		public static CoroutineBase Create(in CoroutineConfig config) => config.IsTimeSliced ? new TimeSliceCoroutine(config).Init() :
+			config.IsCounter ? new CounterCoroutine(config).Init() :
+			config.IsTimer ? new TimerCoroutine(config).Init() :
+			new Coroutine(config).Init();
 
 		private CoroutineBase() {} // hide default ctor
 
@@ -56,14 +57,16 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// First-time initialization of coroutine. Will Start() the coroutine
 		/// </summary>
-		internal void Init(ILunyScriptContext context)
+		internal CoroutineBase Init()
 		{
 			if (_state != CoroutineState.New)
-				return;
+				return this;
 
-			OnStop();
-			_state = CoroutineState.Stopped; // avoid Stop blocks executing
-			Start(context);
+			LunyLogger.LogInfo($"{_name} => INIT ({GetType().Name})");
+			_state = CoroutineState.Stopped; // prevent Stop blocks from executing
+			Start();
+
+			return this;
 		}
 
 		/// <summary>
@@ -73,6 +76,7 @@ namespace LunyScript.Coroutines
 		{
 			Stop(context);
 
+			LunyLogger.LogInfo($"{_name} => START ({GetType().Name})");
 			_state = CoroutineState.Running;
 			OnStart();
 			OnStartedSequence?.Execute(context);
@@ -89,6 +93,7 @@ namespace LunyScript.Coroutines
 			if (_state == CoroutineState.Stopped)
 				return false;
 
+			LunyLogger.LogInfo($"{_name} => STOP ({GetType().Name})");
 			_state = CoroutineState.Stopped;
 			OnStop();
 			OnStoppedSequence?.Execute(context);
@@ -106,6 +111,7 @@ namespace LunyScript.Coroutines
 			if (_state != CoroutineState.Running)
 				return false;
 
+			LunyLogger.LogInfo($"{_name} => PAUSE ({GetType().Name})");
 			_state = CoroutineState.Paused;
 			OnPausedSequence?.Execute(context);
 			return true;
@@ -120,6 +126,7 @@ namespace LunyScript.Coroutines
 			if (_state != CoroutineState.Paused)
 				return false;
 
+			LunyLogger.LogInfo($"{_name} => RESUME ({GetType().Name})");
 			_state = CoroutineState.Running;
 			OnResumedSequence?.Execute(context);
 			return true;
@@ -158,6 +165,8 @@ namespace LunyScript.Coroutines
 		{
 			if (!elapsed)
 				return false;
+
+			LunyLogger.LogInfo($"{_name} => ELAPSED ({GetType().Name})");
 
 			if (ContinuationMode == CoroutineContinuationMode.Repeating)
 				Start(context);
