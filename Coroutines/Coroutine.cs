@@ -12,6 +12,7 @@ namespace LunyScript.Coroutines
 		private static readonly String[] s_StateNames = Enum.GetNames<CoroutineState>();
 
 		private readonly String _name;
+		private readonly Process _processMode = Process.FrameUpdate;
 		private CoroutineState _state = CoroutineState.New;
 
 		internal String Name => _name;
@@ -32,18 +33,15 @@ namespace LunyScript.Coroutines
 		internal virtual Int32 TimeSliceInterval => 0;
 		internal virtual Int32 TimeSliceOffset => 0;
 		internal virtual Boolean IsTimeSliced => false;
-		internal virtual Boolean IsCounter => false;
-		internal Boolean IsTimer => !IsCounter;
-		internal Boolean ShouldProcess => _state != CoroutineState.Stopped && _state != CoroutineState.Paused;
-		protected Continuation ContinuationMode { get; set; } = Continuation.Finite;
+		protected Continuation ContinuationMode { get; } = Continuation.Finite;
 
 		/// <summary>
 		/// Factory method to create specialized coroutine instances.
 		/// </summary>
-		public static Coroutine Create(in Options options) => options.IsTimeSliced ? new TimeSliceCoroutine(options).Init() :
-			options.IsCounter ? new CounterCoroutine(options).Init() :
-			options.IsTimer ? new TimerCoroutine(options).Init() :
-			new PerpetualCoroutine(options).Init();
+		public static Coroutine Create(in Options options) => options.IsTimeSliced ? new TimeSliceCoroutine(options) :
+			options.IsCounter ? new CounterCoroutine(options) :
+			options.IsTimer ? new TimerCoroutine(options) :
+			new PerpetualCoroutine(options);
 
 		private Coroutine() {} // hide default ctor
 
@@ -53,21 +51,8 @@ namespace LunyScript.Coroutines
 				throw new ArgumentException("Coroutine name cannot be null or empty", nameof(options.Name));
 
 			_name = options.Name;
-		}
-
-		/// <summary>
-		/// First-time initialization of coroutine. Will Start() the coroutine
-		/// </summary>
-		internal Coroutine Init()
-		{
-			if (_state != CoroutineState.New)
-				return this;
-
-			LunyLogger.LogInfo($"{_name} => INIT ({GetType().Name})");
-			_state = CoroutineState.Stopped; // prevent Stop blocks from executing
-			Start();
-
-			return this;
+			ContinuationMode = options.ContinuationMode;
+			_processMode = options.ProcessMode;
 		}
 
 		/// <summary>
@@ -75,7 +60,8 @@ namespace LunyScript.Coroutines
 		/// </summary>
 		internal void Start(IScriptRuntimeContext runtimeContext = null)
 		{
-			Stop(runtimeContext);
+			if (_state != CoroutineState.New)
+				Stop(runtimeContext);
 
 			LunyLogger.LogInfo($"{_name} => START ({GetType().Name})");
 			_state = CoroutineState.Running;
@@ -91,6 +77,7 @@ namespace LunyScript.Coroutines
 		/// </summary>
 		internal Boolean Stop(IScriptRuntimeContext runtimeContext = null)
 		{
+			CallStartIfNew(runtimeContext);
 			if (_state == CoroutineState.Stopped)
 				return false;
 
@@ -109,6 +96,7 @@ namespace LunyScript.Coroutines
 		/// </summary>
 		internal Boolean Pause(IScriptRuntimeContext runtimeContext = null)
 		{
+			CallStartIfNew(runtimeContext);
 			if (_state != CoroutineState.Running)
 				return false;
 
@@ -124,6 +112,7 @@ namespace LunyScript.Coroutines
 		/// </summary>
 		internal Boolean Resume(IScriptRuntimeContext runtimeContext = null)
 		{
+			CallStartIfNew(runtimeContext);
 			if (_state != CoroutineState.Paused)
 				return false;
 
@@ -143,7 +132,7 @@ namespace LunyScript.Coroutines
 		/// </summary>
 		internal Boolean ProcessHeartbeat(IScriptRuntimeContext runtimeContext)
 		{
-			if (_state != CoroutineState.Running)
+			if (!ShouldProcess(runtimeContext, Process.Heartbeat))
 				return false;
 
 			var elapsed = OnHeartbeat();
@@ -155,11 +144,27 @@ namespace LunyScript.Coroutines
 		/// </summary>
 		internal Boolean ProcessFrameUpdate(IScriptRuntimeContext runtimeContext)
 		{
-			if (_state != CoroutineState.Running)
+			if (!ShouldProcess(runtimeContext, Process.FrameUpdate))
 				return false;
 
 			var elapsed = OnFrameUpdate();
 			return ResolveState(elapsed, runtimeContext);
+		}
+
+		private Boolean ShouldProcess(IScriptRuntimeContext runtimeContext, Process processMode)
+		{
+			if (_processMode != Process.Always && _processMode != processMode)
+				return false;
+
+			CallStartIfNew(runtimeContext);
+
+			return _state == CoroutineState.Running;
+		}
+
+		private void CallStartIfNew(IScriptRuntimeContext runtimeContext)
+		{
+			if (_state == CoroutineState.New)
+				Start(runtimeContext);
 		}
 
 		private Boolean ResolveState(Boolean elapsed, IScriptRuntimeContext runtimeContext)
@@ -193,7 +198,8 @@ namespace LunyScript.Coroutines
 			public Int32 CounterTarget { get; init; } // Used by CounterCoroutine and TimeSliceCoroutine
 			public Int32 TimeSliceInterval { get; init; } // Used only by TimeSliceCoroutine
 			public Int32 TimeSliceOffset { get; init; } // Used only by TimeSliceCoroutine
-			public Continuation ContinuationMode { get; init; }
+			public Continuation ContinuationMode { get; init; } = Continuation.Finite;
+			public Process ProcessMode { get; init; } = Process.Always;
 
 			// Computed properties
 			public Boolean IsTimer => TimerInterval > 0d;
@@ -209,34 +215,36 @@ namespace LunyScript.Coroutines
 			public IScriptActionBlock[] OnPaused { get; init; }
 			public IScriptActionBlock[] OnResumed { get; init; }
 
-			public static Options ForOpenEnded(String name) => new() { Name = name };
+			public static Options ForOpenEnded(String name, Process processMode) => new() { Name = name, ProcessMode = processMode };
 
-			public static Options ForTimer(String name, Double duration, Continuation continuationMode) => new()
+			public static Options ForTimer(String name, Double duration, Continuation continuationMode, Process processMode) => new()
 			{
 				Name = name,
 				TimerInterval = duration,
 				ContinuationMode = continuationMode,
+				ProcessMode = processMode,
 			};
 
-			public static Options ForCounter(String name, Int32 count, Continuation continuationMode) => new()
+			public static Options ForCounter(String name, Int32 count, Continuation continuationMode, Process processMode) => new()
 			{
 				Name = name,
 				CounterTarget = count,
 				ContinuationMode = continuationMode,
+				ProcessMode = processMode,
 			};
 
-			public static Options ForEveryInterval(String name, Int32 everyInterval, CountMode countMode, Int32 delay,
+			public static Options ForEveryInterval(String name, Int32 everyInterval, Process processMode, Int32 delay,
 				IScriptActionBlock[] doBlocks) => new()
 			{
-				Name = name ?? GenerateUniqueName(everyInterval, delay, countMode),
+				Name = name ?? GenerateUniqueName(everyInterval, delay, processMode),
 				TimeSliceInterval = everyInterval == LunyScript.Odd || everyInterval == LunyScript.Even ? 2 : everyInterval,
 				TimeSliceOffset = everyInterval == LunyScript.Odd ? 1 : delay,
-				OnFrameUpdate = countMode == CountMode.Frames ? doBlocks : null,
-				OnHeartbeat = countMode == CountMode.Heartbeats ? doBlocks : null,
+				OnFrameUpdate = processMode == Process.FrameUpdate ? doBlocks : null,
+				OnHeartbeat = processMode == Process.Heartbeat ? doBlocks : null,
 			};
 
-			private static String GenerateUniqueName(Int32 interval, Int32 delay, CountMode countMode) =>
-				$"[{++s_UniqueNameID}]__Every({interval}).{countMode}().DelayBy({delay})";
+			private static String GenerateUniqueName(Int32 interval, Int32 delay, Process process) =>
+				$"[{++s_UniqueNameID}]__Every({interval}).{process}().DelayBy({delay})";
 		}
 
 		/// <summary>
@@ -268,10 +276,11 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// For Counter coroutines: Whether it counts frames or heartbeats.
 		/// </summary>
-		internal enum CountMode
+		internal enum Process
 		{
-			Frames,
-			Heartbeats,
+			Always,
+			FrameUpdate,
+			Heartbeat,
 		}
 
 		/// <summary>

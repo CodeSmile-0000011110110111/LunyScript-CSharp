@@ -22,12 +22,12 @@ namespace LunyScript.Coroutines.ApiBuilders
 		/// <summary>
 		/// Selects frame-based execution.
 		/// </summary>
-		public EveryUnitBuilder Frames() => new(_script, _interval, Coroutine.CountMode.Frames);
+		public EveryUnitBuilder Frames() => new(_script, _interval, Coroutine.Process.FrameUpdate);
 
 		/// <summary>
 		/// Selects heartbeat-based execution.
 		/// </summary>
-		public EveryUnitBuilder Heartbeats() => new(_script, _interval, Coroutine.CountMode.Heartbeats);
+		public EveryUnitBuilder Heartbeats() => new(_script, _interval, Coroutine.Process.Heartbeat);
 	}
 
 	/// <summary>
@@ -37,14 +37,14 @@ namespace LunyScript.Coroutines.ApiBuilders
 	{
 		private readonly ILunyScript _script;
 		private readonly Int32 _interval;
-		private readonly Coroutine.CountMode _countMode;
+		private readonly Coroutine.Process _process;
 		private readonly Int32 _delay;
 
-		internal EveryUnitBuilder(ILunyScript script, Int32 interval, Coroutine.CountMode countMode, Int32 delay = 0)
+		internal EveryUnitBuilder(ILunyScript script, Int32 interval, Coroutine.Process process, Int32 delay = 0)
 		{
 			_script = script;
 			_interval = interval;
-			_countMode = countMode;
+			_process = process;
 			_delay = delay;
 		}
 
@@ -56,7 +56,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 			if (_delay != 0)
 				throw new ArgumentException($"{nameof(DelayBy)}() can't be used twice");
 
-			return new EveryUnitBuilder(_script, _interval, _countMode, delay);
+			return new EveryUnitBuilder(_script, _interval, _process, delay);
 		}
 
 		/// <summary>
@@ -65,7 +65,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 		public IScriptCoroutineCounterBlock Do(params IScriptActionBlock[] blocks)
 		{
 			// name = null => generates a unique name for this time-sliced coroutine
-			var options = Coroutine.Options.ForEveryInterval(null, _interval, _countMode, _delay, blocks);
+			var options = Coroutine.Options.ForEveryInterval(null, _interval, _process, _delay, blocks);
 			var scriptInternal = (ILunyScriptInternal)_script;
 			var coroutine = scriptInternal.RuntimeContext.Coroutines.Register(in options);
 			return CoroutineBlock.Create<IScriptCoroutineCounterBlock>(coroutine);

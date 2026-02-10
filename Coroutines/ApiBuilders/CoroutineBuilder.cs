@@ -28,13 +28,13 @@ namespace LunyScript.Coroutines.ApiBuilders
 		/// Creates a coroutine without duration (runs until stopped) which runs the blocks after all scripts ran On.FrameUpdate() event, but before On.FrameLateUpdate().
 		/// </summary>
 		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) =>
-			CoroutineFinalBuilder.NoDuration(_script, _name).OnFrameUpdate(blocks);
+			CoroutineFinalBuilder.NoDuration(_script, _name, Coroutine.Process.FrameUpdate).OnFrameUpdate(blocks);
 
 		/// <summary>
 		/// Creates a coroutine without duration (runs until stopped) which runs the blocks after all scripts ran On.Hearbeat() event.
 		/// </summary>
 		public CoroutineFinalBuilder OnHeartbeat(params IScriptActionBlock[] blocks) =>
-			CoroutineFinalBuilder.NoDuration(_script, _name).OnHeartbeat(blocks);
+			CoroutineFinalBuilder.NoDuration(_script, _name, Coroutine.Process.Heartbeat).OnHeartbeat(blocks);
 	}
 
 	/// <summary>
@@ -58,30 +58,30 @@ namespace LunyScript.Coroutines.ApiBuilders
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Seconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount, Coroutine.Continuation.Finite));
+		public CoroutineFinalBuilder Seconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
 		public CoroutineFinalBuilder Milliseconds() =>
-			CreateFinal(Coroutine.Options.ForTimer(_name, _amount / 1000.0, Coroutine.Continuation.Finite));
+			CreateFinal(Coroutine.Options.ForTimer(_name, _amount / 1000.0, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Minutes() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount * 60.0, Coroutine.Continuation.Finite));
+		public CoroutineFinalBuilder Minutes() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount * 60.0, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based, counts fixed steps).
 		/// </summary>
 		public CoroutineFinalBuilder Heartbeats() =>
-			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_amount, Coroutine.Continuation.Finite));
+			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_amount, Coroutine.Continuation.Finite, Coroutine.Process.Heartbeat));
 
 		/// <summary>
 		/// Duration in frames (count-based, counts frames).
 		/// </summary>
 		public CoroutineFinalBuilder Frames() =>
-			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_amount, Coroutine.Continuation.Finite));
+			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_amount, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 	}
 
 	/// <summary>
@@ -100,18 +100,30 @@ namespace LunyScript.Coroutines.ApiBuilders
 
 		internal static CoroutineFinalBuilder FromConfig(ILunyScript script, in Coroutine.Options options) => new(script, options);
 
-		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name) => new(script, Coroutine.Options.ForOpenEnded(name));
+		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name, Coroutine.Process processMode) =>
+			new(script, Coroutine.Options.ForOpenEnded(name, processMode));
 
 		/// <summary>
 		/// Adds blocks to run every frame update while coroutine is running.
 		/// </summary>
-		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) =>
-			new(_script, _options with { OnFrameUpdate = blocks });
+		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks)
+		{
+			if (_options.ProcessMode == Coroutine.Process.Heartbeat)
+				throw new NotSupportedException($"{nameof(OnFrameUpdate)} not possible while counting Heartbeats");
+
+			return new CoroutineFinalBuilder(_script, _options with { OnFrameUpdate = blocks });
+		}
 
 		/// <summary>
 		/// Adds blocks to run every heartbeat (fixed step) while coroutine is running.
 		/// </summary>
-		public CoroutineFinalBuilder OnHeartbeat(params IScriptActionBlock[] blocks) => new(_script, _options with { OnHeartbeat = blocks });
+		public CoroutineFinalBuilder OnHeartbeat(params IScriptActionBlock[] blocks)
+		{
+			if (_options.ProcessMode == Coroutine.Process.FrameUpdate)
+				throw new NotSupportedException($"{nameof(OnHeartbeat)} not possible while counting FrameUpdates");
+
+			return new CoroutineFinalBuilder(_script, _options with { OnHeartbeat = blocks });
+		}
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine is started (not when restarted).

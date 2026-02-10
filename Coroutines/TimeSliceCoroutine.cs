@@ -9,18 +9,18 @@ namespace LunyScript.Coroutines
 	internal sealed class TimeSliceCoroutine : PerpetualCoroutine
 	{
 		private Counter _counter;
+		Process _process;
 
 		internal override Int32 TimeSliceInterval { get; }
 		internal override Int32 TimeSliceOffset { get; }
 		internal override Boolean IsTimeSliced => true;
-		internal override Boolean IsCounter => true;
 
 		public TimeSliceCoroutine(in Options options)
 			: base(options)
 		{
 			TimeSliceInterval = options.TimeSliceInterval;
 			TimeSliceOffset = Math.Max(0, options.TimeSliceOffset);
-			ContinuationMode = options.ContinuationMode; // ignored; time-sliced never elapses
+			_process = options.ProcessMode;
 
 			_counter = new Counter(Int32.MaxValue);
 			_counter.AutoRepeat = true;
@@ -28,8 +28,10 @@ namespace LunyScript.Coroutines
 
 		protected override void OnStart() => _counter.Start();
 		protected override void OnStop() => _counter.Stop();
+		protected override Boolean OnHeartbeat() => IncrementCounter();
+		protected override Boolean OnFrameUpdate() => IncrementCounter();
 
-		protected override Boolean OnHeartbeat()
+		private Boolean IncrementCounter()
 		{
 			_counter.Increment();
 			return false; // time-sliced coroutines don't elapse

@@ -53,17 +53,20 @@ namespace LunyScript.Coroutines.ApiBuilders
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public TimerFinalBuilder Seconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount, _continuation));
+		public TimerFinalBuilder Seconds() =>
+			CreateFinal(Coroutine.Options.ForTimer(_name, _amount, _continuation, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public TimerFinalBuilder Milliseconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount / 1000.0, _continuation));
+		public TimerFinalBuilder Milliseconds() =>
+			CreateFinal(Coroutine.Options.ForTimer(_name, _amount / 1000.0, _continuation, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public TimerFinalBuilder Minutes() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount * 60.0, _continuation));
+		public TimerFinalBuilder Minutes() =>
+			CreateFinal(Coroutine.Options.ForTimer(_name, _amount * 60.0, _continuation, Coroutine.Process.FrameUpdate));
 	}
 
 	/// <summary>

@@ -24,7 +24,6 @@ namespace LunyScript.Coroutines
 			_timer = Timer.FromSeconds(duration);
 			_timer.AutoRepeat = options.ContinuationMode == Continuation.Repeating;
 			_timer.OnElapsed += () => _elapsedThisTick = true;
-			ContinuationMode = options.ContinuationMode;
 		}
 
 		protected override void OnStart() => _timer.Start();

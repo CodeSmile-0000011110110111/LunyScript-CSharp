@@ -62,22 +62,14 @@ namespace LunyScript.Runners
 
 			foreach (var coroutine in _coroutines.Values)
 			{
-				if (!coroutine.ShouldProcess)
-					continue;
-
-				// Run OnHeartbeat sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches
 				var tickBlocks = coroutine.OnHeartbeatSequence;
 				if (tickBlocks != null && ShouldRunTickBlocks(coroutine, heartbeatCount))
 					LunyScriptBlockRunner.Run(tickBlocks, runtimeContext);
 
-				// Advance count-based coroutines on each heartbeat
-				if (coroutine.IsCounter)
-				{
-					var elapsed = coroutine.ProcessHeartbeat(runtimeContext);
-					if (elapsed)
-						LunyScriptBlockRunner.Run(coroutine.OnElapsedSequence, runtimeContext);
-				}
+				var elapsed = coroutine.ProcessHeartbeat(runtimeContext);
+				if (elapsed)
+					LunyScriptBlockRunner.Run(coroutine.OnElapsedSequence, runtimeContext);
 			}
 		}
 
@@ -91,22 +83,14 @@ namespace LunyScript.Runners
 
 			foreach (var coroutine in _coroutines.Values)
 			{
-				if (!coroutine.ShouldProcess)
-					continue;
-
-				// Run OnUpdate sequence if any (pre-created, no allocation)
 				// Time-sliced coroutines only run when interval matches
 				var tickBlocks = coroutine.OnFrameUpdateSequence;
 				if (tickBlocks != null && ShouldRunTickBlocks(coroutine, frameCount))
 					LunyScriptBlockRunner.Run(tickBlocks, runtimeContext);
 
-				// Advance time-based coroutines (count-based advance in OnHeartbeat)
-				if (coroutine.IsTimer)
-				{
-					var elapsed = coroutine.ProcessFrameUpdate(runtimeContext);
-					if (elapsed)
-						LunyScriptBlockRunner.Run(coroutine.OnElapsedSequence, runtimeContext);
-				}
+				var elapsed = coroutine.ProcessFrameUpdate(runtimeContext);
+				if (elapsed)
+					LunyScriptBlockRunner.Run(coroutine.OnElapsedSequence, runtimeContext);
 			}
 		}
 
