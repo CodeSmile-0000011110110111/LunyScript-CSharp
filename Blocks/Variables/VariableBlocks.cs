@@ -1,5 +1,4 @@
 using Luny;
-using LunyScript.Execution;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -26,7 +25,7 @@ namespace LunyScript.Blocks
 
 		// IScriptVariableBlock
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Variable GetValue(ILunyScriptContext context) => _handle.Value;
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => _handle.Value;
 	}
 
 	/// <summary>
@@ -41,7 +40,7 @@ namespace LunyScript.Blocks
 		private ConstantVariableBlock(Variable value) => _value = value;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Variable GetValue(ILunyScriptContext context) => _value;
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => _value;
 
 		public override String ToString() => _value.ToString();
 	}
@@ -55,6 +54,6 @@ namespace LunyScript.Blocks
 		private LoopCounterVariableBlock() {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Variable GetValue(ILunyScriptContext context) => context.LoopCount;
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => runtimeContext.LoopCount;
 	}
 }

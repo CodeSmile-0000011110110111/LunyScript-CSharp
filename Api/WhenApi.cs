@@ -22,7 +22,7 @@ namespace LunyScript.Api
 		{
 			private readonly ILunyScript _script;
 			internal SceneApi(ILunyScript script) => _script = script;
-			private LunyScriptEventScheduler Scheduler => ((ILunyScriptInternal)_script).Scheduler;
+			private ScriptEventScheduler Scheduler => ((ILunyScriptInternal)_script).Scheduler;
 
 			/// <summary>
 			/// Runs when a scene has loaded.

@@ -1,5 +1,4 @@
 using Luny;
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks
@@ -10,7 +9,7 @@ namespace LunyScript.Blocks
 
 		private ObjectDestroySelfBlock() {}
 
-		public void Execute(ILunyScriptContext context) => context.LunyObject.Destroy();
+		public void Execute(IScriptRuntimeContext runtimeContext) => runtimeContext.LunyObject.Destroy();
 	}
 
 	internal sealed class ObjectDestroyTargetBlock : IScriptActionBlock
@@ -21,6 +20,6 @@ namespace LunyScript.Blocks
 
 		private ObjectDestroyTargetBlock(String name) => _name = name;
 
-		public void Execute(ILunyScriptContext context) => LunyEngine.Instance.Objects.GetByName(_name)?.Destroy();
+		public void Execute(IScriptRuntimeContext runtimeContext) => LunyEngine.Instance.Objects.GetByName(_name)?.Destroy();
 	}
 }

@@ -1,4 +1,3 @@
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks
@@ -9,12 +8,12 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class CheckConditionBlock : IScriptConditionBlock
 	{
-		private readonly Func<ILunyScriptContext, Boolean> _func;
+		private readonly Func<IScriptRuntimeContext, Boolean> _func;
 
-		public static IScriptConditionBlock Create(Func<ILunyScriptContext, Boolean> func) => new CheckConditionBlock(func);
+		public static IScriptConditionBlock Create(Func<IScriptRuntimeContext, Boolean> func) => new CheckConditionBlock(func);
 
-		private CheckConditionBlock(Func<ILunyScriptContext, Boolean> func) => _func = func ?? throw new ArgumentNullException(nameof(func));
+		private CheckConditionBlock(Func<IScriptRuntimeContext, Boolean> func) => _func = func ?? throw new ArgumentNullException(nameof(func));
 
-		public Boolean Evaluate(ILunyScriptContext context) => _func(context);
+		public Boolean Evaluate(IScriptRuntimeContext runtimeContext) => _func(runtimeContext);
 	}
 }

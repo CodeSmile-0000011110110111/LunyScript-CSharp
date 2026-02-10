@@ -1,5 +1,4 @@
 using Luny;
-using LunyScript.Execution;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -33,10 +32,10 @@ namespace LunyScript.Blocks
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Execute(ILunyScriptContext context) => _handle.Value = GetValue(context);
+		public void Execute(IScriptRuntimeContext runtimeContext) => _handle.Value = GetValue(runtimeContext);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Variable GetValue(ILunyScriptContext context) => _value.GetValue(context);
+		public Variable GetValue(IScriptRuntimeContext runtimeContext) => _value.GetValue(runtimeContext);
 
 		public override String ToString() => $"{_handle} = {_value}";
 	}
@@ -49,7 +48,8 @@ namespace LunyScript.Blocks
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) + (Double)_right.GetValue(context);
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) =>
+			_left.GetValue(runtimeContext) + (Double)_right.GetValue(runtimeContext);
 	}
 
 	internal sealed class SubVariableBlock : ArithmeticVariableBlock
@@ -60,7 +60,8 @@ namespace LunyScript.Blocks
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) - (Double)_right.GetValue(context);
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) =>
+			_left.GetValue(runtimeContext) - (Double)_right.GetValue(runtimeContext);
 	}
 
 	internal sealed class MulVariableBlock : ArithmeticVariableBlock
@@ -71,7 +72,8 @@ namespace LunyScript.Blocks
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) * (Double)_right.GetValue(context);
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) =>
+			_left.GetValue(runtimeContext) * (Double)_right.GetValue(runtimeContext);
 	}
 
 	internal sealed class DivVariableBlock : ArithmeticVariableBlock
@@ -82,6 +84,7 @@ namespace LunyScript.Blocks
 			: base(left, right) {}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Variable GetValue(ILunyScriptContext context) => _left.GetValue(context) / (Double)_right.GetValue(context);
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) =>
+			_left.GetValue(runtimeContext) / (Double)_right.GetValue(runtimeContext);
 	}
 }

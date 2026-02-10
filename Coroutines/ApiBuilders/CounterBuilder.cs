@@ -2,7 +2,7 @@ using LunyScript.Blocks;
 using LunyScript.Blocks.Coroutines;
 using System;
 
-namespace LunyScript.Coroutines.Builders
+namespace LunyScript.Coroutines.ApiBuilders
 {
 	/// <summary>
 	/// Entry point for the Counter fluent builder chain.
@@ -22,12 +22,12 @@ namespace LunyScript.Coroutines.Builders
 		/// <summary>
 		/// Sets the counter to fire once after the specified count.
 		/// </summary>
-		public CounterDurationBuilder In(Int32 count) => new(_script, _name, count, CoroutineContinuationMode.Finite);
+		public CounterDurationBuilder In(Int32 count) => new(_script, _name, count, Coroutine.Continuation.Finite);
 
 		/// <summary>
 		/// Sets the counter to fire repeatedly at the specified interval.
 		/// </summary>
-		public CounterDurationBuilder Every(Int32 interval) => new(_script, _name, interval, CoroutineContinuationMode.Repeating);
+		public CounterDurationBuilder Every(Int32 interval) => new(_script, _name, interval, Coroutine.Continuation.Repeating);
 	}
 
 	/// <summary>
@@ -38,9 +38,9 @@ namespace LunyScript.Coroutines.Builders
 		private readonly ILunyScript _script;
 		private readonly String _name;
 		private readonly Int32 _amount;
-		private readonly CoroutineContinuationMode _continuation;
+		private readonly Coroutine.Continuation _continuation;
 
-		internal CounterDurationBuilder(ILunyScript script, String name, Int32 amount, CoroutineContinuationMode continuation)
+		internal CounterDurationBuilder(ILunyScript script, String name, Int32 amount, Coroutine.Continuation continuation)
 		{
 			_script = script;
 			_name = name;
@@ -48,17 +48,17 @@ namespace LunyScript.Coroutines.Builders
 			_continuation = continuation;
 		}
 
-		private CounterFinalBuilder CreateFinal(CoroutineConfig config) => CounterFinalBuilder.FromOptions(_script, config);
+		private CounterFinalBuilder CreateFinal(Coroutine.Options options) => CounterFinalBuilder.FromOptions(_script, options);
 
 		/// <summary>
 		/// Duration in frames (count-based).
 		/// </summary>
-		public CounterFinalBuilder Frames() => CreateFinal(CoroutineConfig.ForCounter(_name, _amount, _continuation));
+		public CounterFinalBuilder Frames() => CreateFinal(Coroutine.Options.ForCounter(_name, _amount, _continuation));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based).
 		/// </summary>
-		public CounterFinalBuilder Heartbeats() => CreateFinal(CoroutineConfig.ForCounter(_name, _amount, _continuation));
+		public CounterFinalBuilder Heartbeats() => CreateFinal(Coroutine.Options.ForCounter(_name, _amount, _continuation));
 	}
 
 	/// <summary>
@@ -67,24 +67,24 @@ namespace LunyScript.Coroutines.Builders
 	public readonly struct CounterFinalBuilder
 	{
 		private readonly ILunyScript _script;
-		private readonly CoroutineConfig _config;
+		private readonly Coroutine.Options _options;
 
-		private CounterFinalBuilder(ILunyScript script, in CoroutineConfig config)
+		private CounterFinalBuilder(ILunyScript script, in Coroutine.Options options)
 		{
 			_script = script;
-			_config = config;
+			_options = options;
 		}
 
-		internal static CounterFinalBuilder FromOptions(ILunyScript script, in CoroutineConfig config) => new(script, config);
+		internal static CounterFinalBuilder FromOptions(ILunyScript script, in Coroutine.Options options) => new(script, options);
 
 		/// <summary>
 		/// Completes the counter and specifies blocks to run when elapsed.
 		/// </summary>
 		public IScriptCoroutineCounterBlock Do(params IScriptActionBlock[] blocks)
 		{
-			var options = _config with { OnElapsed = blocks };
+			var options = _options with { OnElapsed = blocks };
 			var scriptInternal = (ILunyScriptInternal)_script;
-			var instance = scriptInternal.Context.Coroutines.Register(in options);
+			var instance = scriptInternal.RuntimeContext.Coroutines.Register(in options);
 			return CoroutineBlock.Create<IScriptCoroutineCounterBlock>(instance);
 		}
 	}

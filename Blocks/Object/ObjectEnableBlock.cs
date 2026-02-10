@@ -1,5 +1,4 @@
-﻿using LunyScript.Execution;
-using System;
+﻿using System;
 
 namespace LunyScript.Blocks
 {
@@ -9,7 +8,7 @@ namespace LunyScript.Blocks
 
 		private ObjectEnableSelfBlock() {}
 
-		public void Execute(ILunyScriptContext context) => context.LunyObject.IsEnabled = true;
+		public void Execute(IScriptRuntimeContext runtimeContext) => runtimeContext.LunyObject.IsEnabled = true;
 	}
 
 	internal sealed class ObjectEnableTargetBlock : IScriptActionBlock
@@ -20,7 +19,7 @@ namespace LunyScript.Blocks
 
 		private ObjectEnableTargetBlock(String name) => _name = name;
 
-		public void Execute(ILunyScriptContext context) =>
+		public void Execute(IScriptRuntimeContext runtimeContext) =>
 			throw new NotImplementedException($"{nameof(ObjectEnableTargetBlock)} with name '{_name}' not implemented");
 	}
 }

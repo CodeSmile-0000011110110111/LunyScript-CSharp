@@ -1,6 +1,6 @@
 ﻿using Luny;
 using Luny.Engine.Bridge.Identity;
-using LunyScript.Execution;
+using LunyScript.Runners;
 using System;
 
 namespace LunyScript
@@ -11,7 +11,7 @@ namespace LunyScript
 	public interface ILunyScriptEngine
 	{
 		ITable GlobalVariables { get; }
-		ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID);
+		IScriptRuntimeContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID);
 	}
 
 	/// <summary>
@@ -19,9 +19,9 @@ namespace LunyScript
 	/// </summary>
 	public sealed class LunyScriptEngine : ILunyScriptEngine
 	{
-		private LunyScriptRunner _runner;
+		private LunyScriptBlockRunner _blockRunner;
 		public static ILunyScriptEngine Instance { get; private set; }
-		public ITable GlobalVariables => LunyScriptContext.GetGlobalVariables();
+		public ITable GlobalVariables => ScriptRuntimeContext.GetGlobalVariables();
 
 		/// <summary>
 		/// Maximum allowed iterations for While/For loops to prevent engine hangs.
@@ -32,26 +32,26 @@ namespace LunyScript
 		internal static void ForceReset_UnitTestsOnly()
 		{
 			Instance = null;
-			LunyScriptContext.ClearGlobalVariables();
+			ScriptRuntimeContext.ClearGlobalVariables();
 		}
 
 		private LunyScriptEngine() {} // hide default ctor
 
-		internal LunyScriptEngine(LunyScriptRunner scriptRunner)
+		internal LunyScriptEngine(LunyScriptBlockRunner scriptBlockRunner)
 		{
 			LunyTraceLogger.LogInfoCreateSingletonInstance(typeof(LunyScriptEngine));
 
 			if (Instance != null)
 				throw new InvalidOperationException($"{nameof(ILunyScriptEngine)} singleton duplication!");
-			if (scriptRunner == null)
-				throw new ArgumentNullException(nameof(scriptRunner));
+			if (scriptBlockRunner == null)
+				throw new ArgumentNullException(nameof(scriptBlockRunner));
 
-			_runner = scriptRunner;
+			_blockRunner = scriptBlockRunner;
 			Instance = this;
 		}
 
-		public ILunyScriptContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID) =>
-			_runner.Contexts.GetByNativeObjectID(lunyNativeObjectID);
+		public IScriptRuntimeContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID) =>
+			_blockRunner.Contexts.GetByNativeObjectID(lunyNativeObjectID);
 
 		~LunyScriptEngine() => LunyTraceLogger.LogInfoFinalized(this);
 
@@ -59,7 +59,7 @@ namespace LunyScript
 		{
 			LunyTraceLogger.LogInfoShuttingDown(this);
 			Instance = null;
-			_runner = null;
+			_blockRunner = null;
 			LunyTraceLogger.LogInfoShutdownComplete(this);
 		}
 	}

@@ -1,5 +1,4 @@
 using Luny;
-using LunyScript.Execution;
 using System;
 using System.Diagnostics;
 
@@ -18,14 +17,14 @@ namespace LunyScript.Blocks
 		private DebugBreakBlock() {}
 		private DebugBreakBlock(String message = null) => _message = message;
 
-		public void Execute(ILunyScriptContext context) => DoBreak(context);
+		public void Execute(IScriptRuntimeContext runtimeContext) => DoBreak(runtimeContext);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void DoBreak(ILunyScriptContext context)
+		private void DoBreak(IScriptRuntimeContext runtimeContext)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			if (_message != null)
-				LunyLogger.LogInfo($"{nameof(DebugBreakBlock)}: {_message}", context.LunyObject);
+				LunyLogger.LogInfo($"{nameof(DebugBreakBlock)}: {_message}", runtimeContext.LunyObject);
 
 			Debugger.Break();
 #endif

@@ -6,9 +6,9 @@ namespace LunyScript.Diagnostics
 	/// Performance metrics for a single block (sequence or individual block).
 	/// Tracks execution time statistics and error counts.
 	/// </summary>
-	public sealed class LunyScriptBlockMetrics
+	public sealed class ScriptBlockMetrics
 	{
-		public LunyScriptRunID LunyScriptRunID;
+		public ScriptBlockID ScriptBlockId;
 		public Type BlockType;
 		public Int32 CallCount;
 		public Double TotalMs;
@@ -18,6 +18,6 @@ namespace LunyScript.Diagnostics
 		public Int32 ErrorCount;
 
 		public override String ToString() =>
-			$"Sequence#{LunyScriptRunID} {BlockType.Name}: {CallCount} calls, {AverageMs:F2}ms avg ({MinMs:F2}-{MaxMs:F2}ms), {ErrorCount} errors";
+			$"Sequence#{ScriptBlockId} {BlockType.Name}: {CallCount} calls, {AverageMs:F2}ms avg ({MinMs:F2}-{MaxMs:F2}ms), {ErrorCount} errors";
 	}
 }

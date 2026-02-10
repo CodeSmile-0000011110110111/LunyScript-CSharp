@@ -1,5 +1,4 @@
 using LunyScript.Blocks;
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Api
@@ -17,7 +16,7 @@ namespace LunyScript.Api
 		/// </remarks>
 		/// <param name="action"></param>
 		/// <returns></returns>
-		public IScriptActionBlock Run(Action<ILunyScriptContext> action) => RunActionBlock.Create(action);
+		public IScriptActionBlock Run(Action<IScriptRuntimeContext> action) => RunActionBlock.Create(action);
 
 		/// <summary>
 		/// Executes Action (or: method).
@@ -70,7 +69,7 @@ namespace LunyScript.Api
 		/// </remarks>
 		/// <param name="func"></param>
 		/// <returns></returns>
-		public IScriptConditionBlock IsTrue(Func<ILunyScriptContext, Boolean> func) => CheckConditionBlock.Create(func);
+		public IScriptConditionBlock IsTrue(Func<IScriptRuntimeContext, Boolean> func) => CheckConditionBlock.Create(func);
 
 		/// <summary>
 		/// Condition block that runs a Func (or: method) returning bool.

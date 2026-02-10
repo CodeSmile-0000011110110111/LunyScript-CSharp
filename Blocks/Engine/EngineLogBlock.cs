@@ -1,5 +1,4 @@
 using Luny;
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks
@@ -15,6 +14,6 @@ namespace LunyScript.Blocks
 
 		private EngineLogBlock(String message) => _message = message ?? throw new ArgumentNullException(nameof(message));
 
-		public void Execute(ILunyScriptContext context) => LunyLogger.LogInfo(_message, this);
+		public void Execute(IScriptRuntimeContext runtimeContext) => LunyLogger.LogInfo(_message, this);
 	}
 }

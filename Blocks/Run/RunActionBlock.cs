@@ -1,4 +1,3 @@
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks
@@ -10,11 +9,11 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class RunActionBlock : IScriptActionBlock
 	{
-		private readonly Action<ILunyScriptContext> _action;
-		public static IScriptActionBlock Create(Action<ILunyScriptContext> action) => new RunActionBlock(action);
+		private readonly Action<IScriptRuntimeContext> _action;
+		public static IScriptActionBlock Create(Action<IScriptRuntimeContext> action) => new RunActionBlock(action);
 
-		private RunActionBlock(Action<ILunyScriptContext> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
+		private RunActionBlock(Action<IScriptRuntimeContext> action) => _action = action ?? throw new ArgumentNullException(nameof(action));
 
-		public void Execute(ILunyScriptContext context) => _action(context);
+		public void Execute(IScriptRuntimeContext runtimeContext) => _action(runtimeContext);
 	}
 }

@@ -8,7 +8,7 @@ namespace LunyScript.Events
 	/// <summary>
 	/// Schedules and manages sequences for various event types.
 	/// </summary>
-	internal sealed class LunyScriptEventScheduler
+	internal sealed class ScriptEventScheduler
 	{
 		private static readonly Int32 s_ObjectEventCount = Enum.GetNames(typeof(LunyObjectEvent)).Length;
 		private static readonly Int32 s_SceneEventCount = Enum.GetNames(typeof(LunySceneEvent)).Length;

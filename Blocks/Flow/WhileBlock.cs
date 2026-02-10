@@ -1,5 +1,4 @@
 using LunyScript.Exceptions;
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks
@@ -15,7 +14,7 @@ namespace LunyScript.Blocks
 
 		internal WhileBlockBuilder(IScriptConditionBlock[] conditions) => _conditions = conditions;
 
-		public void Execute(ILunyScriptContext context) => (_cachedBlock ??= Build()).Execute(context);
+		public void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
 
 		public IScriptActionBlock Do(params IScriptActionBlock[] blocks)
 		{
@@ -42,7 +41,7 @@ namespace LunyScript.Blocks
 			_blocks = blocks;
 		}
 
-		public void Execute(ILunyScriptContext context)
+		public void Execute(IScriptRuntimeContext runtimeContext)
 		{
 #if DEBUG || UNITY_EDITOR
 			var iterations = 0;
@@ -50,37 +49,37 @@ namespace LunyScript.Blocks
 
 			var limit = LunyScriptEngine.MaxLoopIterations;
 
-			while (EvaluateAll(context))
+			while (EvaluateAll(runtimeContext))
 			{
 #if DEBUG || UNITY_EDITOR
 				if (++iterations > limit)
 					throw new LunyScriptMaxIterationException(nameof(WhileBlock), limit);
 #endif
-				ExecuteAll(context);
+				ExecuteAll(runtimeContext);
 			}
 		}
 
-		private Boolean EvaluateAll(ILunyScriptContext context)
+		private Boolean EvaluateAll(IScriptRuntimeContext runtimeContext)
 		{
 			if (_conditions == null || _conditions.Length == 0)
 				return false; // Infinite loop prevention if no conditions
 
 			foreach (var condition in _conditions)
 			{
-				if (!condition.Evaluate(context))
+				if (!condition.Evaluate(runtimeContext))
 					return false;
 			}
 
 			return true;
 		}
 
-		private void ExecuteAll(ILunyScriptContext context)
+		private void ExecuteAll(IScriptRuntimeContext runtimeContext)
 		{
 			if (_blocks == null)
 				return;
 
 			foreach (var block in _blocks)
-				block.Execute(context);
+				block.Execute(runtimeContext);
 		}
 	}
 }

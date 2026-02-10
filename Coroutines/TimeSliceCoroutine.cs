@@ -6,7 +6,7 @@ namespace LunyScript.Coroutines
 	/// <summary>
 	/// Coroutine that never elapses and only executes its sequences on specific heartbeat/frame intervals (time-sliced).
 	/// </summary>
-	internal sealed class TimeSliceCoroutine : Coroutine
+	internal sealed class TimeSliceCoroutine : PerpetualCoroutine
 	{
 		private Counter _counter;
 
@@ -15,12 +15,12 @@ namespace LunyScript.Coroutines
 		internal override Boolean IsTimeSliced => true;
 		internal override Boolean IsCounter => true;
 
-		public TimeSliceCoroutine(in CoroutineConfig config)
-			: base(config)
+		public TimeSliceCoroutine(in Options options)
+			: base(options)
 		{
-			TimeSliceInterval = config.TimeSliceInterval;
-			TimeSliceOffset = Math.Max(0, config.TimeSliceOffset);
-			ContinuationMode = config.ContinuationMode; // ignored; time-sliced never elapses
+			TimeSliceInterval = options.TimeSliceInterval;
+			TimeSliceOffset = Math.Max(0, options.TimeSliceOffset);
+			ContinuationMode = options.ContinuationMode; // ignored; time-sliced never elapses
 
 			_counter = new Counter(Int32.MaxValue);
 			_counter.AutoRepeat = true;
@@ -35,6 +35,7 @@ namespace LunyScript.Coroutines
 			return false; // time-sliced coroutines don't elapse
 		}
 
-		public override String ToString() => $"{GetType().Name}({Name}, {State}, Count: {_counter.Current}, Interval: {TimeSliceInterval}, Offset: {TimeSliceOffset})";
+		public override String ToString() =>
+			$"{GetType().Name}({Name}, {State}, Count: {_counter.Current}, Interval: {TimeSliceInterval}, Offset: {TimeSliceOffset})";
 	}
 }

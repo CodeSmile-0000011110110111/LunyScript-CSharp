@@ -1,4 +1,3 @@
-using LunyScript.Execution;
 using System;
 using System.Collections.Generic;
 
@@ -9,7 +8,7 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class SequenceBlock : IScriptSequenceBlock
 	{
-		public LunyScriptRunID ID { get; }
+		public ScriptBlockID ID { get; }
 		public IReadOnlyList<IScriptActionBlock> Blocks { get; }
 		public Boolean IsEmpty => Blocks.Count == 0;
 
@@ -21,17 +20,17 @@ namespace LunyScript.Blocks
 			if (blocks == null || blocks.Count == 0)
 				throw new ArgumentException("Sequence must contain at least one block", nameof(blocks));
 
-			ID = LunyScriptRunID.Generate();
+			ID = ScriptBlockID.Generate();
 			Blocks = blocks;
 		}
 
-		public void Execute(ILunyScriptContext context)
+		public void Execute(IScriptRuntimeContext runtimeContext)
 		{
-			if (context == null)
+			if (runtimeContext == null)
 				return;
 
 			foreach (var block in Blocks)
-				block?.Execute(context);
+				block?.Execute(runtimeContext);
 		}
 
 		//~LunyScriptBlockSequence() => LunyTraceLogger.LogInfoFinalized(this);

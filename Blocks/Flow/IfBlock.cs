@@ -1,4 +1,3 @@
-using LunyScript.Execution;
 using System;
 using System.Collections.Generic;
 
@@ -15,7 +14,7 @@ namespace LunyScript.Blocks
 
 		internal IfBlockBuilder(IScriptConditionBlock[] conditions) => _branches.Add((conditions, Array.Empty<IScriptActionBlock>()));
 
-		public void Execute(ILunyScriptContext context) => (_cachedBlock ??= Build()).Execute(context);
+		public void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
 
 		public IfBlockBuilder Then(params IScriptActionBlock[] blocks)
 		{
@@ -56,42 +55,42 @@ namespace LunyScript.Blocks
 			_elseBlocks = elseBlocks;
 		}
 
-		public void Execute(ILunyScriptContext context)
+		public void Execute(IScriptRuntimeContext runtimeContext)
 		{
 			foreach (var (conditions, blocks) in _branches)
 			{
-				if (EvaluateAll(context, conditions))
+				if (EvaluateAll(runtimeContext, conditions))
 				{
-					ExecuteAll(context, blocks);
+					ExecuteAll(runtimeContext, blocks);
 					return;
 				}
 			}
 
 			if (_elseBlocks != null)
-				ExecuteAll(context, _elseBlocks);
+				ExecuteAll(runtimeContext, _elseBlocks);
 		}
 
-		private Boolean EvaluateAll(ILunyScriptContext context, IScriptConditionBlock[] conditions)
+		private Boolean EvaluateAll(IScriptRuntimeContext runtimeContext, IScriptConditionBlock[] conditions)
 		{
 			if (conditions == null || conditions.Length == 0)
 				return true;
 
 			foreach (var condition in conditions)
 			{
-				if (condition == null || !condition.Evaluate(context))
+				if (condition == null || !condition.Evaluate(runtimeContext))
 					return false;
 			}
 
 			return true;
 		}
 
-		private void ExecuteAll(ILunyScriptContext context, IScriptActionBlock[] blocks)
+		private void ExecuteAll(IScriptRuntimeContext runtimeContext, IScriptActionBlock[] blocks)
 		{
 			if (blocks == null)
 				return;
 
 			foreach (var block in blocks)
-				block.Execute(context);
+				block.Execute(runtimeContext);
 		}
 	}
 }

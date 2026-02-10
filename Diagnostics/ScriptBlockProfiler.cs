@@ -10,10 +10,10 @@ namespace LunyScript.Diagnostics
 	/// Tracks execution time for each sequence/block with configurable rolling average.
 	/// Public methods use [Conditional] attributes - completely stripped in release builds unless DEBUG or LUNYSCRIPT_DEBUG defined.
 	/// </summary>
-	public sealed class LunyScriptBlockProfiler
+	public sealed class ScriptBlockProfiler
 	{
-		private readonly Dictionary<LunyScriptRunID, LunyScriptBlockMetrics> _metrics = new();
-		private readonly Dictionary<LunyScriptRunID, Stopwatch> _activeBlocks = new();
+		private readonly Dictionary<ScriptBlockID, ScriptBlockMetrics> _metrics = new();
+		private readonly Dictionary<ScriptBlockID, Stopwatch> _activeBlocks = new();
 		private Int32 _rollingAverageWindow = 60;
 
 		public Int32 RollingAverageWindow
@@ -23,36 +23,36 @@ namespace LunyScript.Diagnostics
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		public void BeginBlock(LunyScriptRunID lunyScriptRunID)
+		public void BeginBlock(ScriptBlockID scriptBlockId)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
-			if (!_activeBlocks.TryGetValue(lunyScriptRunID, out var sw))
+			if (!_activeBlocks.TryGetValue(scriptBlockId, out var sw))
 			{
 				sw = new Stopwatch();
-				_activeBlocks[lunyScriptRunID] = sw;
+				_activeBlocks[scriptBlockId] = sw;
 			}
 			sw.Restart();
 #endif
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")] [Conditional("LUNYSCRIPT_PROFILE")]
-		public void EndBlock(LunyScriptRunID lunyScriptRunID, Type blockType)
+		public void EndBlock(ScriptBlockID scriptBlockId, Type blockType)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
-			if (!_activeBlocks.TryGetValue(lunyScriptRunID, out var sw))
+			if (!_activeBlocks.TryGetValue(scriptBlockId, out var sw))
 				return;
 
 			sw.Stop();
 			var elapsed = sw.Elapsed.TotalMilliseconds;
 
-			if (!_metrics.TryGetValue(lunyScriptRunID, out var metrics))
+			if (!_metrics.TryGetValue(scriptBlockId, out var metrics))
 			{
-				metrics = new LunyScriptBlockMetrics
+				metrics = new ScriptBlockMetrics
 				{
-					LunyScriptRunID = lunyScriptRunID,
+					ScriptBlockId = scriptBlockId,
 					BlockType = blockType,
 				};
-				_metrics[lunyScriptRunID] = metrics;
+				_metrics[scriptBlockId] = metrics;
 			}
 
 			UpdateMetrics(metrics, elapsed);
@@ -60,18 +60,18 @@ namespace LunyScript.Diagnostics
 		}
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")] [Conditional("LUNYSCRIPT_PROFILE")]
-		public void RecordError(LunyScriptRunID lunyScriptRunID, Exception ex)
+		public void RecordError(ScriptBlockID scriptBlockId, Exception ex)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
-			if (_metrics.TryGetValue(lunyScriptRunID, out var metrics))
+			if (_metrics.TryGetValue(scriptBlockId, out var metrics))
 				metrics.ErrorCount++;
 #endif
 		}
 
-		public LunyScriptBlockProfilerSnapshot TakeSnapshot()
+		public ScriptBlockProfilerSnapshot TakeSnapshot()
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG || LUNYSCRIPT_PROFILE
-			return new LunyScriptBlockProfilerSnapshot
+			return new ScriptBlockProfilerSnapshot
 			{
 				BlockMetrics = _metrics.Values.ToList(),
 				Timestamp = DateTime.UtcNow,
@@ -90,7 +90,7 @@ namespace LunyScript.Diagnostics
 #endif
 		}
 
-		private void UpdateMetrics(LunyScriptBlockMetrics metrics, Double newSample)
+		private void UpdateMetrics(ScriptBlockMetrics metrics, Double newSample)
 		{
 			metrics.CallCount++;
 			metrics.TotalMs += newSample;

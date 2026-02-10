@@ -2,7 +2,7 @@ using LunyScript.Blocks;
 using LunyScript.Blocks.Coroutines;
 using System;
 
-namespace LunyScript.Coroutines.Builders
+namespace LunyScript.Coroutines.ApiBuilders
 {
 	/// <summary>
 	/// Entry point for the Timer fluent builder chain.
@@ -22,12 +22,12 @@ namespace LunyScript.Coroutines.Builders
 		/// <summary>
 		/// Sets the timer to fire once after the specified duration.
 		/// </summary>
-		public TimerDurationBuilder In(Double duration) => new(_script, _name, duration, CoroutineContinuationMode.Finite);
+		public TimerDurationBuilder In(Double duration) => new(_script, _name, duration, Coroutine.Continuation.Finite);
 
 		/// <summary>
 		/// Sets the timer to fire repeatedly at the specified interval.
 		/// </summary>
-		public TimerDurationBuilder Every(Double interval) => new(_script, _name, interval, CoroutineContinuationMode.Repeating);
+		public TimerDurationBuilder Every(Double interval) => new(_script, _name, interval, Coroutine.Continuation.Repeating);
 	}
 
 	/// <summary>
@@ -38,9 +38,9 @@ namespace LunyScript.Coroutines.Builders
 		private readonly ILunyScript _script;
 		private readonly String _name;
 		private readonly Double _amount;
-		private readonly CoroutineContinuationMode _continuation;
+		private readonly Coroutine.Continuation _continuation;
 
-		internal TimerDurationBuilder(ILunyScript script, String name, Double amount, CoroutineContinuationMode continuation)
+		internal TimerDurationBuilder(ILunyScript script, String name, Double amount, Coroutine.Continuation continuation)
 		{
 			_script = script;
 			_name = name;
@@ -48,22 +48,22 @@ namespace LunyScript.Coroutines.Builders
 			_continuation = continuation;
 		}
 
-		private TimerFinalBuilder CreateFinal(CoroutineConfig config) => TimerFinalBuilder.FromOptions(_script, config);
+		private TimerFinalBuilder CreateFinal(Coroutine.Options options) => TimerFinalBuilder.FromOptions(_script, options);
 
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public TimerFinalBuilder Seconds() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount, _continuation));
+		public TimerFinalBuilder Seconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount, _continuation));
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public TimerFinalBuilder Milliseconds() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount / 1000.0, _continuation));
+		public TimerFinalBuilder Milliseconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount / 1000.0, _continuation));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public TimerFinalBuilder Minutes() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount * 60.0, _continuation));
+		public TimerFinalBuilder Minutes() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount * 60.0, _continuation));
 	}
 
 	/// <summary>
@@ -72,24 +72,24 @@ namespace LunyScript.Coroutines.Builders
 	public readonly struct TimerFinalBuilder
 	{
 		private readonly ILunyScript _script;
-		private readonly CoroutineConfig _config;
+		private readonly Coroutine.Options _options;
 
-		private TimerFinalBuilder(ILunyScript script, in CoroutineConfig config)
+		private TimerFinalBuilder(ILunyScript script, in Coroutine.Options options)
 		{
 			_script = script;
-			_config = config;
+			_options = options;
 		}
 
-		internal static TimerFinalBuilder FromOptions(ILunyScript script, in CoroutineConfig config) => new(script, config);
+		internal static TimerFinalBuilder FromOptions(ILunyScript script, in Coroutine.Options options) => new(script, options);
 
 		/// <summary>
 		/// Completes the timer and specifies blocks to run when elapsed.
 		/// </summary>
 		public IScriptCoroutineTimerBlock Do(params IScriptActionBlock[] blocks)
 		{
-			var options = _config with { OnElapsed = blocks };
+			var options = _options with { OnElapsed = blocks };
 			var scriptInternal = (ILunyScriptInternal)_script;
-			var instance = scriptInternal.Context.Coroutines.Register(in options);
+			var instance = scriptInternal.RuntimeContext.Coroutines.Register(in options);
 			return CoroutineBlock.Create<IScriptCoroutineTimerBlock>(instance);
 		}
 	}

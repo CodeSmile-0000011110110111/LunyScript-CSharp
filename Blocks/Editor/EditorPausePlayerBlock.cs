@@ -1,5 +1,4 @@
 ﻿using Luny;
-using LunyScript.Execution;
 using System;
 using System.Diagnostics;
 
@@ -19,14 +18,14 @@ namespace LunyScript.Blocks
 		private EditorPausePlayerBlock() {}
 		private EditorPausePlayerBlock(String message = null) => _message = message;
 
-		public void Execute(ILunyScriptContext context) => DoPausePlayer(context);
+		public void Execute(IScriptRuntimeContext runtimeContext) => DoPausePlayer(runtimeContext);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void DoPausePlayer(ILunyScriptContext context)
+		private void DoPausePlayer(IScriptRuntimeContext runtimeContext)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			if (_message != null)
-				LunyLogger.LogInfo($"{nameof(EditorPausePlayerBlock)}: {_message}", context.LunyObject);
+				LunyLogger.LogInfo($"{nameof(EditorPausePlayerBlock)}: {_message}", runtimeContext.LunyObject);
 
 			LunyEngine.Instance.Editor.PausePlayer();
 #endif

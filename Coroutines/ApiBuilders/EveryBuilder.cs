@@ -2,7 +2,7 @@ using LunyScript.Blocks;
 using LunyScript.Blocks.Coroutines;
 using System;
 
-namespace LunyScript.Coroutines.Builders
+namespace LunyScript.Coroutines.ApiBuilders
 {
 	/// <summary>
 	/// Entry point for the Every fluent builder chain.
@@ -22,12 +22,12 @@ namespace LunyScript.Coroutines.Builders
 		/// <summary>
 		/// Selects frame-based execution.
 		/// </summary>
-		public EveryUnitBuilder Frames() => new(_script, _interval, CoroutineCountMode.Frames);
+		public EveryUnitBuilder Frames() => new(_script, _interval, Coroutine.CountMode.Frames);
 
 		/// <summary>
 		/// Selects heartbeat-based execution.
 		/// </summary>
-		public EveryUnitBuilder Heartbeats() => new(_script, _interval, CoroutineCountMode.Heartbeats);
+		public EveryUnitBuilder Heartbeats() => new(_script, _interval, Coroutine.CountMode.Heartbeats);
 	}
 
 	/// <summary>
@@ -37,10 +37,10 @@ namespace LunyScript.Coroutines.Builders
 	{
 		private readonly ILunyScript _script;
 		private readonly Int32 _interval;
-		private readonly CoroutineCountMode _countMode;
+		private readonly Coroutine.CountMode _countMode;
 		private readonly Int32 _delay;
 
-		internal EveryUnitBuilder(ILunyScript script, Int32 interval, CoroutineCountMode countMode, Int32 delay = 0)
+		internal EveryUnitBuilder(ILunyScript script, Int32 interval, Coroutine.CountMode countMode, Int32 delay = 0)
 		{
 			_script = script;
 			_interval = interval;
@@ -65,9 +65,9 @@ namespace LunyScript.Coroutines.Builders
 		public IScriptCoroutineCounterBlock Do(params IScriptActionBlock[] blocks)
 		{
 			// name = null => generates a unique name for this time-sliced coroutine
-			var options = CoroutineConfig.ForEveryInterval(null, _interval, _countMode, _delay, blocks);
+			var options = Coroutine.Options.ForEveryInterval(null, _interval, _countMode, _delay, blocks);
 			var scriptInternal = (ILunyScriptInternal)_script;
-			var coroutine = scriptInternal.Context.Coroutines.Register(in options);
+			var coroutine = scriptInternal.RuntimeContext.Coroutines.Register(in options);
 			return CoroutineBlock.Create<IScriptCoroutineCounterBlock>(coroutine);
 		}
 	}

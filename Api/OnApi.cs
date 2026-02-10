@@ -11,7 +11,7 @@ namespace LunyScript.Api
 	{
 		private readonly ILunyScript _script;
 		internal OnApi(ILunyScript script) => _script = script;
-		private LunyScriptEventScheduler Scheduler => ((ILunyScriptInternal)_script).Scheduler;
+		private ScriptEventScheduler Scheduler => ((ILunyScriptInternal)_script).Scheduler;
 
 		/// <summary>
 		/// Runs once the moment when the object is instantiated.

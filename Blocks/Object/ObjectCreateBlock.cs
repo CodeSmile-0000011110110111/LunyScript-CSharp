@@ -2,7 +2,6 @@ using Luny;
 using Luny.Engine.Bridge;
 using Luny.Engine.Bridge.Enums;
 using Luny.Engine.Services;
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks
@@ -14,7 +13,7 @@ namespace LunyScript.Blocks
 
 		protected ObjectCreateBlockBase(String name) => Name = name;
 
-		public abstract void Execute(ILunyScriptContext context);
+		public abstract void Execute(IScriptRuntimeContext runtimeContext);
 	}
 
 	internal sealed class ObjectCreateEmptyBlock : ObjectCreateBlockBase
@@ -24,7 +23,7 @@ namespace LunyScript.Blocks
 		private ObjectCreateEmptyBlock(String name)
 			: base(name) {}
 
-		public override void Execute(ILunyScriptContext context) => Object.CreateEmpty(Name);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => Object.CreateEmpty(Name);
 	}
 
 	internal sealed class ObjectCreateCubeBlock : ObjectCreateBlockBase
@@ -34,7 +33,7 @@ namespace LunyScript.Blocks
 		private ObjectCreateCubeBlock(String name)
 			: base(name) {}
 
-		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Cube);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => Object.CreatePrimitive(Name, LunyPrimitiveType.Cube);
 	}
 
 	internal sealed class ObjectCreateSphereBlock : ObjectCreateBlockBase
@@ -44,7 +43,7 @@ namespace LunyScript.Blocks
 		private ObjectCreateSphereBlock(String name)
 			: base(name) {}
 
-		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Sphere);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => Object.CreatePrimitive(Name, LunyPrimitiveType.Sphere);
 	}
 
 	internal sealed class ObjectCreateCapsuleBlock : ObjectCreateBlockBase
@@ -54,7 +53,7 @@ namespace LunyScript.Blocks
 		private ObjectCreateCapsuleBlock(String name)
 			: base(name) {}
 
-		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Capsule);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => Object.CreatePrimitive(Name, LunyPrimitiveType.Capsule);
 	}
 
 	internal sealed class ObjectCreateCylinderBlock : ObjectCreateBlockBase
@@ -64,7 +63,7 @@ namespace LunyScript.Blocks
 		private ObjectCreateCylinderBlock(String name)
 			: base(name) {}
 
-		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Cylinder);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => Object.CreatePrimitive(Name, LunyPrimitiveType.Cylinder);
 	}
 
 	internal sealed class ObjectCreatePlaneBlock : ObjectCreateBlockBase
@@ -74,7 +73,7 @@ namespace LunyScript.Blocks
 		private ObjectCreatePlaneBlock(String name)
 			: base(name) {}
 
-		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Plane);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => Object.CreatePrimitive(Name, LunyPrimitiveType.Plane);
 	}
 
 	internal sealed class ObjectCreateQuadBlock : ObjectCreateBlockBase
@@ -84,7 +83,7 @@ namespace LunyScript.Blocks
 		private ObjectCreateQuadBlock(String name)
 			: base(name) {}
 
-		public override void Execute(ILunyScriptContext context) => Object.CreatePrimitive(Name, LunyPrimitiveType.Quad);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => Object.CreatePrimitive(Name, LunyPrimitiveType.Quad);
 	}
 
 	internal sealed class ObjectCreatePrefabBlock : ObjectCreateBlockBase
@@ -94,7 +93,7 @@ namespace LunyScript.Blocks
 		private ObjectCreatePrefabBlock(String prefabName)
 			: base(prefabName) {}
 
-		public override void Execute(ILunyScriptContext context)
+		public override void Execute(IScriptRuntimeContext runtimeContext)
 		{
 			var prefab = LunyEngine.Instance.Asset.Load<ILunyPrefab>(Name);
 			Object.CreateFromPrefab(prefab);
@@ -108,7 +107,7 @@ namespace LunyScript.Blocks
 		private ObjectCreateCloneBlock(String originalName)
 			: base(originalName) {}
 
-		public override void Execute(ILunyScriptContext context) =>
+		public override void Execute(IScriptRuntimeContext runtimeContext) =>
 			throw new NotImplementedException($"{nameof(ObjectCreateCloneBlock)}.{nameof(Execute)} is not yet implemented.");
 	}
 }

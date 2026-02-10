@@ -1,20 +1,20 @@
 using Luny;
 using Luny.Engine.Bridge;
-using LunyScript.Coroutines;
 using LunyScript.Diagnostics;
 using LunyScript.Events;
+using LunyScript.Runners;
 using System;
 using System.Collections.Generic;
 
-namespace LunyScript.Execution
+namespace LunyScript
 {
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered sequences.
 	/// </summary>
-	public interface ILunyScriptContext
+	public interface IScriptRuntimeContext
 	{
-		LunyScriptID ScriptID { get; }
+		ScriptDefID ScriptDefId { get; }
 		Type ScriptType { get; }
 		ILunyObject LunyObject { get; }
 		ITable GlobalVariables { get; }
@@ -23,23 +23,23 @@ namespace LunyScript.Execution
 		Int32 LoopCount { get; }
 	}
 
-	internal interface ILunyScriptContextInternal {}
+	internal interface IScriptContextInternal {}
 
 	/// <summary>
 	/// Runtime context for a LunyScript instance operating on a specific object.
 	/// Contains the script metadata, object reference, variables, and registered sequences.
 	/// </summary>
-	internal sealed class LunyScriptContext : ILunyScriptContext, ILunyScriptContextInternal
+	internal sealed class ScriptRuntimeContext : IScriptRuntimeContext, IScriptContextInternal
 	{
 		private static readonly ITable s_GlobalVariables = new Table();
 
-		private readonly ILunyScriptDefinition _scriptDef;
+		private readonly IScriptDefinition _scriptDef;
 		private readonly ILunyObject _lunyObject;
 
 		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
-		public LunyScriptID ScriptID => _scriptDef.ScriptID;
+		public ScriptDefID ScriptDefId => _scriptDef.ScriptDefId;
 		/// <summary>
 		/// The C# Type of the script (for hot reload matching).
 		/// </summary>
@@ -69,44 +69,44 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Debugging hooks for execution tracing and breakpoints.
 		/// </summary>
-		internal LunyScriptDebugHooks DebugHooks { get; }
+		internal ScriptDebugHooks DebugHooks { get; }
 
 		/// <summary>
 		/// Block-level profiler for tracking blocks performance.
 		/// </summary>
-		internal LunyScriptBlockProfiler BlockProfiler { get; }
+		internal ScriptBlockProfiler BlockProfiler { get; }
 
 		/// <summary>
 		/// Event scheduler for managing sequences across all event types.
 		/// </summary>
-		internal LunyScriptEventScheduler Scheduler { get; }
+		internal ScriptEventScheduler Scheduler { get; }
 
 		/// <summary>
 		/// Coroutine runner for managing timers and coroutines.
 		/// </summary>
-		internal CoroutineRunner Coroutines { get; }
+		internal LunyScriptCoroutineRunner Coroutines { get; }
 
 		internal static void ClearGlobalVariables() => s_GlobalVariables?.RemoveAll();
 
 		internal static ITable GetGlobalVariables() => s_GlobalVariables;
 
-		public LunyScriptContext(ILunyScriptDefinition definition, ILunyObject lunyObject)
+		public ScriptRuntimeContext(IScriptDefinition definition, ILunyObject lunyObject)
 		{
 			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
 			_lunyObject = lunyObject ?? throw new ArgumentNullException(nameof(lunyObject));
 
 			// TODO: don't create these hooks unless enabled
-			DebugHooks = new LunyScriptDebugHooks();
-			BlockProfiler = new LunyScriptBlockProfiler();
+			DebugHooks = new ScriptDebugHooks();
+			BlockProfiler = new ScriptBlockProfiler();
 
-			Scheduler = new LunyScriptEventScheduler();
-			Coroutines = new CoroutineRunner();
+			Scheduler = new ScriptEventScheduler();
+			Coroutines = new LunyScriptCoroutineRunner();
 		}
 
-		~LunyScriptContext() => LunyTraceLogger.LogInfoFinalized(this);
+		~ScriptRuntimeContext() => LunyTraceLogger.LogInfoFinalized(this);
 
 		internal void Activate() => _lunyObject.Initialize();
 
-		public override String ToString() => $"{ScriptID} -> {LunyObject}";
+		public override String ToString() => $"{ScriptDefId} -> {LunyObject}";
 	}
 }

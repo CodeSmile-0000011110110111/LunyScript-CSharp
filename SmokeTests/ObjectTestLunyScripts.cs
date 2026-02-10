@@ -9,7 +9,7 @@ namespace LunyScript.SmokeTests
 		public const String CubeObjectName = "cube";
 		public const String SphereObjectName = "sphere";
 
-		public override void Build()
+		public override void Build(ScriptBuildContext context)
 		{
 			On.Created(Object.Create(DestroyedObjectName));
 			On.FrameEnd(Object.Destroy(DestroyedObjectName));

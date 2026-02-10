@@ -16,7 +16,7 @@ namespace LunyScript.SmokeTests
 				gvars[name] = result;
 		}
 
-		public override void Build()
+		public override void Build(ScriptBuildContext context)
 		{
 			LunyLogger.LogInfo($"{GetType().Name} BUILD", this);
 			On.Created(Method.Run(() => LunyLogger.LogInfo($"{GetType().Name} CREATED...", this)));

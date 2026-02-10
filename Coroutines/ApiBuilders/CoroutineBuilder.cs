@@ -2,7 +2,7 @@ using LunyScript.Blocks;
 using LunyScript.Blocks.Coroutines;
 using System;
 
-namespace LunyScript.Coroutines.Builders
+namespace LunyScript.Coroutines.ApiBuilders
 {
 	/// <summary>
 	/// Entry point for the Coroutine fluent builder chain.
@@ -53,32 +53,35 @@ namespace LunyScript.Coroutines.Builders
 			_amount = duration;
 		}
 
-		private CoroutineFinalBuilder CreateFinal(CoroutineConfig config) => CoroutineFinalBuilder.FromConfig(_script, config);
+		private CoroutineFinalBuilder CreateFinal(Coroutine.Options options) => CoroutineFinalBuilder.FromConfig(_script, options);
 
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Seconds() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount, CoroutineContinuationMode.Finite));
+		public CoroutineFinalBuilder Seconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount, Coroutine.Continuation.Finite));
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Milliseconds() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount / 1000.0, CoroutineContinuationMode.Finite));
+		public CoroutineFinalBuilder Milliseconds() =>
+			CreateFinal(Coroutine.Options.ForTimer(_name, _amount / 1000.0, Coroutine.Continuation.Finite));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Minutes() => CreateFinal(CoroutineConfig.ForTimer(_name, _amount * 60.0, CoroutineContinuationMode.Finite));
+		public CoroutineFinalBuilder Minutes() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount * 60.0, Coroutine.Continuation.Finite));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based, counts fixed steps).
 		/// </summary>
-		public CoroutineFinalBuilder Heartbeats() => CreateFinal(CoroutineConfig.ForCounter(_name, (Int32)_amount, CoroutineContinuationMode.Finite));
+		public CoroutineFinalBuilder Heartbeats() =>
+			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_amount, Coroutine.Continuation.Finite));
 
 		/// <summary>
 		/// Duration in frames (count-based, counts frames).
 		/// </summary>
-		public CoroutineFinalBuilder Frames() => CreateFinal(CoroutineConfig.ForCounter(_name, (Int32)_amount, CoroutineContinuationMode.Finite));
+		public CoroutineFinalBuilder Frames() =>
+			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_amount, Coroutine.Continuation.Finite));
 	}
 
 	/// <summary>
@@ -87,47 +90,48 @@ namespace LunyScript.Coroutines.Builders
 	public readonly struct CoroutineFinalBuilder
 	{
 		private readonly ILunyScript _script;
-		private readonly CoroutineConfig _config;
+		private readonly Coroutine.Options _options;
 
-		private CoroutineFinalBuilder(ILunyScript script, in CoroutineConfig config)
+		private CoroutineFinalBuilder(ILunyScript script, in Coroutine.Options options)
 		{
 			_script = script;
-			_config = config;
+			_options = options;
 		}
 
-		internal static CoroutineFinalBuilder FromConfig(ILunyScript script, in CoroutineConfig config) => new(script, config);
+		internal static CoroutineFinalBuilder FromConfig(ILunyScript script, in Coroutine.Options options) => new(script, options);
 
-		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name) => new(script, CoroutineConfig.ForOpenEnded(name));
+		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name) => new(script, Coroutine.Options.ForOpenEnded(name));
 
 		/// <summary>
 		/// Adds blocks to run every frame update while coroutine is running.
 		/// </summary>
-		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) => new(_script, _config with { OnFrameUpdate = blocks });
+		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) =>
+			new(_script, _options with { OnFrameUpdate = blocks });
 
 		/// <summary>
 		/// Adds blocks to run every heartbeat (fixed step) while coroutine is running.
 		/// </summary>
-		public CoroutineFinalBuilder OnHeartbeat(params IScriptActionBlock[] blocks) => new(_script, _config with { OnHeartbeat = blocks });
+		public CoroutineFinalBuilder OnHeartbeat(params IScriptActionBlock[] blocks) => new(_script, _options with { OnHeartbeat = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine is started (not when restarted).
 		/// </summary>
-		public CoroutineFinalBuilder Started(params IScriptActionBlock[] blocks) => new(_script, _config with { OnStarted = blocks });
+		public CoroutineFinalBuilder Started(params IScriptActionBlock[] blocks) => new(_script, _options with { OnStarted = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine is stopped.
 		/// </summary>
-		public CoroutineFinalBuilder Stopped(params IScriptActionBlock[] blocks) => new(_script, _config with { OnStopped = blocks });
+		public CoroutineFinalBuilder Stopped(params IScriptActionBlock[] blocks) => new(_script, _options with { OnStopped = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine is paused.
 		/// </summary>
-		public CoroutineFinalBuilder Paused(params IScriptActionBlock[] blocks) => new(_script, _config with { OnPaused = blocks });
+		public CoroutineFinalBuilder Paused(params IScriptActionBlock[] blocks) => new(_script, _options with { OnPaused = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine is resumed.
 		/// </summary>
-		public CoroutineFinalBuilder Resumed(params IScriptActionBlock[] blocks) => new(_script, _config with { OnResumed = blocks });
+		public CoroutineFinalBuilder Resumed(params IScriptActionBlock[] blocks) => new(_script, _options with { OnResumed = blocks });
 
 		/// <summary>
 		/// Adds blocks to run when the coroutine duration elapses.
@@ -135,7 +139,7 @@ namespace LunyScript.Coroutines.Builders
 		/// </summary>
 		public IScriptCoroutineBlock Elapsed(params IScriptActionBlock[] blocks)
 		{
-			var finalBuilder = new CoroutineFinalBuilder(_script, _config with { OnElapsed = blocks });
+			var finalBuilder = new CoroutineFinalBuilder(_script, _options with { OnElapsed = blocks });
 			return finalBuilder.Build();
 		}
 
@@ -146,7 +150,7 @@ namespace LunyScript.Coroutines.Builders
 		public IScriptCoroutineBlock Build()
 		{
 			var scriptInternal = (ILunyScriptInternal)_script;
-			var instance = scriptInternal.Context.Coroutines.Register(in _config);
+			var instance = scriptInternal.RuntimeContext.Coroutines.Register(in _options);
 			return CoroutineBlock.Create<IScriptCoroutineBlock>(instance);
 		}
 	}

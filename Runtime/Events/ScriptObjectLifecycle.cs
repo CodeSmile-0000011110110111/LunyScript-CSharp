@@ -1,7 +1,7 @@
 using Luny;
 using Luny.Engine.Bridge.Enums;
 using LunyScript.Exceptions;
-using LunyScript.Execution;
+using LunyScript.Runners;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,64 +15,64 @@ namespace LunyScript.Events
 	/// Manages object lifecycle events by attaching hooks to LunyObjects and handling event dispatch.
 	/// Coordinates enable/disable state changes and deferred object destruction.
 	/// </summary>
-	internal sealed class LunyScriptObjectLifecycle : ILunyScriptLifecycleInternal
+	internal sealed class ScriptObjectLifecycle : ILunyScriptLifecycleInternal
 	{
-		[NotNull] private readonly LunyScriptContextRegistry _contexts;
-		private readonly Dictionary<LunyScriptContext, ObjectEventHandler> _subscribers = new();
+		[NotNull] private readonly ScriptContextRegistry _contexts;
+		private readonly Dictionary<ScriptRuntimeContext, ObjectEventHandler> _subscribers = new();
 
-		internal LunyScriptObjectLifecycle(LunyScriptContextRegistry contextRegistry) =>
+		internal ScriptObjectLifecycle(ScriptContextRegistry contextRegistry) =>
 			_contexts = contextRegistry ?? throw new ArgumentNullException(nameof(contextRegistry));
 
-		~LunyScriptObjectLifecycle() => LunyTraceLogger.LogInfoFinalized(this);
+		~ScriptObjectLifecycle() => LunyTraceLogger.LogInfoFinalized(this);
 
 		/// <summary>
 		/// Registers lifecycle hooks on a LunyObject for the given context.
 		/// Called during ScriptContext construction.
 		/// </summary>
-		internal void Register(LunyScriptContext context)
+		internal void Register(ScriptRuntimeContext runtimeContext)
 		{
-			var subscriber = new ObjectEventHandler(this, context);
-			_subscribers[context] = subscriber;
+			var subscriber = new ObjectEventHandler(this, runtimeContext);
+			_subscribers[runtimeContext] = subscriber;
 		}
 
 		/// <summary>
 		/// Unregisters lifecycle hooks from a LunyObject.
 		/// Called during context cleanup or shutdown.
 		/// </summary>
-		private void Unregister(LunyScriptContext context)
+		private void Unregister(ScriptRuntimeContext runtimeContext)
 		{
-			_subscribers.Remove(context);
-			_contexts.Unregister(context);
+			_subscribers.Remove(runtimeContext);
+			_contexts.Unregister(runtimeContext);
 		}
 
-		public void OnHeartbeat(LunyScriptContext context)
+		public void OnHeartbeat(ScriptRuntimeContext runtimeContext)
 		{
-			if (context.LunyObject.IsEnabled)
+			if (runtimeContext.LunyObject.IsEnabled)
 			{
-				var sequences = context.Scheduler.GetSequences(LunyObjectEvent.OnHeartbeat);
-				LunyScriptRunner.Run(sequences, context);
+				var sequences = runtimeContext.Scheduler.GetSequences(LunyObjectEvent.OnHeartbeat);
+				LunyScriptBlockRunner.Run(sequences, runtimeContext);
 
-				context.Coroutines?.OnHeartbeat(context);
+				runtimeContext.Coroutines?.OnHeartbeat(runtimeContext);
 			}
 		}
 
-		public void OnFrameUpdate(LunyScriptContext context)
+		public void OnFrameUpdate(ScriptRuntimeContext runtimeContext)
 		{
-			if (context.LunyObject.IsEnabled)
+			if (runtimeContext.LunyObject.IsEnabled)
 			{
-				var sequences = context.Scheduler.GetSequences(LunyObjectEvent.OnFrameUpdate);
-				LunyScriptRunner.Run(sequences, context);
+				var sequences = runtimeContext.Scheduler.GetSequences(LunyObjectEvent.OnFrameUpdate);
+				LunyScriptBlockRunner.Run(sequences, runtimeContext);
 
-				context.Coroutines?.OnFrameUpdate(context);
+				runtimeContext.Coroutines?.OnFrameUpdate(runtimeContext);
 			}
 		}
 
-		public void OnFrameLateUpdate(LunyScriptContext context)
+		public void OnFrameLateUpdate(ScriptRuntimeContext runtimeContext)
 		{
-			if (context.LunyObject.IsEnabled)
+			if (runtimeContext.LunyObject.IsEnabled)
 			{
-				var sequences = context.Scheduler.GetSequences(LunyObjectEvent.OnFrameLateUpdate);
-				LunyScriptRunner.Run(sequences, context);
+				var sequences = runtimeContext.Scheduler.GetSequences(LunyObjectEvent.OnFrameLateUpdate);
+				LunyScriptBlockRunner.Run(sequences, runtimeContext);
 			}
 		}
 
@@ -87,22 +87,22 @@ namespace LunyScript.Events
 
 		private sealed class ObjectEventHandler
 		{
-			private readonly LunyScriptObjectLifecycle _objectLifecycle;
-			private readonly LunyScriptContext _context;
+			private readonly ScriptObjectLifecycle _objectLifecycle;
+			private readonly ScriptRuntimeContext _runtimeContext;
 #if DEBUG || LUNYSCRIPT_DEBUG
 			private Boolean _processingEnableDisableReentryLock;
 #endif
 
-			public ObjectEventHandler(LunyScriptObjectLifecycle objectLifecycle, LunyScriptContext context)
+			public ObjectEventHandler(ScriptObjectLifecycle objectLifecycle, ScriptRuntimeContext runtimeContext)
 			{
 				_objectLifecycle = objectLifecycle;
-				_context = context;
+				_runtimeContext = runtimeContext;
 				RegisterAllCallbacks();
 			}
 
 			private void RegisterAllCallbacks()
 			{
-				var lunyObject = _context.LunyObject;
+				var lunyObject = _runtimeContext.LunyObject;
 				lunyObject.OnCreate += OnCreate;
 				lunyObject.OnDestroy += OnDestroy;
 				lunyObject.OnReady += OnReady;
@@ -112,7 +112,7 @@ namespace LunyScript.Events
 
 			internal void UnregisterAllCallbacks()
 			{
-				var lunyObject = _context.LunyObject;
+				var lunyObject = _runtimeContext.LunyObject;
 				lunyObject.OnCreate -= OnCreate;
 				lunyObject.OnDestroy -= OnDestroy;
 				lunyObject.OnReady -= OnReady;
@@ -122,11 +122,11 @@ namespace LunyScript.Events
 
 			private void RunScheduledForEvent(LunyObjectEvent objectEvent)
 			{
-				var sequences = _context.Scheduler.GetSequences(objectEvent);
+				var sequences = _runtimeContext.Scheduler.GetSequences(objectEvent);
 				if (sequences != null)
-					LunyLogger.LogInfo($"Running {nameof(objectEvent)}: {_context} ...", _objectLifecycle);
+					LunyLogger.LogInfo($"Running {nameof(objectEvent)}: {_runtimeContext} ...", _objectLifecycle);
 
-				LunyScriptRunner.Run(sequences, _context);
+				LunyScriptBlockRunner.Run(sequences, _runtimeContext);
 			}
 
 			private void UnscheduleOnceOnlyEvent(LunyObjectEvent objectEvent)
@@ -134,12 +134,12 @@ namespace LunyScript.Events
 				if (objectEvent == LunyObjectEvent.OnCreate || objectEvent == LunyObjectEvent.OnReady)
 				{
 					// event never fires again for this object
-					_context.Scheduler.Unschedule(objectEvent);
+					_runtimeContext.Scheduler.Unschedule(objectEvent);
 
 					if (objectEvent == LunyObjectEvent.OnCreate)
-						_context.LunyObject.OnCreate -= OnCreate;
+						_runtimeContext.LunyObject.OnCreate -= OnCreate;
 					else if (objectEvent == LunyObjectEvent.OnReady)
-						_context.LunyObject.OnReady -= OnReady;
+						_runtimeContext.LunyObject.OnReady -= OnReady;
 				}
 			}
 
@@ -153,8 +153,8 @@ namespace LunyScript.Events
 			{
 				RunScheduledForEvent(LunyObjectEvent.OnDestroy);
 				UnregisterAllCallbacks(); // no more events
-				_context.Coroutines.OnObjectDestroyed(_context);
-				_objectLifecycle.Unregister(_context);
+				_runtimeContext.Coroutines.OnObjectDestroyed(_runtimeContext);
+				_objectLifecycle.Unregister(_runtimeContext);
 			}
 
 			private void OnReady()
@@ -165,7 +165,7 @@ namespace LunyScript.Events
 
 			private void OnEnable()
 			{
-				ThrowIfAlreadyProcessingEnableDisableEvent(_context);
+				ThrowIfAlreadyProcessingEnableDisableEvent(_runtimeContext);
 				SetProcessingEnableDisableReentryLock(true);
 				RunScheduledForEvent(LunyObjectEvent.OnEnable);
 				SetProcessingEnableDisableReentryLock(false);
@@ -173,7 +173,7 @@ namespace LunyScript.Events
 
 			private void OnDisable()
 			{
-				ThrowIfAlreadyProcessingEnableDisableEvent(_context);
+				ThrowIfAlreadyProcessingEnableDisableEvent(_runtimeContext);
 				SetProcessingEnableDisableReentryLock(true);
 				RunScheduledForEvent(LunyObjectEvent.OnDisable);
 				SetProcessingEnableDisableReentryLock(false);
@@ -188,14 +188,14 @@ namespace LunyScript.Events
 			}
 
 			[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-			private void ThrowIfAlreadyProcessingEnableDisableEvent(LunyScriptContext context)
+			private void ThrowIfAlreadyProcessingEnableDisableEvent(ScriptRuntimeContext runtimeContext)
 			{
 #if DEBUG || LUNYSCRIPT_DEBUG
 				// Safeguard against infinite loops (OnEnable toggles to disabled, which triggers OnDisable, etc.)
 				if (_processingEnableDisableReentryLock)
 				{
 					throw new LunyScriptException("Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed " +
-					                              $"(would cause an infinite loop). Script: {context}");
+					                              $"(would cause an infinite loop). Script: {runtimeContext}");
 				}
 #endif
 			}

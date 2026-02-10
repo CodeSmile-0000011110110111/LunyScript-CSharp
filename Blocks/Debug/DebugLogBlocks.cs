@@ -1,5 +1,4 @@
 using Luny;
-using LunyScript.Execution;
 using System;
 using System.Diagnostics;
 
@@ -21,25 +20,25 @@ namespace LunyScript.Blocks
 			_logLevel = logLevel;
 		}
 
-		public void Execute(ILunyScriptContext context) => DoLog(context);
+		public void Execute(IScriptRuntimeContext runtimeContext) => DoLog(runtimeContext);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void DoLog(ILunyScriptContext context)
+		private void DoLog(IScriptRuntimeContext runtimeContext)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			switch (_logLevel)
 			{
 				case LogLevel.Info:
-					LunyLogger.LogInfo($"{_message} ({context})", this);
+					LunyLogger.LogInfo($"{_message} ({runtimeContext})", this);
 					break;
 				case LogLevel.Warning:
-					LunyLogger.LogWarning($"{_message} ({context})", this);
+					LunyLogger.LogWarning($"{_message} ({runtimeContext})", this);
 					break;
 				case LogLevel.Error:
-					LunyLogger.LogError($"{_message} ({context})", this);
+					LunyLogger.LogError($"{_message} ({runtimeContext})", this);
 					break;
 				default:
-					throw new ArgumentOutOfRangeException(nameof(_logLevel), _logLevel, context?.ToString());
+					throw new ArgumentOutOfRangeException(nameof(_logLevel), _logLevel, runtimeContext?.ToString());
 			}
 #endif
 		}

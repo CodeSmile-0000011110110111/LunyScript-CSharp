@@ -1,6 +1,5 @@
 using Luny;
 using LunyScript.Exceptions;
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks
@@ -81,8 +80,8 @@ namespace LunyScript.Blocks
 		// Unary Operators
 		public static VariableBlock operator !(VariableBlock operand) => NotBlock.Create(operand);
 
-		public virtual Boolean Evaluate(ILunyScriptContext context) => GetValue(context).AsBoolean();
-		public abstract Variable GetValue(ILunyScriptContext context);
+		public virtual Boolean Evaluate(IScriptRuntimeContext runtimeContext) => GetValue(runtimeContext).AsBoolean();
+		public abstract Variable GetValue(IScriptRuntimeContext runtimeContext);
 		private Boolean Equals(VariableBlock other) => throw new NotImplementedException($"{nameof(VariableBlock)}.{nameof(Equals)}()");
 
 		public override Boolean Equals(Object obj)

@@ -5,6 +5,7 @@ namespace LunyScript.Api
 	public readonly struct TimeApi
 	{
 		private readonly ILunyScript _script;
+
 		internal TimeApi(ILunyScript script)
 		{
 			_script = script;

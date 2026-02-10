@@ -1,5 +1,4 @@
 using Luny;
-using LunyScript.Execution;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -17,14 +16,14 @@ namespace LunyScript.Blocks
 		private OrBlock(IScriptConditionBlock[] conditions) => _conditions = conditions ?? throw new ArgumentNullException(nameof(conditions));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Variable GetValue(ILunyScriptContext context) => Evaluate(context);
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => Evaluate(runtimeContext);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Boolean Evaluate(ILunyScriptContext context)
+		public override Boolean Evaluate(IScriptRuntimeContext runtimeContext)
 		{
 			foreach (var condition in _conditions)
 			{
-				if (condition.Evaluate(context))
+				if (condition.Evaluate(runtimeContext))
 					return true;
 			}
 

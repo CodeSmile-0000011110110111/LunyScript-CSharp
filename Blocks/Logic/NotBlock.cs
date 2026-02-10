@@ -1,5 +1,4 @@
 using Luny;
-using LunyScript.Execution;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -19,9 +18,9 @@ namespace LunyScript.Blocks
 		private NotBlock(IScriptConditionBlock condition) => _condition = condition;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Variable GetValue(ILunyScriptContext context) => Evaluate(context);
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => Evaluate(runtimeContext);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override Boolean Evaluate(ILunyScriptContext context) => _condition == null || !_condition.Evaluate(context);
+		public override Boolean Evaluate(IScriptRuntimeContext runtimeContext) => _condition == null || !_condition.Evaluate(runtimeContext);
 	}
 }

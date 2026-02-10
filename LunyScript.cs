@@ -2,9 +2,8 @@ using Luny;
 using Luny.Engine.Bridge;
 using LunyScript.Api;
 using LunyScript.Blocks;
-using LunyScript.Coroutines.Builders;
+using LunyScript.Coroutines.ApiBuilders;
 using LunyScript.Events;
-using LunyScript.Execution;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -12,7 +11,7 @@ namespace LunyScript
 {
 	public interface ILunyScript
 	{
-		LunyScriptID ScriptID { get; }
+		ScriptDefID ScriptDefId { get; }
 		ILunyObject LunyObject { get; }
 		//ITable GlobalVariables { get; }
 		//ITable LocalVariables { get; }
@@ -36,8 +35,8 @@ namespace LunyScript
 
 	internal interface ILunyScriptInternal
 	{
-		LunyScriptEventScheduler Scheduler { get; }
-		LunyScriptContext Context { get; }
+		ScriptEventScheduler Scheduler { get; }
+		ScriptRuntimeContext RuntimeContext { get; }
 	}
 
 	/// <summary>
@@ -68,18 +67,18 @@ namespace LunyScript
 		/// Constant for Even frame/heartbeat execution (0, 2, 4, 6, ...).
 		/// </summary>
 		public const Int32 Even = -2;
-		private ILunyScriptContext _context;
+		private IScriptRuntimeContext _runtimeContext;
 
 		/// <summary>
 		/// ScriptID of the script for identification.
 		/// </summary>
-		public LunyScriptID ScriptID => _context.ScriptID;
+		public ScriptDefID ScriptDefId => _runtimeContext.ScriptDefId;
 		/// <summary>
 		/// Reference to proxy for engine object.
 		/// Caution: native engine reference could be null.
 		/// Check EngineObject.IsValid before accessing.
 		/// </summary>
-		[MaybeNull] public ILunyObject LunyObject => _context.LunyObject;
+		[MaybeNull] public ILunyObject LunyObject => _runtimeContext.LunyObject;
 		/// <summary>
 		/// Global variables which all objects and scripts can read/write.
 		/// </summary>
@@ -94,8 +93,8 @@ namespace LunyScript
 		/// </summary>
 		public Boolean IsEditor => LunyEngine.Instance.Application.IsEditor;
 
-		LunyScriptEventScheduler ILunyScriptInternal.Scheduler => _context is LunyScriptContext context ? context.Scheduler : null;
-		LunyScriptContext ILunyScriptInternal.Context => _context as LunyScriptContext;
+		ScriptEventScheduler ILunyScriptInternal.Scheduler => _runtimeContext is ScriptRuntimeContext context ? context.Scheduler : null;
+		ScriptRuntimeContext ILunyScriptInternal.RuntimeContext => _runtimeContext as ScriptRuntimeContext;
 
 		// implemented APIs
 		public DebugApi Debug => new(this);
@@ -162,15 +161,16 @@ namespace LunyScript
 		public ApiPlaceholders.VFXApi VFX => new(this);
 		public ApiPlaceholders.VideoApi Video => new(this);
 
-		internal void Initialize(ILunyScriptContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
+		internal void Initialize(IScriptRuntimeContext runtimeContext) =>
+			_runtimeContext = runtimeContext ?? throw new ArgumentNullException(nameof(runtimeContext));
 
 		// Variables and Constants
 		public VariableBlock Const(String name, Variable value) =>
-			TableVariableBlock.Create(_context.GlobalVariables.DefineConstant(name, value));
+			TableVariableBlock.Create(_runtimeContext.GlobalVariables.DefineConstant(name, value));
 
 		public VariableBlock Const(Variable value) => ConstantVariableBlock.Create(value);
-		public VariableBlock GVar(String name) => TableVariableBlock.Create(_context.GlobalVariables.GetHandle(name));
-		public VariableBlock Var(String name) => TableVariableBlock.Create(_context.LocalVariables.GetHandle(name));
+		public VariableBlock GVar(String name) => TableVariableBlock.Create(_runtimeContext.GlobalVariables.GetHandle(name));
+		public VariableBlock Var(String name) => TableVariableBlock.Create(_runtimeContext.LocalVariables.GetHandle(name));
 
 		// Logic Flow API
 
@@ -252,6 +252,7 @@ namespace LunyScript
 		/// Users construct their blocks (sequences, statemachines, behaviors) for execution here.
 		/// Users can use regular C# syntax (ie call methods, use loops) to construct complex and/or reusable blocks.
 		/// </summary>
-		public abstract void Build();
+		/// <param name="context"></param>
+		public abstract void Build(ScriptBuildContext context);
 	}
 }

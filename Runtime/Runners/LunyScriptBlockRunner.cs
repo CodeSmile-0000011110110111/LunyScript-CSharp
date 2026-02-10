@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace LunyScript.Execution
+namespace LunyScript.Runners
 {
 	/// <summary>
 	/// Engine-agnostic script execution runner.
@@ -18,29 +18,34 @@ namespace LunyScript.Execution
 	/// the <see cref="LunyEngine"/> at startup.
 	/// Manages script discovery, object binding, and run context lifecycle.
 	/// </summary>
-	internal sealed class LunyScriptRunner : ILunyEngineObserver
+	internal sealed class LunyScriptBlockRunner : ILunyEngineObserver
 	{
 		[NotNull] private LunyScriptEngine _scriptEngine;
-		[NotNull] private LunyScriptDefinitionRegistry _scripts;
-		[NotNull] private LunyScriptContextRegistry _contexts;
-		[NotNull] private LunyScriptObjectLifecycle _objectLifecycle;
-		[NotNull] private LunyScriptSceneEventHandler _sceneEventHandler;
+		[NotNull] private ScriptDefinitionRegistry _scripts;
+		[NotNull] private ScriptContextRegistry _contexts;
+		[NotNull] private ScriptObjectLifecycle _objectLifecycle;
+		[NotNull] private ScriptSceneEventHandler _sceneEventHandler;
 
-		internal LunyScriptDefinitionRegistry Scripts => _scripts;
-		internal LunyScriptContextRegistry Contexts => _contexts;
-		internal LunyScriptObjectLifecycle ObjectLifecycle => _objectLifecycle;
-		internal LunyScriptSceneEventHandler SceneEventHandler => _sceneEventHandler;
+		private ILunyTimeService _engineTime;
+		private Table.VarHandle gvar_Time_HeartbeatCount;
+		private Table.VarHandle gvar_Time_FrameCount;
+		private Table.VarHandle gvar_Time_ElapsedSeconds;
 
-		internal static void Run(IEnumerable<IScriptSequenceBlock> sequences, LunyScriptContext context)
+		internal ScriptDefinitionRegistry Scripts => _scripts;
+		internal ScriptContextRegistry Contexts => _contexts;
+		internal ScriptObjectLifecycle ObjectLifecycle => _objectLifecycle;
+		internal ScriptSceneEventHandler SceneEventHandler => _sceneEventHandler;
+
+		internal static void Run(IEnumerable<IScriptSequenceBlock> sequences, ScriptRuntimeContext runtimeContext)
 		{
 			if (sequences == null)
 				return;
 
 			foreach (var sequence in sequences)
-				Run(sequence, context);
+				Run(sequence, runtimeContext);
 		}
 
-		internal static void Run(IScriptSequenceBlock sequence, LunyScriptContext context)
+		internal static void Run(IScriptSequenceBlock sequence, ScriptRuntimeContext runtimeContext)
 		{
 			if (sequence == null)
 				return;
@@ -48,57 +53,52 @@ namespace LunyScript.Execution
 			// TODO: avoid profiling overhead when not enabled
 			var timeService = LunyEngine.Instance.Time;
 			var blockType = sequence.GetType();
-			var trace = new LunyScriptExecutionTrace
+			var trace = new ScriptExecutionTrace
 			{
 				FrameCount = timeService?.FrameCount ?? -1,
 				ElapsedSeconds = timeService?.ElapsedSeconds ?? -1.0,
-				LunyScriptRunID = sequence.ID,
+				ScriptBlockId = sequence.ID,
 				BlockType = blockType,
 				BlockDescription = sequence.ToString(),
 			};
 
-			context.DebugHooks.NotifyBlockExecute(trace);
-			context.BlockProfiler.BeginBlock(sequence.ID);
+			runtimeContext.DebugHooks.NotifyBlockExecute(trace);
+			runtimeContext.BlockProfiler.BeginBlock(sequence.ID);
 
 			try
 			{
-				sequence.Execute(context);
+				sequence.Execute(runtimeContext);
 			}
 			catch (Exception ex)
 			{
-				context.BlockProfiler.RecordError(sequence.ID, ex);
+				runtimeContext.BlockProfiler.RecordError(sequence.ID, ex);
 				trace.Error = ex;
-				context.DebugHooks.NotifyBlockError(trace);
+				runtimeContext.DebugHooks.NotifyBlockError(trace);
 				//LunyLogger.LogError(ex.ToString(), context);
 				throw;
 			}
 			finally
 			{
-				context.BlockProfiler.EndBlock(sequence.ID, blockType);
-				context.DebugHooks.NotifyBlockComplete(trace);
+				runtimeContext.BlockProfiler.EndBlock(sequence.ID, blockType);
+				runtimeContext.DebugHooks.NotifyBlockComplete(trace);
 			}
 		}
 
-		public LunyScriptRunner()
+		public LunyScriptBlockRunner()
 		{
 			LunyTraceLogger.LogInfoInitializing(this);
 
-			LunyScriptID.Reset();
-			LunyScriptRunID.Reset();
+			ScriptDefID.Reset();
+			ScriptBlockID.Reset();
 			_scriptEngine = new LunyScriptEngine(this); // public API interface (split to ensure users don't call OnStartup etc)
-			_scripts = new LunyScriptDefinitionRegistry(); // performs LunyScript type discovery
-			_contexts = new LunyScriptContextRegistry();
-			_objectLifecycle = new LunyScriptObjectLifecycle(_contexts);
-			_sceneEventHandler = new LunyScriptSceneEventHandler(_contexts);
+			_scripts = new ScriptDefinitionRegistry(); // performs LunyScript type discovery
+			_contexts = new ScriptContextRegistry();
+			_objectLifecycle = new ScriptObjectLifecycle(_contexts);
+			_sceneEventHandler = new ScriptSceneEventHandler(_contexts);
 			_engineTime = LunyEngine.Instance.Time;
 
 			LunyTraceLogger.LogInfoInitialized(this);
 		}
-
-		private ILunyTimeService _engineTime;
-		private Table.VarHandle gvar_Time_HeartbeatCount;
-		private Table.VarHandle gvar_Time_FrameCount;
-		private Table.VarHandle gvar_Time_ElapsedSeconds;
 
 		public void OnEngineStartup()
 		{
@@ -106,7 +106,7 @@ namespace LunyScript.Execution
 			{
 				LunyTraceLogger.LogInfoStartingUp(this);
 
-				var gvars = LunyScriptContext.GetGlobalVariables();
+				var gvars = ScriptRuntimeContext.GetGlobalVariables();
 				gvar_Time_HeartbeatCount = gvars.GetHandle("Time.HeartbeatCount");
 				gvar_Time_FrameCount = gvars.GetHandle("Time.FrameCount");
 				gvar_Time_ElapsedSeconds = gvars.GetHandle("Time.ElapsedSeconds");
@@ -136,7 +136,7 @@ namespace LunyScript.Execution
 			// Filter out objects that already have a context to avoid double activation
 			var newScriptedObjects = scriptedObjects.Where(obj => _contexts.GetByNativeObjectID(obj.NativeObjectID) == null).ToList();
 
-			LunyScriptActivator.BuildAndActivateLunyScripts(this, newScriptedObjects);
+			ScriptBuilder.BuildAndActivateLunyScripts(this, newScriptedObjects);
 		}
 
 		public void OnObjectRegistered(ILunyObject lunyObject)
@@ -146,7 +146,7 @@ namespace LunyScript.Execution
 				return;
 
 			// Activate script on dynamically created object
-			LunyScriptActivator.BuildAndActivateLunyScripts(this, new[] { lunyObject });
+			ScriptBuilder.BuildAndActivateLunyScripts(this, new[] { lunyObject });
 		}
 
 		public void OnObjectUnregistered(ILunyObject lunyObject)
@@ -209,7 +209,7 @@ namespace LunyScript.Execution
 			}
 			catch (Exception)
 			{
-				LunyLogger.LogError($"Error during {nameof(LunyScriptRunner)} {nameof(OnEngineShutdown)}!", this);
+				LunyLogger.LogError($"Error during {nameof(LunyScriptBlockRunner)} {nameof(OnEngineShutdown)}!", this);
 				throw;
 			}
 			finally
@@ -221,6 +221,6 @@ namespace LunyScript.Execution
 			}
 		}
 
-		~LunyScriptRunner() => LunyTraceLogger.LogInfoFinalized(this);
+		~LunyScriptBlockRunner() => LunyTraceLogger.LogInfoFinalized(this);
 	}
 }

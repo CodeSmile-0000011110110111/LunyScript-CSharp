@@ -4,19 +4,19 @@ using System;
 using System.Collections.Generic;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
-namespace LunyScript.Execution
+namespace LunyScript
 {
 	/// <summary>
 	/// Discovers and manages LunyScript definitions.
 	/// Supports both reflection-based discovery and manual registration.
 	/// </summary>
-	internal sealed class LunyScriptDefinitionRegistry
+	internal sealed class ScriptDefinitionRegistry
 	{
-		private readonly Dictionary<LunyScriptID, LunyScriptDefinition> _scriptsById = new();
-		private readonly Dictionary<String, LunyScriptDefinition> _scriptsByName = new();
+		private readonly Dictionary<ScriptDefID, ScriptDefinition> _scriptsById = new();
+		private readonly Dictionary<String, ScriptDefinition> _scriptsByName = new();
 
-		public LunyScriptDefinitionRegistry() => DiscoverScripts();
-		~LunyScriptDefinitionRegistry() => LunyTraceLogger.LogInfoFinalized(this);
+		public ScriptDefinitionRegistry() => DiscoverScripts();
+		~ScriptDefinitionRegistry() => LunyTraceLogger.LogInfoFinalized(this);
 
 		/// <summary>
 		/// Discovers all LunyScript subclasses via reflection and registers them.
@@ -47,8 +47,8 @@ namespace LunyScript.Execution
 			if (_scriptsByName.ContainsKey(scriptType.Name))
 				throw new LunyScriptException($"{scriptType.Name}: duplicate type name");
 
-			var definition = new LunyScriptDefinition(scriptType);
-			_scriptsById[definition.ScriptID] = definition;
+			var definition = new ScriptDefinition(scriptType);
+			_scriptsById[definition.ScriptDefId] = definition;
 			_scriptsByName[definition.Name] = definition;
 
 			//LunyLogger.LogInfo($"{definition} registered", this);
@@ -57,16 +57,16 @@ namespace LunyScript.Execution
 		/// <summary>
 		/// Gets a script definition by ID.
 		/// </summary>
-		public LunyScriptDefinition GetByID(LunyScriptID id)
+		public ScriptDefinition GetByID(ScriptDefID defId)
 		{
-			_scriptsById.TryGetValue(id, out var definition);
+			_scriptsById.TryGetValue(defId, out var definition);
 			return definition;
 		}
 
 		/// <summary>
 		/// Gets a script definition by name (for object binding).
 		/// </summary>
-		public LunyScriptDefinition GetByName(String name)
+		public ScriptDefinition GetByName(String name)
 		{
 			_scriptsByName.TryGetValue(name, out var definition);
 			return definition;

@@ -1,5 +1,4 @@
 using Luny;
-using LunyScript.Execution;
 using System;
 using System.Collections.Generic;
 
@@ -15,7 +14,7 @@ namespace LunyScript.Blocks
 	/// </summary>
 	public interface IScriptActionBlock : IScriptBlock
 	{
-		void Execute(ILunyScriptContext context);
+		void Execute(IScriptRuntimeContext runtimeContext);
 	}
 
 	/// <summary>
@@ -23,7 +22,7 @@ namespace LunyScript.Blocks
 	/// </summary>
 	public interface IScriptConditionBlock : IScriptBlock
 	{
-		Boolean Evaluate(ILunyScriptContext context);
+		Boolean Evaluate(IScriptRuntimeContext runtimeContext);
 	}
 
 	/// <summary>
@@ -31,7 +30,7 @@ namespace LunyScript.Blocks
 	/// </summary>
 	public interface IScriptVariableBlock : IScriptBlock
 	{
-		Variable GetValue(ILunyScriptContext context);
+		Variable GetValue(IScriptRuntimeContext runtimeContext);
 	}
 
 	/// <summary>
@@ -40,7 +39,7 @@ namespace LunyScript.Blocks
 	/// </summary>
 	public interface IScriptSequenceBlock : IScriptActionBlock
 	{
-		LunyScriptRunID ID { get; }
+		ScriptBlockID ID { get; }
 		IReadOnlyList<IScriptActionBlock> Blocks { get; }
 		Boolean IsEmpty { get; }
 	}

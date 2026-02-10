@@ -1,5 +1,4 @@
 using LunyScript.Exceptions;
-using LunyScript.Execution;
 using System;
 
 namespace LunyScript.Blocks
@@ -20,7 +19,7 @@ namespace LunyScript.Blocks
 			_step = step;
 		}
 
-		public void Execute(ILunyScriptContext context) => (_cachedBlock ??= Build()).Execute(context);
+		public void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
 
 		public IScriptActionBlock Do(params IScriptActionBlock[] blocks)
 		{
@@ -49,13 +48,13 @@ namespace LunyScript.Blocks
 			_blocks = blocks;
 		}
 
-		public void Execute(ILunyScriptContext context)
+		public void Execute(IScriptRuntimeContext runtimeContext)
 		{
 #if DEBUG || UNITY_EDITOR
 			var iterations = 0;
 #endif
 
-			var loopStack = context.LoopStack;
+			var loopStack = runtimeContext.LoopStack;
 			var maxLimit = LunyScriptEngine.MaxLoopIterations;
 
 			if (_step > 0)
@@ -69,7 +68,7 @@ namespace LunyScript.Blocks
 					loopStack.Push(i);
 					try
 					{
-						ExecuteAll(context);
+						ExecuteAll(runtimeContext);
 					}
 					finally
 					{
@@ -88,7 +87,7 @@ namespace LunyScript.Blocks
 					loopStack.Push(i);
 					try
 					{
-						ExecuteAll(context);
+						ExecuteAll(runtimeContext);
 					}
 					finally
 					{
@@ -98,13 +97,13 @@ namespace LunyScript.Blocks
 			}
 		}
 
-		private void ExecuteAll(ILunyScriptContext context)
+		private void ExecuteAll(IScriptRuntimeContext runtimeContext)
 		{
 			if (_blocks == null)
 				return;
 
 			foreach (var block in _blocks)
-				block.Execute(context);
+				block.Execute(runtimeContext);
 		}
 	}
 }
