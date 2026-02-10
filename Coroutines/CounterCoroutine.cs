@@ -11,10 +11,14 @@ namespace LunyScript.Coroutines
 		private Counter _counter;
 		private Boolean _elapsedThisTick;
 
+		internal override Boolean IsCounterStyle => true;
+
 		public CounterCoroutine(in Options options)
 			: base(options)
 		{
-			_counter = new Counter(Math.Max(0, options.CounterTarget));
+			// Note: `CounterTarget + 1` because we process the current frame,
+			// but the meaning of `In(1)` is "next frame" and `In(0)` means "current frame" (asap)
+			_counter = new Counter(Math.Max(0, options.CounterTarget + 1));
 			_counter.AutoRepeat = options.ContinuationMode == Continuation.Repeating;
 			_counter.OnElapsed += () => _elapsedThisTick = true;
 		}

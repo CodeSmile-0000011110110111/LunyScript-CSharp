@@ -1,6 +1,5 @@
 using LunyScript.Coroutines;
 using System;
-using Coroutines_Coroutine = LunyScript.Coroutines.Coroutine;
 
 namespace LunyScript.Blocks.Coroutines
 {
@@ -10,16 +9,25 @@ namespace LunyScript.Blocks.Coroutines
 	/// </summary>
 	internal class CoroutineBlock : IScriptCoroutineBlock
 	{
-		protected readonly Coroutines_Coroutine _coroutine;
+		protected readonly Coroutine _coroutine;
 
-		internal static T Create<T>(Coroutines_Coroutine coroutine) where T : class, IScriptCoroutineBlock => coroutine switch
+		internal static T Create<T>(Coroutine coroutine) where T : class, IScriptCoroutineBlock
 		{
-			TimerCoroutine => new CoroutineTimerBlock(coroutine),
-			CounterCoroutine or TimeSliceCoroutine => new CoroutineCounterBlock(coroutine),
-			var _ => new CoroutineBlock(coroutine),
-		} as T;
+			IScriptCoroutineBlock block = coroutine switch
+			{
+				TimerCoroutine timer => new CoroutineTimerBlock(timer),
+				CounterCoroutine counter => new CoroutineCounterBlock(counter),
+				PerpetualCounterStyleCoroutine counterStyle => new CoroutineCounterBlock(counterStyle),
+				_ => new CoroutineBlock(coroutine)
+			};
 
-		protected CoroutineBlock(Coroutines_Coroutine coroutine) =>
+			if (block is T typedBlock)
+				return typedBlock;
+
+			throw new InvalidOperationException($"Coroutine of type {coroutine.GetType().Name} cannot be wrapped as {typeof(T).Name}");
+		}
+
+		protected CoroutineBlock(Coroutine coroutine) =>
 			_coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
 
 		public virtual void Execute(IScriptRuntimeContext runtimeContext) =>
@@ -33,7 +41,7 @@ namespace LunyScript.Blocks.Coroutines
 
 	internal sealed class CoroutineTimerBlock : CoroutineBlock, IScriptCoroutineTimerBlock
 	{
-		internal CoroutineTimerBlock(Coroutines_Coroutine coroutine)
+		internal CoroutineTimerBlock(Coroutine coroutine)
 			: base(coroutine) {}
 
 		public IScriptActionBlock TimeScale(Double scale) => new CoroutineSetTimeScaleBlock(_coroutine, scale);
@@ -41,7 +49,7 @@ namespace LunyScript.Blocks.Coroutines
 
 	internal sealed class CoroutineCounterBlock : CoroutineBlock, IScriptCoroutineCounterBlock
 	{
-		internal CoroutineCounterBlock(Coroutines_Coroutine coroutine)
+		internal CoroutineCounterBlock(Coroutine coroutine)
 			: base(coroutine) {}
 	}
 }

@@ -67,8 +67,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 			// name = null => generates a unique name for this time-sliced coroutine
 			var options = Coroutine.Options.ForEveryInterval(null, _interval, _process, _delay, blocks);
 			var scriptInternal = (ILunyScriptInternal)_script;
-			var coroutine = scriptInternal.RuntimeContext.Coroutines.Register(in options);
-			return CoroutineBlock.Create<IScriptCoroutineCounterBlock>(coroutine);
+			return scriptInternal.RuntimeContext.Coroutines.Register<IScriptCoroutineCounterBlock>(in options);
 		}
 	}
 }

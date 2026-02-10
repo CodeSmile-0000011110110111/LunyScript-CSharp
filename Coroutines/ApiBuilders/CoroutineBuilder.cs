@@ -53,7 +53,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 			_amount = duration;
 		}
 
-		private CoroutineFinalBuilder CreateFinal(Coroutine.Options options) => CoroutineFinalBuilder.FromConfig(_script, options);
+		private CoroutineFinalBuilder CreateFinal(in Coroutine.Options options) => new CoroutineFinalBuilder(_script, options);
 
 		/// <summary>
 		/// Duration in seconds (time-based).
@@ -92,13 +92,11 @@ namespace LunyScript.Coroutines.ApiBuilders
 		private readonly ILunyScript _script;
 		private readonly Coroutine.Options _options;
 
-		private CoroutineFinalBuilder(ILunyScript script, in Coroutine.Options options)
+		internal CoroutineFinalBuilder(ILunyScript script, in Coroutine.Options options)
 		{
 			_script = script;
 			_options = options;
 		}
-
-		internal static CoroutineFinalBuilder FromConfig(ILunyScript script, in Coroutine.Options options) => new(script, options);
 
 		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name, Coroutine.Process processMode) =>
 			new(script, Coroutine.Options.ForOpenEnded(name, processMode));
@@ -109,7 +107,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks)
 		{
 			if (_options.ProcessMode == Coroutine.Process.Heartbeat)
-				throw new NotSupportedException($"{nameof(OnFrameUpdate)} not possible while counting Heartbeats");
+				throw new NotSupportedException($"{nameof(OnFrameUpdate)} cannot be combined with {nameof(OnHeartbeat)}");
 
 			return new CoroutineFinalBuilder(_script, _options with { OnFrameUpdate = blocks });
 		}
@@ -120,7 +118,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 		public CoroutineFinalBuilder OnHeartbeat(params IScriptActionBlock[] blocks)
 		{
 			if (_options.ProcessMode == Coroutine.Process.FrameUpdate)
-				throw new NotSupportedException($"{nameof(OnHeartbeat)} not possible while counting FrameUpdates");
+				throw new NotSupportedException($"{nameof(OnHeartbeat)} cannot be combined with {nameof(OnFrameUpdate)}");
 
 			return new CoroutineFinalBuilder(_script, _options with { OnHeartbeat = blocks });
 		}
@@ -151,8 +149,9 @@ namespace LunyScript.Coroutines.ApiBuilders
 		/// </summary>
 		public IScriptCoroutineBlock Elapsed(params IScriptActionBlock[] blocks)
 		{
-			var finalBuilder = new CoroutineFinalBuilder(_script, _options with { OnElapsed = blocks });
-			return finalBuilder.Build();
+			var options = _options with { OnElapsed = blocks };
+			var scriptInternal = (ILunyScriptInternal)_script;
+			return scriptInternal.RuntimeContext.Coroutines.Register<IScriptCoroutineBlock>(in options);
 		}
 
 		/// <summary>
@@ -162,8 +161,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 		public IScriptCoroutineBlock Build()
 		{
 			var scriptInternal = (ILunyScriptInternal)_script;
-			var instance = scriptInternal.RuntimeContext.Coroutines.Register(in _options);
-			return CoroutineBlock.Create<IScriptCoroutineBlock>(instance);
+			return scriptInternal.RuntimeContext.Coroutines.Register<IScriptCoroutineBlock>(in _options);
 		}
 	}
 }

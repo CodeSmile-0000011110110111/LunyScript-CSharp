@@ -84,8 +84,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 		{
 			var options = _options with { OnElapsed = blocks };
 			var scriptInternal = (ILunyScriptInternal)_script;
-			var instance = scriptInternal.RuntimeContext.Coroutines.Register(in options);
-			return CoroutineBlock.Create<IScriptCoroutineCounterBlock>(instance);
+			return scriptInternal.RuntimeContext.Coroutines.Register<IScriptCoroutineCounterBlock>(in options);
 		}
 	}
 }
