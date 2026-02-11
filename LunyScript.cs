@@ -246,5 +246,7 @@ namespace LunyScript
 		/// </summary>
 		/// <param name="context"></param>
 		public abstract void Build(ScriptBuildContext context);
+
+		override public String ToString() => _runtimeContext != null ? _runtimeContext.ToString() : GetType().FullName;
 	}
 }

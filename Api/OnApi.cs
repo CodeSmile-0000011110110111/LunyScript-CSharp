@@ -53,7 +53,7 @@ namespace LunyScript.Api
 		/// <summary>
 		/// Runs after frame update while object is enabled.
 		/// </summary>
-		public IScriptSequenceBlock FrameEnd(params IScriptActionBlock[] blocks) =>
+		public IScriptSequenceBlock FrameLateUpdate(params IScriptActionBlock[] blocks) =>
 			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnFrameLateUpdate);
 
 		/// <summary>

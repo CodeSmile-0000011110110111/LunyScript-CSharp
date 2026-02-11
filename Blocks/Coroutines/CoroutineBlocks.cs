@@ -11,20 +11,12 @@ namespace LunyScript.Blocks.Coroutines
 	{
 		protected readonly Coroutine _coroutine;
 
-		internal static T Create<T>(Coroutine coroutine) where T : class, IScriptCoroutineBlock
+		internal static IScriptCoroutineBlock Create(Coroutine coroutine) => coroutine switch
 		{
-			IScriptCoroutineBlock block = coroutine switch
-			{
-				TimerCoroutine timer => new CoroutineTimerBlock(timer),
-				CounterCoroutine counter => new CoroutineCounterBlock(counter),
-				var _ => new CoroutineBlock(coroutine),
-			};
-
-			if (block is T typedBlock)
-				return typedBlock;
-
-			throw new InvalidOperationException($"Coroutine type {coroutine.GetType().Name} has no matching {typeof(T).Name} block type");
-		}
+			TimerCoroutine timer => new TimerCoroutineBlock(timer),
+			CounterCoroutine counter => new CounterCoroutineBlock(counter),
+			var _ => new CoroutineBlock(coroutine),
+		};
 
 		protected CoroutineBlock(Coroutine coroutine) => _coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
 
@@ -37,17 +29,17 @@ namespace LunyScript.Blocks.Coroutines
 		public IScriptActionBlock Resume() => new CoroutineResumeBlock(_coroutine);
 	}
 
-	internal sealed class CoroutineTimerBlock : CoroutineBlock, IScriptCoroutineTimerBlock
+	internal sealed class TimerCoroutineBlock : CoroutineBlock, IScriptTimerCoroutineBlock
 	{
-		internal CoroutineTimerBlock(TimerCoroutine coroutine)
+		internal TimerCoroutineBlock(TimerCoroutine coroutine)
 			: base(coroutine) {}
 
-		public IScriptActionBlock TimeScale(Double scale) => new CoroutineSetTimeScaleBlock((TimerCoroutine)_coroutine, scale);
+		public IScriptActionBlock TimeScale(Double scale) => new TimerCoroutineSetTimeScaleBlock((TimerCoroutine)_coroutine, scale);
 	}
 
-	internal sealed class CoroutineCounterBlock : CoroutineBlock, IScriptCoroutineCounterBlock
+	internal sealed class CounterCoroutineBlock : CoroutineBlock, IScriptCounterCoroutineBlock
 	{
-		internal CoroutineCounterBlock(CounterCoroutine coroutine)
+		internal CounterCoroutineBlock(CounterCoroutine coroutine)
 			: base(coroutine) {}
 	}
 }

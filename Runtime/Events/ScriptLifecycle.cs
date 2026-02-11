@@ -123,7 +123,7 @@ namespace LunyScript.Events
 			{
 				var sequences = _runtimeContext.Scheduler.GetSequences(objectEvent);
 				if (sequences != null)
-					LunyLogger.LogInfo($"Running {nameof(objectEvent)}: {_runtimeContext} ...", _lifecycle);
+					LunyLogger.LogInfo($"<{objectEvent}> for {_runtimeContext}", _lifecycle);
 
 				LunyScriptRunner.Run(sequences, _runtimeContext);
 			}

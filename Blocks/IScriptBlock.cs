@@ -74,7 +74,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Represents a coroutine timer block. Timers fire after a duration elapses.
 	/// </summary>
-	public interface IScriptCoroutineTimerBlock : IScriptCoroutineBlock
+	public interface IScriptTimerCoroutineBlock : IScriptCoroutineBlock
 	{
 		/// <summary>
 		/// Sets the time scale. Values >= 0; negative values are clamped to 0.
@@ -85,5 +85,5 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Represents a coroutine counter block. Counters elapse after a specific number of frames/heartbeats have passed.
 	/// </summary>
-	public interface IScriptCoroutineCounterBlock : IScriptCoroutineBlock {}
+	public interface IScriptCounterCoroutineBlock : IScriptCoroutineBlock {}
 }

@@ -13,17 +13,15 @@ namespace LunyScript.Coroutines
 			private static Int32 s_UniqueNameID;
 
 			public String Name { get; init; }
-			public Double TimerInterval { get; init; } // Used only by TimerCoroutine
-			public Int32 CounterTarget { get; init; } // Used by CounterCoroutine and TimeSliceCoroutine
-			public Int32 TimeSliceInterval { get; init; } // Used only by TimeSliceCoroutine
-			public Int32 TimeSliceOffset { get; init; } // Used only by TimeSliceCoroutine
+			public Double TimerDurationInSeconds { get; init; } // Used only by TimerCoroutine
+			public Int32 CounterTarget { get; init; } // Used by CounterCoroutine
+			public Int32 TimeSliceInterval { get; init; }
+			public Int32 TimeSliceOffset { get; init; }
 			public Continuation ContinuationMode { get; init; } = Continuation.Finite;
 			public Process ProcessMode { get; init; } = Process.Always;
 
-			// Computed properties
-			public Boolean IsTimer => TimerInterval > 0d;
-			public Boolean IsCounter => CounterTarget > 0;
-			public Boolean IsTimeSliced => TimeSliceInterval > 0;
+			internal bool IsTimer => TimerDurationInSeconds > 0;
+			internal bool IsCounter => CounterTarget > 0;
 
 			// Handlers
 			public IScriptActionBlock[] OnFrameUpdate { get; init; }
@@ -39,15 +37,15 @@ namespace LunyScript.Coroutines
 			public static Options ForTimer(String name, Double duration, Continuation continuationMode, Process processMode) => new()
 			{
 				Name = name,
-				TimerInterval = duration,
+				TimerDurationInSeconds = duration,
 				ContinuationMode = continuationMode,
 				ProcessMode = processMode,
 			};
 
-			public static Options ForCounter(String name, Int32 count, Continuation continuationMode, Process processMode) => new()
+			public static Options ForCounter(String name, Int32 countTarget, Continuation continuationMode, Process processMode) => new()
 			{
 				Name = name,
-				CounterTarget = count,
+				CounterTarget = countTarget + 1, // since we increment before evaluate, actual target is +1 than user provides
 				ContinuationMode = continuationMode,
 				ProcessMode = processMode,
 			};

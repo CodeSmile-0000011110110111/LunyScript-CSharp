@@ -13,7 +13,7 @@ namespace LunyScript.SmokeTests
 		public override void Build(ScriptBuildContext context)
 		{
 			On.Created(Object.Create(DestroyedObjectName));
-			On.FrameEnd(Object.Destroy(DestroyedObjectName));
+			On.FrameLateUpdate(Object.Destroy(DestroyedObjectName));
 
 			On.Ready(Object.Create(EmptyObjectName));
 			On.Ready(Object.CreateCube(CubeObjectName));

@@ -69,16 +69,13 @@ namespace LunyScript
 		/// <summary>
 		/// Registers a new coroutine. Throws if name already exists.
 		/// </summary>
-		internal T Register<T>(in Coroutine.Options options) where T : class, IScriptCoroutineBlock
+		internal IScriptCoroutineBlock Register(ILunyScript script, in Coroutine.Options options)
 		{
 			if (_registry.ContainsKey(options.Name))
 				throw new InvalidOperationException($"Coroutine '{options.Name}' already exists. Duplicate names are not allowed.");
 
-			if (options.IsTimeSliced && options.ProcessMode == Coroutine.Process.Always)
-				throw new ArgumentException("Time-slicing is not supported for Coroutine.Process.Always mode.", nameof(options));
-
-			var instance = Coroutine.Create(options);
-			var entry = new CoroutineEntry(instance, options);
+			var coroutine = Coroutine.Create(options);
+			var entry = new CoroutineEntry(coroutine, options);
 			_registry[options.Name] = entry;
 
 			switch (options.ProcessMode)
@@ -94,7 +91,7 @@ namespace LunyScript
 					break;
 			}
 
-			return CoroutineBlock.Create<T>(instance);
+			return CoroutineBlock.Create(coroutine);
 		}
 
 		/// <summary>

@@ -21,7 +21,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 		/// <summary>
 		/// Sets the counter to fire once after the specified count.
 		/// </summary>
-		public CounterDurationBuilder In(Int32 count) => new(_script, _name, count, Coroutine.Continuation.Finite);
+		public CounterDurationBuilder In(Int32 targetCount) => new(_script, _name, targetCount, Coroutine.Continuation.Finite);
 
 		/// <summary>
 		/// Sets the counter to fire repeatedly at the specified interval.
@@ -50,19 +50,17 @@ namespace LunyScript.Coroutines.ApiBuilders
 				throw new ArgumentException($"Counter duration must be 0 or greater, got: {amount}");
 		}
 
-		private CounterFinalBuilder CreateFinal(in Coroutine.Options options) => CounterFinalBuilder.FromOptions(_script, options);
-
 		/// <summary>
 		/// Duration in frames (count-based).
 		/// </summary>
 		public CounterFinalBuilder Frames() =>
-			CreateFinal(Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.FrameUpdate));
+			new(_script, Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based).
 		/// </summary>
 		public CounterFinalBuilder Heartbeats() =>
-			CreateFinal(Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.Heartbeat));
+			new(_script, Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.Heartbeat));
 	}
 
 	/// <summary>
@@ -73,22 +71,21 @@ namespace LunyScript.Coroutines.ApiBuilders
 		private readonly ILunyScript _script;
 		private readonly Coroutine.Options _options;
 
-		private CounterFinalBuilder(ILunyScript script, in Coroutine.Options options)
+		internal CounterFinalBuilder(ILunyScript script, in Coroutine.Options options)
 		{
 			_script = script;
 			_options = options;
 		}
 
-		internal static CounterFinalBuilder FromOptions(ILunyScript script, in Coroutine.Options options) => new(script, options);
-
 		/// <summary>
 		/// Completes the counter and specifies blocks to run when elapsed.
 		/// </summary>
-		public IScriptCoroutineCounterBlock Do(params IScriptActionBlock[] blocks)
+		public IScriptCounterCoroutineBlock Do(params IScriptActionBlock[] blocks)
 		{
 			var options = _options with { OnElapsed = blocks };
 			var scriptInternal = (ILunyScriptInternal)_script;
-			return scriptInternal.RuntimeContext.Coroutines.Register<IScriptCoroutineCounterBlock>(in options);
+			var coroutineBlock = scriptInternal.RuntimeContext.Coroutines.Register(_script, in options);
+			return (IScriptCounterCoroutineBlock)coroutineBlock;
 		}
 	}
 }

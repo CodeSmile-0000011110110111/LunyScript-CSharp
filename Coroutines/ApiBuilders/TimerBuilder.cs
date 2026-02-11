@@ -90,11 +90,12 @@ namespace LunyScript.Coroutines.ApiBuilders
 		/// <summary>
 		/// Completes the timer and specifies blocks to run when elapsed.
 		/// </summary>
-		public IScriptCoroutineTimerBlock Do(params IScriptActionBlock[] blocks)
+		public IScriptTimerCoroutineBlock Do(params IScriptActionBlock[] blocks)
 		{
 			var options = _options with { OnElapsed = blocks };
 			var scriptInternal = (ILunyScriptInternal)_script;
-			return scriptInternal.RuntimeContext.Coroutines.Register<IScriptCoroutineTimerBlock>(in options);
+			var coroutineBlock = scriptInternal.RuntimeContext.Coroutines.Register(_script, in options);
+			return (IScriptTimerCoroutineBlock)coroutineBlock;
 		}
 	}
 }

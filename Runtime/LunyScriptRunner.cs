@@ -142,6 +142,8 @@ namespace LunyScript
 
 		public void OnObjectRegistered(ILunyObject lunyObject)
 		{
+			LunyLogger.LogInfo($"{nameof(OnObjectRegistered)}: {lunyObject}");
+
 			// Check if object is already scripted to avoid double activation
 			if (_contexts.GetByNativeObjectID(lunyObject.NativeObjectID) != null)
 				return;
@@ -152,6 +154,8 @@ namespace LunyScript
 
 		public void OnObjectUnregistered(ILunyObject lunyObject)
 		{
+			LunyLogger.LogInfo($"{nameof(OnObjectUnregistered)}: {lunyObject}");
+
 			// Cleanup context for destroyed object
 			var context = _contexts.GetByNativeObjectID(lunyObject.NativeObjectID);
 			if (context != null)

@@ -46,9 +46,11 @@ namespace LunyScript.Coroutines
 		/// Factory method to create specialized coroutine instances.
 		/// </summary>
 		public static Coroutine Create(in Options options) => options.IsTimer ? new TimerCoroutine(options) :
-			options.IsCounter ? new CounterCoroutine(options) :
-			new Coroutine(options);
+			options.IsCounter ? new CounterCoroutine(options) : new Coroutine(options);
 
+		// return options.IsTimer ? new TimerCoroutine(options) :
+		// 	options.IsCounter ? new CounterCoroutine(options) :
+		// 	new Coroutine(options);
 		private Coroutine() {} // hide default ctor
 
 		protected Coroutine(in Options options)

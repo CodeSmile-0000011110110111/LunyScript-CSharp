@@ -27,13 +27,13 @@ namespace LunyScript.Coroutines.ApiBuilders
 		/// Creates a coroutine without duration (runs until stopped) which runs the blocks after all scripts ran On.FrameUpdate() event, but before On.FrameLateUpdate().
 		/// </summary>
 		public CoroutineFinalBuilder OnFrameUpdate(params IScriptActionBlock[] blocks) =>
-			CoroutineFinalBuilder.NoDuration(_script, _name, Coroutine.Process.FrameUpdate).OnFrameUpdate(blocks);
+			new CoroutineFinalBuilder(_script, Coroutine.Options.ForOpenEnded(_name, Coroutine.Process.FrameUpdate)).OnFrameUpdate(blocks);
 
 		/// <summary>
 		/// Creates a coroutine without duration (runs until stopped) which runs the blocks after all scripts ran On.Hearbeat() event.
 		/// </summary>
 		public CoroutineFinalBuilder OnHeartbeat(params IScriptActionBlock[] blocks) =>
-			CoroutineFinalBuilder.NoDuration(_script, _name, Coroutine.Process.Heartbeat).OnHeartbeat(blocks);
+			new CoroutineFinalBuilder(_script, Coroutine.Options.ForOpenEnded(_name, Coroutine.Process.Heartbeat)).OnHeartbeat(blocks);
 	}
 
 	/// <summary>
@@ -55,37 +55,35 @@ namespace LunyScript.Coroutines.ApiBuilders
 				throw new ArgumentException($"Coroutine duration must be 0 or greater, got: {duration}");
 		}
 
-		private CoroutineFinalBuilder CreateFinal(in Coroutine.Options options) => new(_script, options);
-
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Seconds() =>
-			CreateFinal(Coroutine.Options.ForTimer(_name, _duration, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
+		public CoroutineFinalBuilder Seconds() => new(_script,
+			Coroutine.Options.ForTimer(_name, _duration, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Milliseconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _duration / 1000.0,
+		public CoroutineFinalBuilder Milliseconds() => new(_script, Coroutine.Options.ForTimer(_name, _duration / 1000.0,
 			Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Minutes() =>
-			CreateFinal(Coroutine.Options.ForTimer(_name, _duration * 60.0, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
+		public CoroutineFinalBuilder Minutes() => new(_script,
+			Coroutine.Options.ForTimer(_name, _duration * 60.0, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based, counts fixed steps).
 		/// </summary>
-		public CoroutineFinalBuilder Heartbeats() =>
-			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_duration, Coroutine.Continuation.Finite, Coroutine.Process.Heartbeat));
+		public CoroutineFinalBuilder Heartbeats() => new(_script,
+			Coroutine.Options.ForCounter(_name, (Int32)_duration, Coroutine.Continuation.Finite, Coroutine.Process.Heartbeat));
 
 		/// <summary>
 		/// Duration in frames (count-based, counts frames).
 		/// </summary>
-		public CoroutineFinalBuilder Frames() =>
-			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_duration, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
+		public CoroutineFinalBuilder Frames() => new(_script,
+			Coroutine.Options.ForCounter(_name, (Int32)_duration, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 	}
 
 	/// <summary>
@@ -101,9 +99,6 @@ namespace LunyScript.Coroutines.ApiBuilders
 			_script = script;
 			_options = options;
 		}
-
-		internal static CoroutineFinalBuilder NoDuration(ILunyScript script, String name, Coroutine.Process processMode) =>
-			new(script, Coroutine.Options.ForOpenEnded(name, processMode));
 
 		/// <summary>
 		/// Adds blocks to run every frame update while coroutine is running.
@@ -155,7 +150,8 @@ namespace LunyScript.Coroutines.ApiBuilders
 		{
 			var options = _options with { OnElapsed = blocks };
 			var scriptInternal = (ILunyScriptInternal)_script;
-			return scriptInternal.RuntimeContext.Coroutines.Register<IScriptCoroutineBlock>(in options);
+			var coroutineBlock = scriptInternal.RuntimeContext.Coroutines.Register(_script, in options);
+			return coroutineBlock;
 		}
 
 		/// <summary>
@@ -165,7 +161,8 @@ namespace LunyScript.Coroutines.ApiBuilders
 		public IScriptCoroutineBlock Build()
 		{
 			var scriptInternal = (ILunyScriptInternal)_script;
-			return scriptInternal.RuntimeContext.Coroutines.Register<IScriptCoroutineBlock>(in _options);
+			var coroutineBlock = scriptInternal.RuntimeContext.Coroutines.Register(_script, in _options);
+			return coroutineBlock;
 		}
 	}
 }

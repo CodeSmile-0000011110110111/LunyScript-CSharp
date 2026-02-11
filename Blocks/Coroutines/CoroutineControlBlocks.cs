@@ -45,11 +45,11 @@ namespace LunyScript.Blocks.Coroutines
 		public override void Execute(IScriptRuntimeContext runtimeContext) => _coroutine.Resume();
 	}
 
-	internal sealed class CoroutineSetTimeScaleBlock : CoroutineControlBlockBase
+	internal sealed class TimerCoroutineSetTimeScaleBlock : CoroutineControlBlockBase
 	{
 		private readonly Double _timeScale;
 
-		public CoroutineSetTimeScaleBlock(TimerCoroutine coroutine, Double timeScale)
+		public TimerCoroutineSetTimeScaleBlock(TimerCoroutine coroutine, Double timeScale)
 			: base(coroutine) => _timeScale = timeScale;
 
 		public override void Execute(IScriptRuntimeContext runtimeContext) => ((TimerCoroutine)_coroutine).TimeScale = _timeScale;

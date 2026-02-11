@@ -20,7 +20,7 @@ namespace LunyScript.Coroutines
 		public TimerCoroutine(in Options options)
 			: base(options)
 		{
-			var duration = Math.Max(0.0, options.TimerInterval);
+			var duration = Math.Max(0.0, options.TimerDurationInSeconds);
 			_timer = Timer.FromSeconds(duration);
 			_timer.AutoRepeat = options.ContinuationMode == Continuation.Repeating;
 			_timer.OnElapsed += () => _elapsedThisTick = true;
