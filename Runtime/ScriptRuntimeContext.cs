@@ -39,6 +39,8 @@ namespace LunyScript
 		private ScriptObjectCoroutineRunner _coroutines;
 		private ScriptDebugHooks _debugHooks;
 		private ScriptBlockProfiler _blockProfiler;
+		private ITable _localVariables;
+		private Stack<Int32> _loopStack;
 
 		/// <summary>
 		/// The ID of the script definition this context executes.
@@ -59,11 +61,11 @@ namespace LunyScript
 		/// <summary>
 		/// Per-object variables for this script instance.
 		/// </summary>
-		public ITable LocalVariables { get; } = new Table();
+		public ITable LocalVariables => _localVariables ??= new Table();
 		/// <summary>
 		/// Stack for loop iteration counters.
 		/// </summary>
-		public Stack<Int32> LoopStack { get; } = new();
+		public Stack<Int32> LoopStack => _loopStack ??= new Stack<Int32>();
 		/// <summary>
 		/// Current loop iteration count. Returns 0 outside of loops.
 		/// </summary>

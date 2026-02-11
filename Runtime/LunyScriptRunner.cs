@@ -149,7 +149,7 @@ namespace LunyScript
 				return;
 
 			// Activate script on dynamically created object
-			ScriptBuilder.BuildAndActivateLunyScripts(this, new[] { lunyObject });
+			ScriptBuilder.BuildAndActivateLunyScript(this, lunyObject);
 		}
 
 		public void OnObjectUnregistered(ILunyObject lunyObject)
