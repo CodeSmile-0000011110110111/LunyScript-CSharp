@@ -1,5 +1,4 @@
 using LunyScript.Blocks;
-using LunyScript.Blocks.Coroutines;
 using System;
 
 namespace LunyScript.Coroutines.ApiBuilders
@@ -16,7 +15,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 		internal CoroutineBuilder(ILunyScript script, String name)
 		{
 			_script = script ?? throw new ArgumentNullException(nameof(script));
-			_name = !String.IsNullOrEmpty(name) ? name : throw new ArgumentException("Coroutine name is null or empty", nameof(name));
+			_name = !String.IsNullOrWhiteSpace(name) ? name : throw new ArgumentException("Coroutine name is null or empty", nameof(name));
 		}
 
 		/// <summary>
@@ -44,44 +43,49 @@ namespace LunyScript.Coroutines.ApiBuilders
 	{
 		private readonly ILunyScript _script;
 		private readonly String _name;
-		private readonly Double _amount;
+		private readonly Double _duration;
 
 		internal CoroutineDurationBuilder(ILunyScript script, String name, Double duration)
 		{
 			_script = script;
 			_name = name;
-			_amount = duration;
+			_duration = Math.Max(0, duration);
+
+			if (duration < 0)
+				throw new ArgumentException($"Coroutine duration must be 0 or greater, got: {duration}");
 		}
 
-		private CoroutineFinalBuilder CreateFinal(in Coroutine.Options options) => new CoroutineFinalBuilder(_script, options);
+		private CoroutineFinalBuilder CreateFinal(in Coroutine.Options options) => new(_script, options);
 
 		/// <summary>
 		/// Duration in seconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Seconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
+		public CoroutineFinalBuilder Seconds() =>
+			CreateFinal(Coroutine.Options.ForTimer(_name, _duration, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in milliseconds (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Milliseconds() =>
-			CreateFinal(Coroutine.Options.ForTimer(_name, _amount / 1000.0, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
+		public CoroutineFinalBuilder Milliseconds() => CreateFinal(Coroutine.Options.ForTimer(_name, _duration / 1000.0,
+			Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in minutes (time-based).
 		/// </summary>
-		public CoroutineFinalBuilder Minutes() => CreateFinal(Coroutine.Options.ForTimer(_name, _amount * 60.0, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
+		public CoroutineFinalBuilder Minutes() =>
+			CreateFinal(Coroutine.Options.ForTimer(_name, _duration * 60.0, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based, counts fixed steps).
 		/// </summary>
 		public CoroutineFinalBuilder Heartbeats() =>
-			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_amount, Coroutine.Continuation.Finite, Coroutine.Process.Heartbeat));
+			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_duration, Coroutine.Continuation.Finite, Coroutine.Process.Heartbeat));
 
 		/// <summary>
 		/// Duration in frames (count-based, counts frames).
 		/// </summary>
 		public CoroutineFinalBuilder Frames() =>
-			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_amount, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
+			CreateFinal(Coroutine.Options.ForCounter(_name, (Int32)_duration, Coroutine.Continuation.Finite, Coroutine.Process.FrameUpdate));
 	}
 
 	/// <summary>

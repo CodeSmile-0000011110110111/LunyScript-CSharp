@@ -1,6 +1,5 @@
 ﻿using Luny;
 using Luny.Engine.Bridge.Identity;
-using LunyScript.Runners;
 using System;
 
 namespace LunyScript
@@ -19,7 +18,7 @@ namespace LunyScript
 	/// </summary>
 	public sealed class LunyScriptEngine : ILunyScriptEngine
 	{
-		private LunyScriptBlockRunner _blockRunner;
+		private LunyScriptRunner _runner;
 		public static ILunyScriptEngine Instance { get; private set; }
 		public ITable GlobalVariables => ScriptRuntimeContext.GetGlobalVariables();
 
@@ -37,21 +36,21 @@ namespace LunyScript
 
 		private LunyScriptEngine() {} // hide default ctor
 
-		internal LunyScriptEngine(LunyScriptBlockRunner scriptBlockRunner)
+		internal LunyScriptEngine(LunyScriptRunner scriptRunner)
 		{
 			LunyTraceLogger.LogInfoCreateSingletonInstance(typeof(LunyScriptEngine));
 
 			if (Instance != null)
 				throw new InvalidOperationException($"{nameof(ILunyScriptEngine)} singleton duplication!");
-			if (scriptBlockRunner == null)
-				throw new ArgumentNullException(nameof(scriptBlockRunner));
+			if (scriptRunner == null)
+				throw new ArgumentNullException(nameof(scriptRunner));
 
-			_blockRunner = scriptBlockRunner;
+			_runner = scriptRunner;
 			Instance = this;
 		}
 
 		public IScriptRuntimeContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID) =>
-			_blockRunner.Contexts.GetByNativeObjectID(lunyNativeObjectID);
+			_runner.Contexts.GetByNativeObjectID(lunyNativeObjectID);
 
 		~LunyScriptEngine() => LunyTraceLogger.LogInfoFinalized(this);
 
@@ -59,7 +58,7 @@ namespace LunyScript
 		{
 			LunyTraceLogger.LogInfoShuttingDown(this);
 			Instance = null;
-			_blockRunner = null;
+			_runner = null;
 			LunyTraceLogger.LogInfoShutdownComplete(this);
 		}
 	}

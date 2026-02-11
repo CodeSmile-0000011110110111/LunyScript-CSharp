@@ -1,5 +1,6 @@
 using Luny;
 using Luny.Engine.Bridge;
+using LunyScript.Activation;
 using LunyScript.Api;
 using LunyScript.Blocks;
 using LunyScript.Coroutines.ApiBuilders;
@@ -58,15 +59,6 @@ namespace LunyScript
 	/// </remarks>
 	public abstract class LunyScript : ILunyScript, ILunyScriptInternal
 	{
-		/// <summary>
-		/// Constant for Odd frame/heartbeat execution (1, 3, 5, 7, ...).
-		/// </summary>
-		public const Int32 Odd = -1;
-
-		/// <summary>
-		/// Constant for Even frame/heartbeat execution (0, 2, 4, 6, ...).
-		/// </summary>
-		public const Int32 Even = -2;
 		private IScriptRuntimeContext _runtimeContext;
 
 		/// <summary>

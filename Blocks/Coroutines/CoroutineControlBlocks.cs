@@ -1,13 +1,13 @@
+using LunyScript.Coroutines;
 using System;
-using Coroutines_Coroutine = LunyScript.Coroutines.Coroutine;
 
 namespace LunyScript.Blocks.Coroutines
 {
 	internal abstract class CoroutineControlBlockBase : IScriptActionBlock
 	{
-		protected readonly Coroutines_Coroutine _coroutine;
+		protected readonly Coroutine _coroutine;
 
-		protected CoroutineControlBlockBase(Coroutines_Coroutine coroutine) =>
+		protected CoroutineControlBlockBase(Coroutine coroutine) =>
 			_coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
 
 		public abstract void Execute(IScriptRuntimeContext runtimeContext);
@@ -15,7 +15,7 @@ namespace LunyScript.Blocks.Coroutines
 
 	internal sealed class CoroutineStartBlock : CoroutineControlBlockBase
 	{
-		public CoroutineStartBlock(Coroutines_Coroutine coroutine)
+		public CoroutineStartBlock(Coroutine coroutine)
 			: base(coroutine) {}
 
 		public override void Execute(IScriptRuntimeContext runtimeContext) => _coroutine.Start();
@@ -23,7 +23,7 @@ namespace LunyScript.Blocks.Coroutines
 
 	internal sealed class CoroutineStopBlock : CoroutineControlBlockBase
 	{
-		public CoroutineStopBlock(Coroutines_Coroutine coroutine)
+		public CoroutineStopBlock(Coroutine coroutine)
 			: base(coroutine) {}
 
 		public override void Execute(IScriptRuntimeContext runtimeContext) => _coroutine.Stop();
@@ -31,7 +31,7 @@ namespace LunyScript.Blocks.Coroutines
 
 	internal sealed class CoroutinePauseBlock : CoroutineControlBlockBase
 	{
-		public CoroutinePauseBlock(Coroutines_Coroutine coroutine)
+		public CoroutinePauseBlock(Coroutine coroutine)
 			: base(coroutine) {}
 
 		public override void Execute(IScriptRuntimeContext runtimeContext) => _coroutine.Pause();
@@ -39,7 +39,7 @@ namespace LunyScript.Blocks.Coroutines
 
 	internal sealed class CoroutineResumeBlock : CoroutineControlBlockBase
 	{
-		public CoroutineResumeBlock(Coroutines_Coroutine coroutine)
+		public CoroutineResumeBlock(Coroutine coroutine)
 			: base(coroutine) {}
 
 		public override void Execute(IScriptRuntimeContext runtimeContext) => _coroutine.Resume();
@@ -49,9 +49,9 @@ namespace LunyScript.Blocks.Coroutines
 	{
 		private readonly Double _timeScale;
 
-		public CoroutineSetTimeScaleBlock(Coroutines_Coroutine coroutine, Double timeScale)
+		public CoroutineSetTimeScaleBlock(TimerCoroutine coroutine, Double timeScale)
 			: base(coroutine) => _timeScale = timeScale;
 
-		public override void Execute(IScriptRuntimeContext runtimeContext) => _coroutine.TimeScale = _timeScale;
+		public override void Execute(IScriptRuntimeContext runtimeContext) => ((TimerCoroutine)_coroutine).TimeScale = _timeScale;
 	}
 }

@@ -1,5 +1,4 @@
 using LunyScript.Blocks;
-using LunyScript.Blocks.Coroutines;
 using System;
 
 namespace LunyScript.Coroutines.ApiBuilders
@@ -37,15 +36,18 @@ namespace LunyScript.Coroutines.ApiBuilders
 	{
 		private readonly ILunyScript _script;
 		private readonly Int32 _interval;
-		private readonly Coroutine.Process _process;
 		private readonly Int32 _delay;
+		private readonly Coroutine.Process _process;
 
 		internal EveryUnitBuilder(ILunyScript script, Int32 interval, Coroutine.Process process, Int32 delay = 0)
 		{
 			_script = script;
-			_interval = interval;
-			_process = process;
+			_interval = Math.Max(0, interval);
 			_delay = delay;
+			_process = process;
+
+			if (interval < 0)
+				throw new ArgumentException($"Every duration must be 0 or greater, got: {interval}");
 		}
 
 		/// <summary>
@@ -64,8 +66,8 @@ namespace LunyScript.Coroutines.ApiBuilders
 		/// </summary>
 		public IScriptCoroutineCounterBlock Do(params IScriptActionBlock[] blocks)
 		{
-			// name = null => generates a unique name for this time-sliced coroutine
-			var options = Coroutine.Options.ForEveryInterval(null, _interval, _process, _delay, blocks);
+			// name = null => generates a unique name for a time-sliced coroutine
+			var options = Coroutine.Options.ForEveryInterval(null, _interval, _delay, _process, blocks);
 			var scriptInternal = (ILunyScriptInternal)_script;
 			return scriptInternal.RuntimeContext.Coroutines.Register<IScriptCoroutineCounterBlock>(in options);
 		}

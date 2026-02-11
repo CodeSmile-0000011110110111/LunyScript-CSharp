@@ -2,7 +2,6 @@
 using Luny.Engine.Bridge;
 using Luny.Engine.Bridge.Enums;
 using Luny.Engine.Bridge.Identity;
-using LunyScript.Runners;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -15,12 +14,12 @@ namespace LunyScript.Events
 	/// </summary>
 	internal sealed class ScriptSceneEventHandler : ILunyScriptLifecycleInternal
 	{
-		[NotNull] private readonly ScriptContextRegistry _contexts;
+		[NotNull] private readonly ScriptRuntimeContextRegistry _contexts;
 
 		private readonly List<LunyObjectID> _subscriberObjectIDs = new();
 
-		internal ScriptSceneEventHandler(ScriptContextRegistry contextRegistry) =>
-			_contexts = contextRegistry ?? throw new ArgumentNullException(nameof(contextRegistry));
+		internal ScriptSceneEventHandler(ScriptRuntimeContextRegistry runtimeContextRegistry) =>
+			_contexts = runtimeContextRegistry ?? throw new ArgumentNullException(nameof(runtimeContextRegistry));
 
 		~ScriptSceneEventHandler() => LunyTraceLogger.LogInfoFinalized(this);
 
@@ -53,7 +52,7 @@ namespace LunyScript.Events
 			if (sequences != null)
 				LunyLogger.LogInfo($"Running {nameof(sceneEvent)} for {context}", this);
 
-			LunyScriptBlockRunner.Run(sequences, context);
+			LunyScriptRunner.Run(sequences, context);
 		}
 
 		public void Shutdown() => _subscriberObjectIDs.Clear();

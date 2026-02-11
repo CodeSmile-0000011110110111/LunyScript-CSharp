@@ -1,5 +1,4 @@
 using LunyScript.Blocks;
-using LunyScript.Blocks.Coroutines;
 using System;
 
 namespace LunyScript.Coroutines.ApiBuilders
@@ -16,7 +15,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 		internal CounterBuilder(ILunyScript script, String name)
 		{
 			_script = script ?? throw new ArgumentNullException(nameof(script));
-			_name = !String.IsNullOrEmpty(name) ? name : throw new ArgumentException("Counter name is null or empty", nameof(name));
+			_name = !String.IsNullOrWhiteSpace(name) ? name : throw new ArgumentException("Counter name is null or empty", nameof(name));
 		}
 
 		/// <summary>
@@ -46,19 +45,24 @@ namespace LunyScript.Coroutines.ApiBuilders
 			_name = name;
 			_amount = amount;
 			_continuation = continuation;
+
+			if (amount < 0)
+				throw new ArgumentException($"Counter duration must be 0 or greater, got: {amount}");
 		}
 
-		private CounterFinalBuilder CreateFinal(Coroutine.Options options) => CounterFinalBuilder.FromOptions(_script, options);
+		private CounterFinalBuilder CreateFinal(in Coroutine.Options options) => CounterFinalBuilder.FromOptions(_script, options);
 
 		/// <summary>
 		/// Duration in frames (count-based).
 		/// </summary>
-		public CounterFinalBuilder Frames() => CreateFinal(Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.FrameUpdate));
+		public CounterFinalBuilder Frames() =>
+			CreateFinal(Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based).
 		/// </summary>
-		public CounterFinalBuilder Heartbeats() => CreateFinal(Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.Heartbeat));
+		public CounterFinalBuilder Heartbeats() =>
+			CreateFinal(Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.Heartbeat));
 	}
 
 	/// <summary>

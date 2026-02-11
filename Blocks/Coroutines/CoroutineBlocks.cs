@@ -17,18 +17,16 @@ namespace LunyScript.Blocks.Coroutines
 			{
 				TimerCoroutine timer => new CoroutineTimerBlock(timer),
 				CounterCoroutine counter => new CoroutineCounterBlock(counter),
-				PerpetualCounterStyleCoroutine counterStyle => new CoroutineCounterBlock(counterStyle),
-				_ => new CoroutineBlock(coroutine)
+				var _ => new CoroutineBlock(coroutine),
 			};
 
 			if (block is T typedBlock)
 				return typedBlock;
 
-			throw new InvalidOperationException($"Coroutine of type {coroutine.GetType().Name} cannot be wrapped as {typeof(T).Name}");
+			throw new InvalidOperationException($"Coroutine type {coroutine.GetType().Name} has no matching {typeof(T).Name} block type");
 		}
 
-		protected CoroutineBlock(Coroutine coroutine) =>
-			_coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
+		protected CoroutineBlock(Coroutine coroutine) => _coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
 
 		public virtual void Execute(IScriptRuntimeContext runtimeContext) =>
 			throw new NotImplementedException($"{nameof(CoroutineBlock)} cannot be used in a block sequence");
@@ -41,15 +39,15 @@ namespace LunyScript.Blocks.Coroutines
 
 	internal sealed class CoroutineTimerBlock : CoroutineBlock, IScriptCoroutineTimerBlock
 	{
-		internal CoroutineTimerBlock(Coroutine coroutine)
+		internal CoroutineTimerBlock(TimerCoroutine coroutine)
 			: base(coroutine) {}
 
-		public IScriptActionBlock TimeScale(Double scale) => new CoroutineSetTimeScaleBlock(_coroutine, scale);
+		public IScriptActionBlock TimeScale(Double scale) => new CoroutineSetTimeScaleBlock((TimerCoroutine)_coroutine, scale);
 	}
 
 	internal sealed class CoroutineCounterBlock : CoroutineBlock, IScriptCoroutineCounterBlock
 	{
-		internal CoroutineCounterBlock(Coroutine coroutine)
+		internal CoroutineCounterBlock(CounterCoroutine coroutine)
 			: base(coroutine) {}
 	}
 }

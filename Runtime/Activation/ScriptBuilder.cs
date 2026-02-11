@@ -1,13 +1,12 @@
 using Luny;
 using Luny.Engine.Bridge;
 using LunyScript.Events;
-using LunyScript.Runners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
-namespace LunyScript
+namespace LunyScript.Activation
 {
 	/// <summary>
 	/// Scans scenes at runtime to discover objects that should run LunyScripts.
@@ -21,9 +20,9 @@ namespace LunyScript
 		/// </summary>
 		/// <param name="lunyObjects"></param>
 		/// <param name="scriptRegistry"></param>
-		/// <param name="contextRegistry"></param>
+		/// <param name="runtimeContextRegistry"></param>
 		public static IReadOnlyList<ScriptRuntimeContext> CreateRuntimeContexts(IEnumerable<ILunyObject> lunyObjects,
-			ScriptDefinitionRegistry scriptRegistry, ScriptContextRegistry contextRegistry)
+			ScriptDefinitionRegistry scriptRegistry, ScriptRuntimeContextRegistry runtimeContextRegistry)
 		{
 			var createdContexts = new List<ScriptRuntimeContext>();
 
@@ -39,7 +38,7 @@ namespace LunyScript
 				if (scriptDef != null)
 				{
 					// Create ScriptContext for this object-script pair
-					var context = contextRegistry.CreateContext(scriptDef, lunyObject);
+					var context = runtimeContextRegistry.CreateContext(scriptDef, lunyObject);
 					createdContexts.Add(context);
 				}
 			}
@@ -51,16 +50,16 @@ namespace LunyScript
 			return createdContexts;
 		}
 
-		public static void BuildAndActivateLunyScripts(LunyScriptBlockRunner scriptBlockRunner, IEnumerable<ILunyObject> lunyObjects)
+		public static void BuildAndActivateLunyScripts(LunyScriptRunner scriptRunner, IEnumerable<ILunyObject> lunyObjects)
 		{
 			var sw = Stopwatch.StartNew();
 
-			var objectEventHandler = scriptBlockRunner.ObjectLifecycle;
-			var sceneEventHandler = scriptBlockRunner.SceneEventHandler;
+			var objectEventHandler = scriptRunner.ObjectLifecycle;
+			var sceneEventHandler = scriptRunner.SceneEventHandler;
 
 			var activatedCount = 0;
 			var buildContext = new ScriptBuildContext();
-			var runtimeContexts = CreateRuntimeContexts(lunyObjects, scriptBlockRunner.Scripts, scriptBlockRunner.Contexts);
+			var runtimeContexts = CreateRuntimeContexts(lunyObjects, scriptRunner.Scripts, scriptRunner.Contexts);
 			foreach (var runtimeContext in runtimeContexts)
 			{
 				BuildAndActivateLunyScript(buildContext, runtimeContext, objectEventHandler, sceneEventHandler);

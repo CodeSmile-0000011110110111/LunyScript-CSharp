@@ -2,7 +2,6 @@ using Luny;
 using Luny.Engine.Bridge;
 using LunyScript.Diagnostics;
 using LunyScript.Events;
-using LunyScript.Runners;
 using System;
 using System.Collections.Generic;
 
@@ -36,6 +35,11 @@ namespace LunyScript
 		private readonly IScriptDefinition _scriptDef;
 		private readonly ILunyObject _lunyObject;
 
+		private ScriptEventScheduler _scheduler;
+		private ScriptObjectCoroutineRunner _coroutines;
+		private ScriptDebugHooks _debugHooks;
+		private ScriptBlockProfiler _blockProfiler;
+
 		/// <summary>
 		/// The ID of the script definition this context executes.
 		/// </summary>
@@ -48,11 +52,10 @@ namespace LunyScript
 		/// The engine object/node this script operates on.
 		/// </summary>
 		public ILunyObject LunyObject => _lunyObject;
-
 		/// <summary>
 		/// Global variables shared across all scripts.
 		/// </summary>
-		public ITable GlobalVariables { get; } = s_GlobalVariables;
+		public ITable GlobalVariables => s_GlobalVariables;
 		/// <summary>
 		/// Per-object variables for this script instance.
 		/// </summary>
@@ -65,42 +68,31 @@ namespace LunyScript
 		/// Current loop iteration count. Returns 0 outside of loops.
 		/// </summary>
 		public Int32 LoopCount => LoopStack.Count > 0 ? LoopStack.Peek() : 0;
-
 		/// <summary>
 		/// Debugging hooks for execution tracing and breakpoints.
 		/// </summary>
-		internal ScriptDebugHooks DebugHooks { get; }
-
+		internal ScriptDebugHooks DebugHooks => _debugHooks ??= new ScriptDebugHooks();
 		/// <summary>
 		/// Block-level profiler for tracking blocks performance.
 		/// </summary>
-		internal ScriptBlockProfiler BlockProfiler { get; }
-
+		internal ScriptBlockProfiler BlockProfiler => _blockProfiler ??= new ScriptBlockProfiler();
 		/// <summary>
 		/// Event scheduler for managing sequences across all event types.
 		/// </summary>
-		internal ScriptEventScheduler Scheduler { get; }
+		internal ScriptEventScheduler Scheduler => _scheduler ??= new ScriptEventScheduler();
 
 		/// <summary>
 		/// Coroutine runner for managing timers and coroutines.
 		/// </summary>
-		internal LunyScriptCoroutineRunner Coroutines { get; }
+		internal ScriptObjectCoroutineRunner Coroutines => _coroutines ??= new ScriptObjectCoroutineRunner();
 
 		internal static void ClearGlobalVariables() => s_GlobalVariables?.RemoveAll();
-
 		internal static ITable GetGlobalVariables() => s_GlobalVariables;
 
 		public ScriptRuntimeContext(IScriptDefinition definition, ILunyObject lunyObject)
 		{
 			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
 			_lunyObject = lunyObject ?? throw new ArgumentNullException(nameof(lunyObject));
-
-			// TODO: don't create these hooks unless enabled
-			DebugHooks = new ScriptDebugHooks();
-			BlockProfiler = new ScriptBlockProfiler();
-
-			Scheduler = new ScriptEventScheduler();
-			Coroutines = new LunyScriptCoroutineRunner();
 		}
 
 		~ScriptRuntimeContext() => LunyTraceLogger.LogInfoFinalized(this);

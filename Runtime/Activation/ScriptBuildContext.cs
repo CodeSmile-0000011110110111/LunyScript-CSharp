@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LunyScript
+namespace LunyScript.Activation
 {
 	public struct ScriptBuildOptions
 	{

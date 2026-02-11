@@ -1,5 +1,4 @@
 using LunyScript.Blocks;
-using LunyScript.Blocks.Coroutines;
 using System;
 
 namespace LunyScript.Coroutines.ApiBuilders
@@ -16,7 +15,7 @@ namespace LunyScript.Coroutines.ApiBuilders
 		internal TimerBuilder(ILunyScript script, String name)
 		{
 			_script = script ?? throw new ArgumentNullException(nameof(script));
-			_name = !String.IsNullOrEmpty(name) ? name : throw new ArgumentException("Timer name is null or empty", nameof(name));
+			_name = !String.IsNullOrWhiteSpace(name) ? name : throw new ArgumentException("Timer name is null or empty", nameof(name));
 		}
 
 		/// <summary>
@@ -44,11 +43,14 @@ namespace LunyScript.Coroutines.ApiBuilders
 		{
 			_script = script;
 			_name = name;
-			_amount = amount;
+			_amount = Math.Max(0, amount);
 			_continuation = continuation;
+
+			if (amount < 0)
+				throw new ArgumentException($"Timer duration must be 0 or greater, got: {amount}");
 		}
 
-		private TimerFinalBuilder CreateFinal(Coroutine.Options options) => TimerFinalBuilder.FromOptions(_script, options);
+		private TimerFinalBuilder CreateFinal(in Coroutine.Options options) => TimerFinalBuilder.FromOptions(_script, options);
 
 		/// <summary>
 		/// Duration in seconds (time-based).

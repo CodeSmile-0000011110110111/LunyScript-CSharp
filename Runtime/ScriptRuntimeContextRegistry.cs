@@ -12,7 +12,7 @@ namespace LunyScript
 	/// Manages run contexts and their binding to objects.
 	/// Provides deterministic iteration order based on ObjectID.
 	/// </summary>
-	internal sealed class ScriptContextRegistry
+	internal sealed class ScriptRuntimeContextRegistry
 	{
 		private readonly Dictionary<LunyObjectID, ScriptRuntimeContext> _contextsByObjectID = new();
 		private readonly Dictionary<LunyNativeObjectID, ScriptRuntimeContext> _contextsByNativeID = new();
@@ -30,7 +30,7 @@ namespace LunyScript
 		/// </summary>
 		public Int32 Count => _contextsByObjectID.Count;
 
-		~ScriptContextRegistry() => LunyTraceLogger.LogInfoFinalized(this);
+		~ScriptRuntimeContextRegistry() => LunyTraceLogger.LogInfoFinalized(this);
 
 		public ScriptRuntimeContext CreateContext(ScriptDefinition scriptDef, ILunyObject sceneObject)
 		{

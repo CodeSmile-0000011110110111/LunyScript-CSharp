@@ -6,12 +6,12 @@ namespace LunyScript.Coroutines
 	/// <summary>
 	/// Coroutine that elapses after a specific duration in seconds.
 	/// </summary>
-	internal sealed class TimerCoroutine : PerpetualCoroutine
+	internal sealed class TimerCoroutine : Coroutine
 	{
 		private Timer _timer;
 		private Boolean _elapsedThisTick;
 
-		internal override Double TimeScale
+		internal Double TimeScale
 		{
 			get => _timer.TimeScale;
 			set => _timer.TimeScale = Math.Max(0.0, value);
@@ -26,15 +26,19 @@ namespace LunyScript.Coroutines
 			_timer.OnElapsed += () => _elapsedThisTick = true;
 		}
 
-		protected override void OnStart() => _timer.Start();
-		protected override void OnStop() => _timer.Stop();
+		protected override void OnStarted() => _timer.Start();
+		protected override void OnStopped() => _timer.Stop();
+		protected override void OnPaused() {} // no need to pause timer: Consume* methods won't be called when paused
+		protected override void OnResumed() {}
 
-		protected override Boolean OnFrameUpdate()
+		protected override Boolean ConsumeFrameUpdate()
 		{
 			_elapsedThisTick = false;
 			_timer.Tick(LunyEngine.Instance.Time.DeltaTime);
 			return _elapsedThisTick;
 		}
+
+		protected override Boolean ConsumeHeartbeat() => throw new NotImplementedException(nameof(ConsumeHeartbeat));
 
 		public override String ToString()
 		{

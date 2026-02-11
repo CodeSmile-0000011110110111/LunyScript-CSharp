@@ -6,12 +6,10 @@ namespace LunyScript.Coroutines
 	/// <summary>
 	/// Coroutine that elapses after a specific number of heartbeats/ticks.
 	/// </summary>
-	internal sealed class CounterCoroutine : PerpetualCoroutine
+	internal sealed class CounterCoroutine : Coroutine
 	{
 		private Counter _counter;
 		private Boolean _elapsedThisTick;
-
-		internal override Boolean IsCounterStyle => true;
 
 		public CounterCoroutine(in Options options)
 			: base(options)
@@ -23,13 +21,12 @@ namespace LunyScript.Coroutines
 			_counter.OnElapsed += () => _elapsedThisTick = true;
 		}
 
-		protected override void OnStart() => _counter.Start();
-
-		protected override void OnStop() => _counter.Stop();
-
-		protected override Boolean OnHeartbeat() => IncrementCounter();
-
-		protected override Boolean OnFrameUpdate() => IncrementCounter();
+		protected override void OnStarted() => _counter.Start();
+		protected override void OnStopped() => _counter.Stop();
+		protected override void OnPaused() {} // no need to pause counter: Consume* methods won't be called when paused
+		protected override void OnResumed() {}
+		protected override Boolean ConsumeHeartbeat() => IncrementCounter();
+		protected override Boolean ConsumeFrameUpdate() => IncrementCounter();
 
 		private Boolean IncrementCounter()
 		{
