@@ -64,6 +64,8 @@ namespace LunyScript
 				LunyScriptRunner.Run(entry.Sequences[6], context);
 		}
 
+		public ScriptObjectCoroutineRunner() => _time = LunyEngine.Instance.Time;
+
 		/// <summary>
 		/// Registers a new coroutine. Throws if name already exists.
 		/// </summary>
@@ -112,9 +114,7 @@ namespace LunyScript
 		/// </summary>
 		internal void OnHeartbeat(ScriptRuntimeContext runtimeContext)
 		{
-			var time = LunyEngine.Instance.Time;
-			var heartbeatCount = time.HeartbeatCount;
-
+			var heartbeatCount = _time.HeartbeatCount;
 			for (var i = 0; i < _heartbeatOnly.Count; i++)
 			{
 				var entry = _heartbeatOnly[i];
@@ -135,9 +135,7 @@ namespace LunyScript
 		/// </summary>
 		internal void OnFrameUpdate(ScriptRuntimeContext runtimeContext)
 		{
-			var time = LunyEngine.Instance.Time;
-			var frameCount = time.FrameCount;
-
+			var frameCount = _time.FrameCount;
 			for (var i = 0; i < _frameOnly.Count; i++)
 			{
 				var entry = _frameOnly[i];
@@ -160,10 +158,12 @@ namespace LunyScript
 			foreach (var entry in _registry.Values)
 				entry.Coroutine.OnObjectDestroyed();
 
+			// TODO: shouldn't clear, move collections to registry (same with Scheduler)
 			_registry.Clear();
 			_heartbeatOnly.Clear();
 			_frameOnly.Clear();
 			_always.Clear();
+			_time = null;
 		}
 
 		~ScriptObjectCoroutineRunner() => LunyTraceLogger.LogInfoFinalized(this);

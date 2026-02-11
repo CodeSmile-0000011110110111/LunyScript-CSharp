@@ -130,7 +130,7 @@ namespace LunyScript.Coroutines
 		/// <summary>
 		/// Stop coroutine when object is destroyed.
 		/// </summary>
-		internal void OnObjectDestroyed() => Stop();
+		internal void OnObjectDestroyed() => StopWithoutEvent();
 
 		internal CoroutineEvents GetAndClearPendingEvents()
 		{

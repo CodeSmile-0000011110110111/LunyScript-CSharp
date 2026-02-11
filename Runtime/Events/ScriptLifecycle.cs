@@ -14,15 +14,15 @@ namespace LunyScript.Events
 	/// Manages object lifecycle events by attaching hooks to LunyObjects and handling event dispatch.
 	/// Coordinates enable/disable state changes and deferred object destruction.
 	/// </summary>
-	internal sealed class ScriptObjectLifecycle : ILunyScriptLifecycleInternal
+	internal sealed class ScriptLifecycle : ILunyScriptLifecycleInternal
 	{
 		[NotNull] private readonly ScriptRuntimeContextRegistry _contexts;
 		private readonly Dictionary<ScriptRuntimeContext, ObjectEventHandler> _subscribers = new();
 
-		internal ScriptObjectLifecycle(ScriptRuntimeContextRegistry runtimeContextRegistry) =>
+		internal ScriptLifecycle(ScriptRuntimeContextRegistry runtimeContextRegistry) =>
 			_contexts = runtimeContextRegistry ?? throw new ArgumentNullException(nameof(runtimeContextRegistry));
 
-		~ScriptObjectLifecycle() => LunyTraceLogger.LogInfoFinalized(this);
+		~ScriptLifecycle() => LunyTraceLogger.LogInfoFinalized(this);
 
 		/// <summary>
 		/// Registers lifecycle hooks on a LunyObject for the given context.
@@ -86,15 +86,15 @@ namespace LunyScript.Events
 
 		private sealed class ObjectEventHandler
 		{
-			private readonly ScriptObjectLifecycle _objectLifecycle;
+			private readonly ScriptLifecycle _lifecycle;
 			private readonly ScriptRuntimeContext _runtimeContext;
 #if DEBUG || LUNYSCRIPT_DEBUG
 			private Boolean _processingEnableDisableReentryLock;
 #endif
 
-			public ObjectEventHandler(ScriptObjectLifecycle objectLifecycle, ScriptRuntimeContext runtimeContext)
+			public ObjectEventHandler(ScriptLifecycle lifecycle, ScriptRuntimeContext runtimeContext)
 			{
-				_objectLifecycle = objectLifecycle;
+				_lifecycle = lifecycle;
 				_runtimeContext = runtimeContext;
 				RegisterAllCallbacks();
 			}
@@ -123,7 +123,7 @@ namespace LunyScript.Events
 			{
 				var sequences = _runtimeContext.Scheduler.GetSequences(objectEvent);
 				if (sequences != null)
-					LunyLogger.LogInfo($"Running {nameof(objectEvent)}: {_runtimeContext} ...", _objectLifecycle);
+					LunyLogger.LogInfo($"Running {nameof(objectEvent)}: {_runtimeContext} ...", _lifecycle);
 
 				LunyScriptRunner.Run(sequences, _runtimeContext);
 			}
@@ -153,7 +153,7 @@ namespace LunyScript.Events
 				RunScheduledForEvent(LunyObjectEvent.OnDestroy);
 				UnregisterAllCallbacks(); // no more events
 				_runtimeContext.Coroutines.OnObjectDestroyed(_runtimeContext);
-				_objectLifecycle.Unregister(_runtimeContext);
+				_lifecycle.Unregister(_runtimeContext);
 			}
 
 			private void OnReady()
