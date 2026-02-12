@@ -58,13 +58,13 @@ namespace LunyScript
 			{
 				FrameCount = timeService?.FrameCount ?? -1,
 				ElapsedSeconds = timeService?.ElapsedSeconds ?? -1.0,
-				ScriptBlockId = sequence.ID,
+				ScriptSequenceId = sequence.ID,
 				BlockType = blockType,
 				BlockDescription = sequence.ToString(),
 			};
 
 			runtimeContext.DebugHooks.NotifyBlockExecute(trace);
-			runtimeContext.BlockProfiler.BeginBlock(sequence.ID);
+			runtimeContext.BlockProfiler.BeginBlock(trace.ScriptSequenceId);
 
 			try
 			{
@@ -72,16 +72,17 @@ namespace LunyScript
 			}
 			catch (Exception ex)
 			{
-				runtimeContext.BlockProfiler.RecordError(sequence.ID, ex);
+				runtimeContext.BlockProfiler.RecordError(trace.ScriptSequenceId, ex);
 				trace.Error = ex;
 				runtimeContext.DebugHooks.NotifyBlockError(trace);
-				//LunyLogger.LogError(ex.ToString(), context);
+				LunyLogger.LogError(ex.ToString(), runtimeContext);
 				throw;
 			}
 			finally
 			{
-				runtimeContext.BlockProfiler.EndBlock(sequence.ID, blockType);
-				runtimeContext.DebugHooks.NotifyBlockComplete(trace);
+				// Note: a script may destroy the object during OnCreate, thus BlockProfiler/DebugHooks may now be null
+				runtimeContext.BlockProfiler?.EndBlock(trace.ScriptSequenceId, blockType);
+				runtimeContext.DebugHooks?.NotifyBlockComplete(trace);
 			}
 		}
 
@@ -154,8 +155,10 @@ namespace LunyScript
 
 		public void OnObjectUnregistered(ILunyObject lunyObject)
 		{
-			LunyLogger.LogInfo($"{nameof(OnObjectUnregistered)}: {lunyObject}");
+			//LunyLogger.LogInfo($"{nameof(OnObjectUnregistered)}: {lunyObject}");
 
+			// commented because Unregister(context) should have already run by object lifecycle
+			/*
 			// Cleanup context for destroyed object
 			var context = _contexts.GetByNativeObjectID(lunyObject.NativeObjectID);
 			if (context != null)
@@ -163,6 +166,7 @@ namespace LunyScript
 				// _sceneEventHandler.Unregister(context);
 				_contexts.Unregister(context);
 			}
+		*/
 		}
 
 		public void OnSceneUnloaded(ILunyScene unloadedScene) => _sceneEventHandler.OnSceneUnloaded(unloadedScene);

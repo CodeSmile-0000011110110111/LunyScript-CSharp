@@ -64,7 +64,7 @@ namespace LunyScript
 				LunyScriptRunner.Run(entry.Sequences[6], context);
 		}
 
-		public ScriptObjectCoroutineRunner() => _time = LunyEngine.Instance.Time;
+		public ScriptObjectCoroutineRunner(ScriptRuntimeContext runtimeContext) => _time = LunyEngine.Instance.Time;
 
 		/// <summary>
 		/// Registers a new coroutine. Throws if name already exists.

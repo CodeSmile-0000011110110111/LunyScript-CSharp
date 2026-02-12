@@ -30,7 +30,7 @@ namespace LunyScript.Events
 		/// </summary>
 		internal void Register(ScriptRuntimeContext runtimeContext)
 		{
-			var subscriber = new ObjectEventHandler(this, runtimeContext);
+			var subscriber = new ObjectEventHandler(this, _contexts, runtimeContext);
 			_subscribers[runtimeContext] = subscriber;
 		}
 
@@ -38,11 +38,7 @@ namespace LunyScript.Events
 		/// Unregisters lifecycle hooks from a LunyObject.
 		/// Called during context cleanup or shutdown.
 		/// </summary>
-		private void Unregister(ScriptRuntimeContext runtimeContext)
-		{
-			_subscribers.Remove(runtimeContext);
-			_contexts.Unregister(runtimeContext);
-		}
+		private void Unregister(ScriptRuntimeContext runtimeContext) => _subscribers.Remove(runtimeContext);
 
 		public void OnHeartbeat(ScriptRuntimeContext runtimeContext)
 		{
@@ -87,14 +83,16 @@ namespace LunyScript.Events
 		private sealed class ObjectEventHandler
 		{
 			private readonly ScriptLifecycle _lifecycle;
+			private readonly ScriptRuntimeContextRegistry _contexts;
 			private readonly ScriptRuntimeContext _runtimeContext;
 #if DEBUG || LUNYSCRIPT_DEBUG
 			private Boolean _processingEnableDisableReentryLock;
 #endif
 
-			public ObjectEventHandler(ScriptLifecycle lifecycle, ScriptRuntimeContext runtimeContext)
+			public ObjectEventHandler(ScriptLifecycle lifecycle, ScriptRuntimeContextRegistry contexts, ScriptRuntimeContext runtimeContext)
 			{
 				_lifecycle = lifecycle;
+				_contexts = contexts;
 				_runtimeContext = runtimeContext;
 				RegisterAllCallbacks();
 			}
@@ -130,6 +128,10 @@ namespace LunyScript.Events
 
 			private void UnscheduleOnceOnlyEvent(LunyObjectEvent objectEvent)
 			{
+				// Note: during the event, the script may have run Object.Destroy() on its object, thus invalidating it
+				if (!_runtimeContext.LunyObject.IsValid)
+					return;
+
 				if (objectEvent == LunyObjectEvent.OnCreate || objectEvent == LunyObjectEvent.OnReady)
 				{
 					// event never fires again for this object
@@ -154,6 +156,7 @@ namespace LunyScript.Events
 				UnregisterAllCallbacks(); // no more events
 				_runtimeContext.Coroutines.OnObjectDestroyed(_runtimeContext);
 				_lifecycle.Unregister(_runtimeContext);
+				_contexts.Unregister(_runtimeContext);
 			}
 
 			private void OnReady()
