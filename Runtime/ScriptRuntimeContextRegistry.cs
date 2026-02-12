@@ -61,12 +61,16 @@ namespace LunyScript
 		/// </summary>
 		internal Boolean Unregister(ScriptRuntimeContext runtimeContext)
 		{
+			//LunyLogger.LogInfo($"Unregistering ... {runtimeContext} ({runtimeContext.GetHashCode()})", this);
 			var lunyID = runtimeContext.LunyObject.LunyObjectID;
 			if (!_contextsByObjectID.Remove(lunyID))
 				return false;
 
-			_contextsByNativeID.Remove(runtimeContext.LunyObject.NativeObjectID);
 			_isSortedContextsDirty = true;
+			_contextsByNativeID.Remove(runtimeContext.LunyObject.NativeObjectID);
+			runtimeContext.Shutdown();
+
+			//LunyLogger.LogInfo($"Unregistered: {runtimeContext} ({runtimeContext.GetHashCode()})", this);
 			return true;
 		}
 
@@ -101,9 +105,17 @@ namespace LunyScript
 		internal void Shutdown()
 		{
 			ScriptRuntimeContext.ClearGlobalVariables();
+
+			foreach (var context in AllContexts)
+			{
+				context.Shutdown();
+			}
+
 			_contextsByObjectID.Clear();
 			_contextsByNativeID.Clear();
 			_sortedContexts = Array.Empty<ScriptRuntimeContext>();
+
+			GC.SuppressFinalize(this);
 		}
 	}
 }

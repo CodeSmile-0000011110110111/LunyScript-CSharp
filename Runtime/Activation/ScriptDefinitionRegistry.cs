@@ -81,6 +81,7 @@ namespace LunyScript.Activation
 		{
 			_scriptsById.Clear();
 			_scriptsByName.Clear();
+			GC.SuppressFinalize(this);
 		}
 
 		public IReadOnlyCollection<String> GetNames() => _scriptsByName.Keys;

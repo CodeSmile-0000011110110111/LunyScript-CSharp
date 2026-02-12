@@ -37,7 +37,7 @@ namespace LunyScript.Activation
 
 		public static void BuildAndActivateLunyScript(LunyScriptRunner runner, ILunyObject lunyObject)
 		{
-			LunyLogger.LogInfo($"{lunyObject} Activating Script ...", nameof(ScriptBuilder));
+			//LunyLogger.LogInfo($"{lunyObject} Activating Script ...", nameof(ScriptBuilder));
 
 			var buildContext = new ScriptContext();
 			var runtimeContext = TryCreateRuntimeContext(runner.Scripts, runner.Contexts, lunyObject);
@@ -59,7 +59,7 @@ namespace LunyScript.Activation
 				var scriptInstance = (Script)Activator.CreateInstance(runtimeContext.ScriptType);
 				scriptInstance.Initialize(runtimeContext);
 				scriptInstance.Build(scriptContext);
-				scriptInstance.Destroy();
+				scriptInstance.Shutdown();
 
 				// hook up events
 				lifecycle.Register(runtimeContext);

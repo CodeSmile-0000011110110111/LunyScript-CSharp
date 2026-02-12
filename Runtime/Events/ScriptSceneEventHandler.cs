@@ -55,6 +55,10 @@ namespace LunyScript.Events
 			LunyScriptRunner.Run(sequences, context);
 		}
 
-		public void Shutdown() => _subscriberObjectIDs.Clear();
+		public void Shutdown()
+		{
+			_subscriberObjectIDs.Clear();
+			GC.SuppressFinalize(this);
+		}
 	}
 }

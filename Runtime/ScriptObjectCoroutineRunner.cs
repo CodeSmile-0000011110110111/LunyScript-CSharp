@@ -152,15 +152,7 @@ namespace LunyScript
 		/// </summary>
 		public void OnObjectDestroyed(IScriptRuntimeContext runtimeContext)
 		{
-			foreach (var entry in _registry.Values)
-				entry.Coroutine.OnObjectDestroyed();
-
-			// TODO: shouldn't clear, move collections to registry (same with Scheduler)
-			_registry.Clear();
-			_heartbeatOnly.Clear();
-			_frameOnly.Clear();
-			_always.Clear();
-			_time = null;
+			Shutdown(runtimeContext);
 		}
 
 		~ScriptObjectCoroutineRunner() => LunyTraceLogger.LogInfoFinalized(this);
@@ -190,6 +182,23 @@ namespace LunyScript
 				Sequences[5] = SequenceBlock.TryCreate(options.OnStopped);
 				Sequences[6] = SequenceBlock.TryCreate(options.OnElapsed);
 			}
+		}
+
+		public void Shutdown(IScriptRuntimeContext runtimeContext)
+		{
+			LunyLogger.LogInfo($"Shutdown for {runtimeContext}", this);
+
+			foreach (var entry in _registry.Values)
+				entry.Coroutine.OnObjectDestroyed();
+
+			// TODO: shouldn't clear, move collections to registry (same with Scheduler)
+			_registry.Clear();
+			_heartbeatOnly.Clear();
+			_frameOnly.Clear();
+			_always.Clear();
+			_time = null;
+
+			GC.SuppressFinalize(this);
 		}
 	}
 }

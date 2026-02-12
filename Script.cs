@@ -1,6 +1,5 @@
 using Luny;
 using Luny.Engine.Bridge;
-using LunyScript.Activation;
 using LunyScript.Api;
 using LunyScript.Blocks;
 using LunyScript.Coroutines.ApiBuilders;
@@ -237,7 +236,7 @@ namespace LunyScript
 
 		~Script() => LunyTraceLogger.LogInfoFinalized(this);
 
-		internal void Destroy() {} // placeholder for future cleanup tasks
+		internal void Shutdown() => GC.SuppressFinalize(this);
 
 		/// <summary>
 		/// Called once when the script is initialized.
@@ -247,6 +246,6 @@ namespace LunyScript
 		/// <param name="context"></param>
 		public abstract void Build(ScriptContext context);
 
-		override public String ToString() => _runtimeContext != null ? _runtimeContext.ToString() : GetType().FullName;
+		public override String ToString() => _runtimeContext != null ? _runtimeContext.ToString() : GetType().FullName;
 	}
 }

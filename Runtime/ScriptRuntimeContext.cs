@@ -95,12 +95,18 @@ namespace LunyScript
 		{
 			_scriptDef = definition ?? throw new ArgumentNullException(nameof(definition));
 			_lunyObject = lunyObject ?? throw new ArgumentNullException(nameof(lunyObject));
+			LunyLogger.LogInfo($"NEW {this} ({GetHashCode()})", this);
 		}
-
-		~ScriptRuntimeContext() => LunyTraceLogger.LogInfoFinalized(this);
 
 		internal void Activate() => _lunyObject.Initialize();
 
+		internal void Shutdown()
+		{
+			_coroutines.Shutdown(this);
+			GC.SuppressFinalize(this);
+		}
+
+		~ScriptRuntimeContext() => LunyTraceLogger.LogInfoFinalized(this);
 		public override String ToString() => $"{ScriptDefId} -> {LunyObject}";
 	}
 }

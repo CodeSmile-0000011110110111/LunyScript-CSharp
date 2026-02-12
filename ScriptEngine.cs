@@ -59,6 +59,7 @@ namespace LunyScript
 			LunyTraceLogger.LogInfoShuttingDown(this);
 			Instance = null;
 			_runner = null;
+			GC.SuppressFinalize(this);
 			LunyTraceLogger.LogInfoShutdownComplete(this);
 		}
 	}

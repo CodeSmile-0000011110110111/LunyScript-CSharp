@@ -76,6 +76,7 @@ namespace LunyScript.Events
 				subscriber.UnregisterAllCallbacks();
 
 			_subscribers.Clear();
+			GC.SuppressFinalize(this);
 		}
 
 		private sealed class ObjectEventHandler

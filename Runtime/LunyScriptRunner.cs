@@ -63,7 +63,6 @@ namespace LunyScript
 				BlockDescription = sequence.ToString(),
 			};
 
-
 			// Note: explicit local vars because a script may destroy the object during OnCreate
 			// In that case the context's BlockProfiler/DebugHooks would be null in catch/finally
 			var debugHooks = runtimeContext.DebugHooks;
@@ -128,7 +127,37 @@ namespace LunyScript
 			}
 		}
 
-		public void OnEngineShutdown() => Shutdown();
+		public void OnEngineShutdown()
+		{
+			try
+			{
+				LunyTraceLogger.LogInfoShuttingDown(this);
+
+				// ensure all objects run their OnDestroy
+				foreach (var context in _contexts.AllContexts)
+					context.LunyObject.Destroy();
+
+				// final cleanup of pending object destroy
+				_scriptLifecycle.Shutdown();
+				_sceneEventHandler.Shutdown();
+				_contexts.Shutdown();
+				_scripts.Shutdown();
+				_scriptEngine.Shutdown();
+			}
+			catch (Exception)
+			{
+				LunyLogger.LogError($"Error during {nameof(LunyScriptRunner)} {nameof(OnEngineShutdown)}!", this);
+				throw;
+			}
+			finally
+			{
+				_scriptEngine = null;
+				_scriptLifecycle = null;
+				GC.SuppressFinalize(this);
+
+				LunyTraceLogger.LogInfoShutdownComplete(this);
+			}
+		}
 
 		public void OnSceneLoaded(ILunyScene loadedScene)
 		{
@@ -147,11 +176,14 @@ namespace LunyScript
 
 		public void OnObjectRegistered(ILunyObject lunyObject)
 		{
-			LunyLogger.LogInfo($"{nameof(OnObjectRegistered)}: {lunyObject}");
+			//LunyLogger.LogInfo($"{nameof(OnObjectRegistered)}: {lunyObject}", this);
 
 			// Check if object is already scripted to avoid double activation
 			if (_contexts.GetByNativeObjectID(lunyObject.NativeObjectID) != null)
+			{
+				LunyLogger.LogWarning($"{lunyObject} already runs a script", this);
 				return;
+			}
 
 			// Activate script on dynamically created object
 			ScriptBuilder.BuildAndActivateLunyScript(this, lunyObject);
@@ -159,18 +191,14 @@ namespace LunyScript
 
 		public void OnObjectUnregistered(ILunyObject lunyObject)
 		{
-			//LunyLogger.LogInfo($"{nameof(OnObjectUnregistered)}: {lunyObject}");
-
-			// commented because Unregister(context) should have already run by object lifecycle
-			/*
-			// Cleanup context for destroyed object
+			// Cleanup context for engine-side auto-destroyed objects (scene load)
 			var context = _contexts.GetByNativeObjectID(lunyObject.NativeObjectID);
 			if (context != null)
 			{
+				LunyLogger.LogInfo($"{nameof(OnObjectUnregistered)}: unregistering {context} ({context.GetHashCode()})");
 				// _sceneEventHandler.Unregister(context);
 				_contexts.Unregister(context);
 			}
-		*/
 		}
 
 		public void OnSceneUnloaded(ILunyScene unloadedScene) => _sceneEventHandler.OnSceneUnloaded(unloadedScene);
@@ -201,37 +229,6 @@ namespace LunyScript
 			// Run all LateUpdate runnables
 			foreach (var context in _contexts.AllContexts)
 				_scriptLifecycle.OnFrameLateUpdate(context);
-		}
-
-		internal void Shutdown()
-		{
-			try
-			{
-				LunyTraceLogger.LogInfoShuttingDown(this);
-
-				// ensure all objects run their OnDestroy
-				foreach (var context in _contexts.AllContexts)
-					context.LunyObject.Destroy();
-
-				// final cleanup of pending object destroy
-				_scriptLifecycle.Shutdown();
-				_sceneEventHandler.Shutdown();
-				_contexts.Shutdown();
-				_scripts.Shutdown();
-				_scriptEngine.Shutdown();
-			}
-			catch (Exception)
-			{
-				LunyLogger.LogError($"Error during {nameof(LunyScriptRunner)} {nameof(OnEngineShutdown)}!", this);
-				throw;
-			}
-			finally
-			{
-				_scriptEngine = null;
-				_scriptLifecycle = null;
-
-				LunyTraceLogger.LogInfoShutdownComplete(this);
-			}
 		}
 
 		~LunyScriptRunner() => LunyTraceLogger.LogInfoFinalized(this);
