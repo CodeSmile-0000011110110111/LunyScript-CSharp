@@ -17,14 +17,14 @@ namespace LunyScript.Api
 		/// Runs once the moment when the object is instantiated.
 		/// </summary>
 		public IScriptSequenceBlock Created(params IScriptActionBlock[] blocks) =>
-			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnCreate);
+			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnCreated);
 
 		/// <summary>
 		/// Runs every time the object's state changes to 'enabled' (visible and participating).
 		/// Runs directly after 'Created' if the object was just instantiated.
 		/// </summary>
 		public IScriptSequenceBlock Enabled(params IScriptActionBlock[] blocks) =>
-			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnEnable);
+			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnEnabled);
 
 		/// <summary>
 		/// Runs once per lifetime just before the object starts processing frame/time-step events.
@@ -36,13 +36,13 @@ namespace LunyScript.Api
 		/// Runs directly before 'Destroyed' if the object was enabled as it got destroyed.
 		/// </summary>
 		public IScriptSequenceBlock Disabled(params IScriptActionBlock[] blocks) =>
-			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnDisable);
+			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnDisabled);
 
 		/// <summary>
 		/// Runs once when the object gets destroyed. The object is already disabled, the native engine instance still exists.
 		/// </summary>
 		public IScriptSequenceBlock Destroyed(params IScriptActionBlock[] blocks) =>
-			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnDestroy);
+			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnDestroyed);
 
 		/// <summary>
 		/// Runs every frame while object is enabled.
@@ -53,7 +53,7 @@ namespace LunyScript.Api
 		/// <summary>
 		/// Runs after frame update while object is enabled.
 		/// </summary>
-		public IScriptSequenceBlock FrameLateUpdate(params IScriptActionBlock[] blocks) =>
+		public IScriptSequenceBlock AfterFrameUpdate(params IScriptActionBlock[] blocks) =>
 			Scheduler?.ScheduleSequence(blocks, LunyObjectEvent.OnFrameLateUpdate);
 
 		/// <summary>

@@ -6,7 +6,7 @@ namespace LunyScript.SmokeTests
 		{
 			On.Created(Method.Run(AssertDidRun));
 
-			On.FrameLateUpdate(
+			On.AfterFrameUpdate(
 				//Debug.LogWarning("Reloading scene now ..."),
 				//Scene.Reload()
 			);
@@ -58,7 +58,7 @@ namespace LunyScript.SmokeTests
 
 	public sealed class Assert_Runs_OnFrameLateUpdate : LunyScriptSmokeTestBase
 	{
-		public override void Build(ScriptContext context) => On.FrameLateUpdate(Method.Run(AssertDidRun),
+		public override void Build(ScriptContext context) => On.AfterFrameUpdate(Method.Run(AssertDidRun),
 			Object.Destroy() // prevent log spam
 		);
 	}

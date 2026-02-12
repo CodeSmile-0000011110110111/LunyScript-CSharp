@@ -1,9 +1,7 @@
 using Luny;
 using Luny.Engine.Bridge.Enums;
-using LunyScript.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace LunyScript.Events
@@ -85,9 +83,6 @@ namespace LunyScript.Events
 			private readonly ScriptLifecycle _lifecycle;
 			private readonly ScriptRuntimeContextRegistry _contexts;
 			private readonly ScriptRuntimeContext _runtimeContext;
-#if DEBUG || LUNYSCRIPT_DEBUG
-			private Boolean _processingEnableDisableReentryLock;
-#endif
 
 			public ObjectEventHandler(ScriptLifecycle lifecycle, ScriptRuntimeContextRegistry contexts, ScriptRuntimeContext runtimeContext)
 			{
@@ -119,7 +114,7 @@ namespace LunyScript.Events
 
 			private void RunScheduledForEvent(LunyObjectEvent objectEvent)
 			{
-				var sequences = _runtimeContext.Scheduler.GetSequences(objectEvent);
+				var sequences = _runtimeContext.Scheduler?.GetSequences(objectEvent);
 				if (sequences != null)
 					LunyLogger.LogInfo($"<{objectEvent}> for {_runtimeContext}", _lifecycle);
 
@@ -132,12 +127,12 @@ namespace LunyScript.Events
 				if (!_runtimeContext.LunyObject.IsValid)
 					return;
 
-				if (objectEvent == LunyObjectEvent.OnCreate || objectEvent == LunyObjectEvent.OnReady)
+				if (objectEvent == LunyObjectEvent.OnCreated || objectEvent == LunyObjectEvent.OnReady)
 				{
 					// event never fires again for this object
 					_runtimeContext.Scheduler.Unschedule(objectEvent);
 
-					if (objectEvent == LunyObjectEvent.OnCreate)
+					if (objectEvent == LunyObjectEvent.OnCreated)
 						_runtimeContext.LunyObject.OnCreate -= OnCreate;
 					else if (objectEvent == LunyObjectEvent.OnReady)
 						_runtimeContext.LunyObject.OnReady -= OnReady;
@@ -146,15 +141,15 @@ namespace LunyScript.Events
 
 			private void OnCreate()
 			{
-				RunScheduledForEvent(LunyObjectEvent.OnCreate);
-				UnscheduleOnceOnlyEvent(LunyObjectEvent.OnCreate);
+				RunScheduledForEvent(LunyObjectEvent.OnCreated);
+				UnscheduleOnceOnlyEvent(LunyObjectEvent.OnCreated);
 			}
 
 			private void OnDestroy()
 			{
-				RunScheduledForEvent(LunyObjectEvent.OnDestroy);
+				RunScheduledForEvent(LunyObjectEvent.OnDestroyed);
 				UnregisterAllCallbacks(); // no more events
-				_runtimeContext.Coroutines.OnObjectDestroyed(_runtimeContext);
+				_runtimeContext.Coroutines?.OnObjectDestroyed(_runtimeContext);
 				_lifecycle.Unregister(_runtimeContext);
 				_contexts.Unregister(_runtimeContext);
 			}
@@ -165,42 +160,8 @@ namespace LunyScript.Events
 				UnscheduleOnceOnlyEvent(LunyObjectEvent.OnReady);
 			}
 
-			private void OnEnable()
-			{
-				ThrowIfAlreadyProcessingEnableDisableEvent(_runtimeContext);
-				SetProcessingEnableDisableReentryLock(true);
-				RunScheduledForEvent(LunyObjectEvent.OnEnable);
-				SetProcessingEnableDisableReentryLock(false);
-			}
-
-			private void OnDisable()
-			{
-				ThrowIfAlreadyProcessingEnableDisableEvent(_runtimeContext);
-				SetProcessingEnableDisableReentryLock(true);
-				RunScheduledForEvent(LunyObjectEvent.OnDisable);
-				SetProcessingEnableDisableReentryLock(false);
-			}
-
-			[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-			private void SetProcessingEnableDisableReentryLock(Boolean locked)
-			{
-#if DEBUG || LUNYSCRIPT_DEBUG
-				_processingEnableDisableReentryLock = locked;
-#endif
-			}
-
-			[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-			private void ThrowIfAlreadyProcessingEnableDisableEvent(ScriptRuntimeContext runtimeContext)
-			{
-#if DEBUG || LUNYSCRIPT_DEBUG
-				// Safeguard against infinite loops (OnEnable toggles to disabled, which triggers OnDisable, etc.)
-				if (_processingEnableDisableReentryLock)
-				{
-					throw new LunyScriptException("Disabling in When.Enabled while ALSO enabling in When.Disabled is not allowed " +
-					                              $"(would cause an infinite loop). Script: {runtimeContext}");
-				}
-#endif
-			}
+			private void OnEnable() => RunScheduledForEvent(LunyObjectEvent.OnEnabled);
+			private void OnDisable() => RunScheduledForEvent(LunyObjectEvent.OnDisabled);
 		}
 	}
 }

@@ -63,8 +63,13 @@ namespace LunyScript
 				BlockDescription = sequence.ToString(),
 			};
 
-			runtimeContext.DebugHooks.NotifyBlockExecute(trace);
-			runtimeContext.BlockProfiler.BeginBlock(trace.ScriptSequenceId);
+
+			// Note: explicit local vars because a script may destroy the object during OnCreate
+			// In that case the context's BlockProfiler/DebugHooks would be null in catch/finally
+			var debugHooks = runtimeContext.DebugHooks;
+			var blockProfiler = runtimeContext.BlockProfiler;
+			debugHooks.NotifyBlockExecute(trace);
+			blockProfiler.BeginBlock(trace.ScriptSequenceId);
 
 			try
 			{
@@ -72,17 +77,16 @@ namespace LunyScript
 			}
 			catch (Exception ex)
 			{
-				runtimeContext.BlockProfiler.RecordError(trace.ScriptSequenceId, ex);
 				trace.Error = ex;
-				runtimeContext.DebugHooks.NotifyBlockError(trace);
+				blockProfiler.RecordError(trace.ScriptSequenceId, ex);
+				debugHooks.NotifyBlockError(trace);
 				LunyLogger.LogError(ex.ToString(), runtimeContext);
 				throw;
 			}
 			finally
 			{
-				// Note: a script may destroy the object during OnCreate, thus BlockProfiler/DebugHooks may now be null
-				runtimeContext.BlockProfiler?.EndBlock(trace.ScriptSequenceId, blockType);
-				runtimeContext.DebugHooks?.NotifyBlockComplete(trace);
+				blockProfiler.EndBlock(trace.ScriptSequenceId, blockType);
+				debugHooks.NotifyBlockComplete(trace);
 			}
 		}
 
