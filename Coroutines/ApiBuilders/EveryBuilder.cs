@@ -9,10 +9,10 @@ namespace LunyScript.Coroutines.ApiBuilders
 	/// </summary>
 	public readonly struct EveryBuilder
 	{
-		private readonly ILunyScript _script;
+		private readonly IScript _script;
 		private readonly Int32 _interval;
 
-		internal EveryBuilder(ILunyScript script, Int32 interval)
+		internal EveryBuilder(IScript script, Int32 interval)
 		{
 			_script = script ?? throw new ArgumentNullException(nameof(script));
 			_interval = interval;
@@ -34,12 +34,12 @@ namespace LunyScript.Coroutines.ApiBuilders
 	/// </summary>
 	public readonly struct EveryUnitBuilder
 	{
-		private readonly ILunyScript _script;
+		private readonly IScript _script;
 		private readonly Int32 _interval;
 		private readonly Int32 _delay;
 		private readonly Coroutine.Process _process;
 
-		internal EveryUnitBuilder(ILunyScript script, Int32 interval, Coroutine.Process process, Int32 delay = 0)
+		internal EveryUnitBuilder(IScript script, Int32 interval, Coroutine.Process process, Int32 delay = 0)
 		{
 			_script = script;
 			_interval = Math.Max(0, interval);

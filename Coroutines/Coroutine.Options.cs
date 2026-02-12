@@ -1,8 +1,12 @@
 ﻿using LunyScript.Blocks;
 using System;
+using System.ComponentModel;
+
 
 namespace LunyScript.Coroutines
 {
+
+
 	internal partial class Coroutine
 	{
 		/// <summary>

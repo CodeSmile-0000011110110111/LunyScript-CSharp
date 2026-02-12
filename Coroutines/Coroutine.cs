@@ -28,7 +28,7 @@ namespace LunyScript.Coroutines
 	/// </summary>
 	internal partial class Coroutine
 	{
-		private static readonly String[] s_StateNames = Enum.GetNames<CoroutineState>();
+		private static readonly String[] s_StateNames = Enum.GetNames(typeof(CoroutineState));
 
 		private readonly String _name;
 		private CoroutineState _state = CoroutineState.New;

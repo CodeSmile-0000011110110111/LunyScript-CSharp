@@ -4,8 +4,8 @@ namespace LunyScript.Api
 {
 	public readonly struct LoopApi
 	{
-		private readonly LunyScript _script;
-		internal LoopApi(LunyScript script) => _script = script;
+		private readonly Script _script;
+		internal LoopApi(Script script) => _script = script;
 
 		/// <summary>
 		/// Returns the current iteration count of the innermost surrounding loop.

@@ -9,8 +9,8 @@ namespace LunyScript.Api
 	/// </summary>
 	public readonly struct DebugApi
 	{
-		private readonly ILunyScript _script;
-		internal DebugApi(ILunyScript script) => _script = script;
+		private readonly IScript _script;
+		internal DebugApi(IScript script) => _script = script;
 
 		/// <summary>
 		/// Logs a debug message that is completely stripped in release builds.

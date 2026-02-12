@@ -1,6 +1,6 @@
 {
     "name": "LunyScript",
-    "rootNamespace": "LunyScript",
+    "rootNamespace": "",
     "references": [
         "GUID:d8105533248dd994a834ff6858cf7898"
     ],

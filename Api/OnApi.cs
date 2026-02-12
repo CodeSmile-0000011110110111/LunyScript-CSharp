@@ -9,8 +9,8 @@ namespace LunyScript.Api
 	/// </summary>
 	public readonly struct OnApi
 	{
-		private readonly ILunyScript _script;
-		internal OnApi(ILunyScript script) => _script = script;
+		private readonly IScript _script;
+		internal OnApi(IScript script) => _script = script;
 		private ScriptEventScheduler Scheduler => ((ILunyScriptInternal)_script).Scheduler;
 
 		/// <summary>

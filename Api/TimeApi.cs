@@ -4,9 +4,9 @@ namespace LunyScript.Api
 {
 	public readonly struct TimeApi
 	{
-		private readonly ILunyScript _script;
+		private readonly IScript _script;
 
-		internal TimeApi(ILunyScript script)
+		internal TimeApi(IScript script)
 		{
 			_script = script;
 			ElapsedSeconds = Double.NaN;

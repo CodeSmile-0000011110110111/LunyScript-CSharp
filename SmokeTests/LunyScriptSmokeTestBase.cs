@@ -4,20 +4,20 @@ using System;
 
 namespace LunyScript.SmokeTests
 {
-	public abstract class LunyScriptSmokeTestBase : LunyScript
+	public abstract class LunyScriptSmokeTestBase : Script
 	{
 		protected void AssertDidRun() => SetTestPassedVariable(true);
 
 		private void SetTestPassedVariable(Boolean result)
 		{
-			var gvars = LunyScriptEngine.Instance.GlobalVariables;
+			var gvars = ScriptEngine.Instance.GlobalVariables;
 			var name = GetType().Name;
 
 			if (!gvars[name].AsBoolean())
 				gvars[name] = result;
 		}
 
-		public override void Build(ScriptBuildContext context)
+		public override void Build(ScriptContext context)
 		{
 			LunyLogger.LogInfo($"{GetType().Name} BUILD", this);
 			On.Created(Method.Run(() => LunyLogger.LogInfo($"{GetType().Name} CREATED...", this)));

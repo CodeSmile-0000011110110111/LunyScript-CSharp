@@ -10,7 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace LunyScript
 {
-	public interface ILunyScript
+	public interface IScript
 	{
 		ScriptDefID ScriptDefId { get; }
 		ILunyObject LunyObject { get; }
@@ -57,7 +57,7 @@ namespace LunyScript
 	///			}
 	///		}
 	/// </remarks>
-	public abstract class LunyScript : ILunyScript, ILunyScriptInternal
+	public abstract class Script : IScript, ILunyScriptInternal
 	{
 		private IScriptRuntimeContext _runtimeContext;
 
@@ -139,7 +139,7 @@ namespace LunyScript
 		public ApiPlaceholders.PostFxApi PostFx => new(this);
 		public ApiPlaceholders.ProgressApi Progress => new(this);
 		public ApiPlaceholders.QualityApi Quality => new(this);
-		public ApiPlaceholders.ScriptApi Script => new(this);
+		//public ApiPlaceholders.ScriptApi Script => new(this);
 		public ApiPlaceholders.SessionApi Session => new(this);
 		public ApiPlaceholders.SettingsApi Settings => new(this);
 		public ApiPlaceholders.SpawnApi Spawn => new(this);
@@ -235,7 +235,7 @@ namespace LunyScript
 		/// </summary>
 		protected EveryBuilder Every(Int32 interval) => new(this, interval);
 
-		~LunyScript() => LunyTraceLogger.LogInfoFinalized(this);
+		~Script() => LunyTraceLogger.LogInfoFinalized(this);
 
 		internal void Destroy() {} // placeholder for future cleanup tasks
 
@@ -245,7 +245,7 @@ namespace LunyScript
 		/// Users can use regular C# syntax (ie call methods, use loops) to construct complex and/or reusable blocks.
 		/// </summary>
 		/// <param name="context"></param>
-		public abstract void Build(ScriptBuildContext context);
+		public abstract void Build(ScriptContext context);
 
 		override public String ToString() => _runtimeContext != null ? _runtimeContext.ToString() : GetType().FullName;
 	}

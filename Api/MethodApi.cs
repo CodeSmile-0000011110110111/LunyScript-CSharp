@@ -5,8 +5,8 @@ namespace LunyScript.Api
 {
 	public readonly struct MethodApi
 	{
-		private readonly ILunyScript _script;
-		internal MethodApi(ILunyScript script) => _script = script;
+		private readonly IScript _script;
+		internal MethodApi(IScript script) => _script = script;
 
 		/// <summary>
 		/// Executes Action (or: method).

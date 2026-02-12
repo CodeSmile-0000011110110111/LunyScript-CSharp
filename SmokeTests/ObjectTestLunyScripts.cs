@@ -3,14 +3,14 @@ using System;
 
 namespace LunyScript.SmokeTests
 {
-	public sealed class ObjectTestLunyScript : LunyScript
+	public sealed class ObjectTestScript : Script
 	{
 		public const String DestroyedObjectName = "destroyed";
 		public const String EmptyObjectName = "empty";
 		public const String CubeObjectName = "cube";
 		public const String SphereObjectName = "sphere";
 
-		public override void Build(ScriptBuildContext context)
+		public override void Build(ScriptContext context)
 		{
 			On.Created(Object.Create(DestroyedObjectName));
 			On.FrameLateUpdate(Object.Destroy(DestroyedObjectName));

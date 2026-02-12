@@ -8,8 +8,8 @@ namespace LunyScript.Api
 	/// </summary>
 	public readonly struct ObjectApi
 	{
-		private readonly ILunyScript _script;
-		internal ObjectApi(ILunyScript script) => _script = script;
+		private readonly IScript _script;
+		internal ObjectApi(IScript script) => _script = script;
 
 		public IScriptActionBlock Enable(String name = null) =>
 			String.IsNullOrEmpty(name) ? ObjectEnableSelfBlock.Create() : ObjectEnableTargetBlock.Create(name);

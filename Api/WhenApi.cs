@@ -10,8 +10,8 @@ namespace LunyScript.Api
 	/// </summary>
 	public readonly struct WhenApi
 	{
-		private readonly ILunyScript _script;
-		internal WhenApi(ILunyScript script) => _script = script;
+		private readonly IScript _script;
+		internal WhenApi(IScript script) => _script = script;
 
 		public SceneApi Scene => new(_script);
 
@@ -20,8 +20,8 @@ namespace LunyScript.Api
 		/// </summary>
 		public readonly struct SceneApi
 		{
-			private readonly ILunyScript _script;
-			internal SceneApi(ILunyScript script) => _script = script;
+			private readonly IScript _script;
+			internal SceneApi(IScript script) => _script = script;
 			private ScriptEventScheduler Scheduler => ((ILunyScriptInternal)_script).Scheduler;
 
 			/// <summary>

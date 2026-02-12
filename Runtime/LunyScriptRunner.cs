@@ -21,7 +21,7 @@ namespace LunyScript
 	/// </summary>
 	internal sealed class LunyScriptRunner : ILunyEngineObserver
 	{
-		[NotNull] private LunyScriptEngine _scriptEngine;
+		[NotNull] private ScriptEngine _scriptEngine;
 		[NotNull] private ScriptDefinitionRegistry _scripts;
 		[NotNull] private ScriptRuntimeContextRegistry _contexts;
 		[NotNull] private ScriptLifecycle _scriptLifecycle;
@@ -91,7 +91,7 @@ namespace LunyScript
 
 			ScriptDefID.Reset();
 			ScriptBlockID.Reset();
-			_scriptEngine = new LunyScriptEngine(this); // public API interface (split to ensure users don't call OnStartup etc)
+			_scriptEngine = new ScriptEngine(this); // public API interface (split to ensure users don't call OnStartup etc)
 			_scripts = new ScriptDefinitionRegistry(); // performs LunyScript type discovery
 			_contexts = new ScriptRuntimeContextRegistry();
 			_scriptLifecycle = new ScriptLifecycle(_contexts);

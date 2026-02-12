@@ -55,7 +55,7 @@ namespace LunyScript.Blocks
 #endif
 
 			var loopStack = runtimeContext.LoopStack;
-			var maxLimit = LunyScriptEngine.MaxLoopIterations;
+			var maxLimit = ScriptEngine.MaxLoopIterations;
 
 			if (_step > 0)
 			{

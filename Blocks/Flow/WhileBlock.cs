@@ -47,7 +47,7 @@ namespace LunyScript.Blocks
 			var iterations = 0;
 #endif
 
-			var limit = LunyScriptEngine.MaxLoopIterations;
+			var limit = ScriptEngine.MaxLoopIterations;
 
 			while (EvaluateAll(runtimeContext))
 			{

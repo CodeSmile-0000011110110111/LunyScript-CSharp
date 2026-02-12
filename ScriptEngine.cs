@@ -7,7 +7,7 @@ namespace LunyScript
 	/// <summary>
 	/// Public interface for LunyScript
 	/// </summary>
-	public interface ILunyScriptEngine
+	public interface IScriptEngine
 	{
 		ITable GlobalVariables { get; }
 		IScriptRuntimeContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID);
@@ -16,10 +16,10 @@ namespace LunyScript
 	/// <summary>
 	/// Public interface for LunyScript
 	/// </summary>
-	public sealed class LunyScriptEngine : ILunyScriptEngine
+	public sealed class ScriptEngine : IScriptEngine
 	{
 		private LunyScriptRunner _runner;
-		public static ILunyScriptEngine Instance { get; private set; }
+		public static IScriptEngine Instance { get; private set; }
 		public ITable GlobalVariables => ScriptRuntimeContext.GetGlobalVariables();
 
 		/// <summary>
@@ -34,14 +34,14 @@ namespace LunyScript
 			ScriptRuntimeContext.ClearGlobalVariables();
 		}
 
-		private LunyScriptEngine() {} // hide default ctor
+		private ScriptEngine() {} // hide default ctor
 
-		internal LunyScriptEngine(LunyScriptRunner scriptRunner)
+		internal ScriptEngine(LunyScriptRunner scriptRunner)
 		{
-			LunyTraceLogger.LogInfoCreateSingletonInstance(typeof(LunyScriptEngine));
+			LunyTraceLogger.LogInfoCreateSingletonInstance(typeof(ScriptEngine));
 
 			if (Instance != null)
-				throw new InvalidOperationException($"{nameof(ILunyScriptEngine)} singleton duplication!");
+				throw new InvalidOperationException($"{nameof(IScriptEngine)} singleton duplication!");
 			if (scriptRunner == null)
 				throw new ArgumentNullException(nameof(scriptRunner));
 
@@ -52,7 +52,7 @@ namespace LunyScript
 		public IScriptRuntimeContext GetScriptContext(LunyNativeObjectID lunyNativeObjectID) =>
 			_runner.Contexts.GetByNativeObjectID(lunyNativeObjectID);
 
-		~LunyScriptEngine() => LunyTraceLogger.LogInfoFinalized(this);
+		~ScriptEngine() => LunyTraceLogger.LogInfoFinalized(this);
 
 		internal void Shutdown()
 		{

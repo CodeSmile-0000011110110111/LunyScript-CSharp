@@ -40,8 +40,8 @@ namespace LunyScript
 			if (type == null)
 				throw new ArgumentNullException(nameof(type));
 
-			if (!typeof(LunyScript).IsAssignableFrom(type))
-				throw new ArgumentException($"Type {type.Name} does not inherit from {nameof(LunyScript)}", nameof(type));
+			if (!typeof(Script).IsAssignableFrom(type))
+				throw new ArgumentException($"Type {type.Name} does not inherit from {nameof(Script)}", nameof(type));
 
 			ScriptDefId = ScriptDefID.Generate();
 			Type = type;

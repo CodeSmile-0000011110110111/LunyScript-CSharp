@@ -9,10 +9,10 @@ namespace LunyScript.Coroutines.ApiBuilders
 	/// </summary>
 	public readonly struct CounterBuilder
 	{
-		private readonly ILunyScript _script;
+		private readonly IScript _script;
 		private readonly String _name;
 
-		internal CounterBuilder(ILunyScript script, String name)
+		internal CounterBuilder(IScript script, String name)
 		{
 			_script = script ?? throw new ArgumentNullException(nameof(script));
 			_name = !String.IsNullOrWhiteSpace(name) ? name : throw new ArgumentException("Counter name is null or empty", nameof(name));
@@ -34,12 +34,12 @@ namespace LunyScript.Coroutines.ApiBuilders
 	/// </summary>
 	public readonly struct CounterDurationBuilder
 	{
-		private readonly ILunyScript _script;
+		private readonly IScript _script;
 		private readonly String _name;
 		private readonly Int32 _amount;
 		private readonly Coroutine.Continuation _continuation;
 
-		internal CounterDurationBuilder(ILunyScript script, String name, Int32 amount, Coroutine.Continuation continuation)
+		internal CounterDurationBuilder(IScript script, String name, Int32 amount, Coroutine.Continuation continuation)
 		{
 			_script = script;
 			_name = name;
@@ -68,10 +68,10 @@ namespace LunyScript.Coroutines.ApiBuilders
 	/// </summary>
 	public readonly struct CounterFinalBuilder
 	{
-		private readonly ILunyScript _script;
+		private readonly IScript _script;
 		private readonly Coroutine.Options _options;
 
-		internal CounterFinalBuilder(ILunyScript script, in Coroutine.Options options)
+		internal CounterFinalBuilder(IScript script, in Coroutine.Options options)
 		{
 			_script = script;
 			_options = options;

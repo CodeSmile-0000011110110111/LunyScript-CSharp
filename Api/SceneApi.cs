@@ -7,8 +7,8 @@ namespace LunyScript.Api
 	/// </summary>
 	public readonly struct SceneApi
 	{
-		private readonly ILunyScript _script;
-		internal SceneApi(ILunyScript script) => _script = script;
+		private readonly IScript _script;
+		internal SceneApi(IScript script) => _script = script;
 
 		public IScriptActionBlock Reload() => SceneReloadBlock.Create();
 	}

@@ -25,7 +25,7 @@ namespace LunyScript.Activation
 		{
 			var sw = Stopwatch.StartNew();
 
-			var scriptTypes = TypeDiscovery.FindAll<LunyScript>();
+			var scriptTypes = TypeDiscovery.FindAll<Script>();
 
 			foreach (var type in scriptTypes)
 				RegisterScript(type);

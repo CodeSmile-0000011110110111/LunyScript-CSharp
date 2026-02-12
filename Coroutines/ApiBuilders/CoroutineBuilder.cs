@@ -9,10 +9,10 @@ namespace LunyScript.Coroutines.ApiBuilders
 	/// </summary>
 	public readonly struct CoroutineBuilder
 	{
-		private readonly ILunyScript _script;
+		private readonly IScript _script;
 		private readonly String _name;
 
-		internal CoroutineBuilder(ILunyScript script, String name)
+		internal CoroutineBuilder(IScript script, String name)
 		{
 			_script = script ?? throw new ArgumentNullException(nameof(script));
 			_name = !String.IsNullOrWhiteSpace(name) ? name : throw new ArgumentException("Coroutine name is null or empty", nameof(name));
@@ -41,11 +41,11 @@ namespace LunyScript.Coroutines.ApiBuilders
 	/// </summary>
 	public readonly struct CoroutineDurationBuilder
 	{
-		private readonly ILunyScript _script;
+		private readonly IScript _script;
 		private readonly String _name;
 		private readonly Double _duration;
 
-		internal CoroutineDurationBuilder(ILunyScript script, String name, Double duration)
+		internal CoroutineDurationBuilder(IScript script, String name, Double duration)
 		{
 			_script = script;
 			_name = name;
@@ -91,10 +91,10 @@ namespace LunyScript.Coroutines.ApiBuilders
 	/// </summary>
 	public readonly struct CoroutineFinalBuilder
 	{
-		private readonly ILunyScript _script;
+		private readonly IScript _script;
 		private readonly Coroutine.Options _options;
 
-		internal CoroutineFinalBuilder(ILunyScript script, in Coroutine.Options options)
+		internal CoroutineFinalBuilder(IScript script, in Coroutine.Options options)
 		{
 			_script = script;
 			_options = options;
