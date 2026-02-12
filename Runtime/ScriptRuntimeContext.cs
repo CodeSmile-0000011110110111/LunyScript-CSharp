@@ -61,11 +61,11 @@ namespace LunyScript
 		/// <summary>
 		/// Per-object variables for this script instance.
 		/// </summary>
-		public ITable LocalVariables => _lunyObject.IsValid ? _localVariables ??= new Table() : null;
+		public ITable LocalVariables => _localVariables ??= new Table();
 		/// <summary>
 		/// Stack for loop iteration counters.
 		/// </summary>
-		public Stack<Int32> LoopStack => _lunyObject.IsValid ? _loopStack ??= new Stack<Int32>() : null;
+		public Stack<Int32> LoopStack => _loopStack ??= new Stack<Int32>();
 		/// <summary>
 		/// Current loop iteration count. Returns 0 outside of loops.
 		/// </summary>
@@ -73,20 +73,20 @@ namespace LunyScript
 		/// <summary>
 		/// Debugging hooks for execution tracing and breakpoints.
 		/// </summary>
-		internal ScriptDebugHooks DebugHooks => _lunyObject.IsValid ? _debugHooks ??= new ScriptDebugHooks() : null;
+		internal ScriptDebugHooks DebugHooks => _debugHooks ??= new ScriptDebugHooks();
 		/// <summary>
 		/// Block-level profiler for tracking blocks performance.
 		/// </summary>
-		internal ScriptBlockProfiler BlockProfiler => _lunyObject.IsValid ? _blockProfiler ??= new ScriptBlockProfiler() : null;
+		internal ScriptBlockProfiler BlockProfiler => _blockProfiler ??= new ScriptBlockProfiler();
 		/// <summary>
 		/// Event scheduler for managing sequences across all event types.
 		/// </summary>
-		internal ScriptEventScheduler Scheduler => _lunyObject.IsValid ? _scheduler ??= new ScriptEventScheduler() : null;
+		internal ScriptEventScheduler Scheduler => _scheduler ??= new ScriptEventScheduler();
 
 		/// <summary>
 		/// Coroutine runner for managing timers and coroutines.
 		/// </summary>
-		internal ScriptObjectCoroutineRunner Coroutines => _lunyObject.IsValid ? _coroutines ??= new ScriptObjectCoroutineRunner(this) : null;
+		internal ScriptObjectCoroutineRunner Coroutines => _coroutines ??= new ScriptObjectCoroutineRunner(this);
 
 		internal static void ClearGlobalVariables() => s_GlobalVariables?.RemoveAll();
 		internal static ITable GetGlobalVariables() => s_GlobalVariables;
@@ -102,7 +102,8 @@ namespace LunyScript
 
 		internal void Shutdown()
 		{
-			_coroutines.Shutdown(this);
+			_coroutines?.Shutdown();
+			_scheduler?.Shutdown();
 			GC.SuppressFinalize(this);
 		}
 

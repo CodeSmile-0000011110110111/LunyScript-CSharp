@@ -150,7 +150,7 @@ namespace LunyScript.Events
 			{
 				RunScheduledForEvent(LunyObjectEvent.OnDestroyed);
 				UnregisterAllCallbacks(); // no more events
-				_runtimeContext.Coroutines?.OnObjectDestroyed(_runtimeContext);
+				_runtimeContext.Shutdown();
 				_lifecycle.Unregister(_runtimeContext);
 				_contexts.Unregister(_runtimeContext);
 			}

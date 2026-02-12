@@ -48,6 +48,7 @@ namespace LunyScript
 			if (events == CoroutineEvents.None)
 				return;
 
+			// intentional order
 			if (events.Has(CoroutineEvents.Started))
 				LunyScriptRunner.Run(entry.Sequences[0], context);
 			if (events.Has(CoroutineEvents.Resumed))
@@ -111,7 +112,7 @@ namespace LunyScript
 		/// </summary>
 		internal void OnHeartbeat(ScriptRuntimeContext runtimeContext)
 		{
-			var heartbeatCount = _time.HeartbeatCount;
+			var heartbeatCount = _time?.HeartbeatCount ?? 0;
 			for (var i = 0; i < _heartbeatOnly.Count; i++)
 			{
 				var entry = _heartbeatOnly[i];
@@ -132,7 +133,7 @@ namespace LunyScript
 		/// </summary>
 		internal void OnFrameUpdate(ScriptRuntimeContext runtimeContext)
 		{
-			var frameCount = _time.FrameCount;
+			var frameCount = _time?.FrameCount ?? 0;
 			for (var i = 0; i < _frameOnly.Count; i++)
 			{
 				var entry = _frameOnly[i];
@@ -147,15 +148,22 @@ namespace LunyScript
 			}
 		}
 
-		/// <summary>
-		/// Stops all coroutines when object is destroyed.
-		/// </summary>
-		public void OnObjectDestroyed(IScriptRuntimeContext runtimeContext)
-		{
-			Shutdown(runtimeContext);
-		}
-
 		~ScriptObjectCoroutineRunner() => LunyTraceLogger.LogInfoFinalized(this);
+
+		public void Shutdown()
+		{
+			foreach (var entry in _registry.Values)
+				entry.Coroutine.OnObjectDestroyed();
+
+			// TODO: shouldn't clear, move collections to registry (same with Scheduler)
+			_registry.Clear();
+			_heartbeatOnly.Clear();
+			_frameOnly.Clear();
+			_always.Clear();
+			_time = null;
+
+			GC.SuppressFinalize(this);
+		}
 
 		private sealed class CoroutineEntry
 		{
@@ -182,23 +190,6 @@ namespace LunyScript
 				Sequences[5] = SequenceBlock.TryCreate(options.OnStopped);
 				Sequences[6] = SequenceBlock.TryCreate(options.OnElapsed);
 			}
-		}
-
-		public void Shutdown(IScriptRuntimeContext runtimeContext)
-		{
-			LunyLogger.LogInfo($"Shutdown for {runtimeContext}", this);
-
-			foreach (var entry in _registry.Values)
-				entry.Coroutine.OnObjectDestroyed();
-
-			// TODO: shouldn't clear, move collections to registry (same with Scheduler)
-			_registry.Clear();
-			_heartbeatOnly.Clear();
-			_frameOnly.Clear();
-			_always.Clear();
-			_time = null;
-
-			GC.SuppressFinalize(this);
 		}
 	}
 }

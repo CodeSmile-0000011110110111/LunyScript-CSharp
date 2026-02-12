@@ -1,3 +1,4 @@
+using Luny;
 using Luny.Engine.Bridge.Enums;
 using LunyScript.Blocks;
 using System;
@@ -17,8 +18,6 @@ namespace LunyScript.Events
 		private List<IScriptSequenceBlock>[] _objectEventSequences;
 		private List<IScriptSequenceBlock>[] _sceneEventSequences;
 
-		//~LunyScriptEventScheduler() => LunyTraceLogger.LogInfoFinalized(this);
-
 		private static IScriptSequenceBlock ScheduleSequence(ref List<IScriptSequenceBlock>[] sequencesRef, IScriptSequenceBlock sequence,
 			Int32 eventIndex, Int32 eventCount)
 		{
@@ -31,6 +30,8 @@ namespace LunyScript.Events
 
 			return sequence;
 		}
+
+		~ScriptEventScheduler() => LunyTraceLogger.LogInfoFinalized(this);
 
 		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, LunyObjectEvent objectEvent) =>
 			ScheduleSequence(ref _objectEventSequences, SequenceBlock.TryCreate(blocks), (Int32)objectEvent, s_ObjectEventCount);
@@ -77,5 +78,7 @@ namespace LunyScript.Events
 
 			_objectEventSequences[(Int32)objectEvent] = null;
 		}
+
+		public void Shutdown() => GC.SuppressFinalize(this);
 	}
 }
