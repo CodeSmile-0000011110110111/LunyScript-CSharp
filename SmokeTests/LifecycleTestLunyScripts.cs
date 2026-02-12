@@ -1,8 +1,6 @@
-using LunyScript.Activation;
-
 namespace LunyScript.SmokeTests
 {
-	public sealed class Assert_Runs_WhenCreated : LunyScriptSmokeTestBase
+	public sealed class Assert_Runs_OnCreated : LunyScriptSmokeTestBase
 	{
 		public override void Build(ScriptContext context)
 		{
@@ -16,7 +14,7 @@ namespace LunyScript.SmokeTests
 		}
 	}
 
-	public sealed class Assert_Runs_WhenDestroyed : LunyScriptSmokeTestBase
+	public sealed class Assert_Runs_OnDestroyed : LunyScriptSmokeTestBase
 	{
 		public override void Build(ScriptContext context)
 		{
@@ -25,12 +23,12 @@ namespace LunyScript.SmokeTests
 		}
 	}
 
-	public sealed class Assert_Runs_WhenEnabled : LunyScriptSmokeTestBase
+	public sealed class Assert_Runs_OnEnabled : LunyScriptSmokeTestBase
 	{
 		public override void Build(ScriptContext context) => On.Enabled(Method.Run(AssertDidRun));
 	}
 
-	public sealed class Assert_Runs_WhenDisabled : LunyScriptSmokeTestBase
+	public sealed class Assert_Runs_OnDisabled : LunyScriptSmokeTestBase
 	{
 		public override void Build(ScriptContext context)
 		{
@@ -39,26 +37,26 @@ namespace LunyScript.SmokeTests
 		}
 	}
 
-	public sealed class Assert_Runs_WhenReady : LunyScriptSmokeTestBase
+	public sealed class Assert_Runs_OnReady : LunyScriptSmokeTestBase
 	{
 		public override void Build(ScriptContext context) => On.Ready(Method.Run(AssertDidRun));
 	}
 
-	public sealed class Assert_Runs_EveryFixedStep : LunyScriptSmokeTestBase
+	public sealed class Assert_Runs_OnHeartbeat : LunyScriptSmokeTestBase
 	{
 		public override void Build(ScriptContext context) => On.Heartbeat(Method.Run(AssertDidRun),
 			Object.Destroy() // prevent log spam
 		);
 	}
 
-	public sealed class Assert_Runs_EveryFrame : LunyScriptSmokeTestBase
+	public sealed class Assert_Runs_OnFrameUpdate : LunyScriptSmokeTestBase
 	{
 		public override void Build(ScriptContext context) => On.FrameUpdate(Method.Run(AssertDidRun),
 			Object.Destroy() // prevent log spam
 		);
 	}
 
-	public sealed class Assert_Runs_EveryFrameEnds : LunyScriptSmokeTestBase
+	public sealed class Assert_Runs_OnFrameLateUpdate : LunyScriptSmokeTestBase
 	{
 		public override void Build(ScriptContext context) => On.FrameLateUpdate(Method.Run(AssertDidRun),
 			Object.Destroy() // prevent log spam

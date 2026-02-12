@@ -1,4 +1,3 @@
-using LunyScript.Activation;
 using System;
 
 namespace LunyScript.SmokeTests

@@ -90,7 +90,8 @@ namespace LunyScript.Activation
 			foreach (var lunyObject in lunyObjects)
 			{
 				var context = TryCreateRuntimeContext(scripts, contexts, lunyObject);
-				createdContexts.Add(context);
+				if (context != null)
+					createdContexts.Add(context);
 			}
 
 			LunyLogger.LogInfo($"{createdContexts.Count} {nameof(ScriptRuntimeContext)}s created from " +

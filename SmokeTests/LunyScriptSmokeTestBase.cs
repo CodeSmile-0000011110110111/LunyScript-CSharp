@@ -13,6 +13,9 @@ namespace LunyScript.SmokeTests
 			var gvars = ScriptEngine.Instance.GlobalVariables;
 			var name = GetType().Name;
 
+			LunyLogger.LogInfo($"{nameof(LunyScriptSmokeTestBase)}.SetTestPassedVariable() => " +
+			                   $"{name} = {result.ToString().ToUpper()}", this);
+
 			if (!gvars[name].AsBoolean())
 				gvars[name] = result;
 		}
