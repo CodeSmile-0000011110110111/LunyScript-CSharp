@@ -1,7 +1,7 @@
 using LunyScript.Blocks;
 using System;
 
-namespace LunyScript.Coroutines.ApiBuilders
+namespace LunyScript.Coroutines.Builders
 {
 	/// <summary>
 	/// Entry point for the Timer fluent builder chain.

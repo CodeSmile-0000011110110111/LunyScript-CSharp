@@ -1,0 +1,41 @@
+using Luny;
+using LunyScript.Blocks;
+using System;
+
+namespace LunyScript.Coroutines.Builders
+{
+	/// <summary>
+	/// Shared utilities for coroutine builders.
+	/// </summary>
+	internal static class BuilderUtility
+	{
+		public static IScriptActionBlock[] Append(IScriptActionBlock[] existing, IScriptActionBlock[] additional)
+		{
+			if (existing == null || existing.Length == 0)
+				return additional;
+			if (additional == null || additional.Length == 0)
+				return existing;
+
+			LunyLogger.LogWarning("Appending multiple Coroutine blocks due to use of two or more same-behaviour block methods. " +
+			                      "Please review the Coroutine builder statements to avoid the array copy operations.");
+
+			var result = new IScriptActionBlock[existing.Length + additional.Length];
+			Array.Copy(existing, 0, result, 0, existing.Length);
+			Array.Copy(additional, 0, result, existing.Length, additional.Length);
+			return result;
+		}
+
+		public static IScriptCoroutineBlock Finalize(IScript script, in Coroutine.Options options)
+		{
+			if (options.OnFrameUpdate == null && options.OnHeartbeat == null && options.OnElapsed == null &&
+			    options.OnStarted == null && options.OnStopped == null && options.OnPaused == null && options.OnResumed == null)
+			{
+				LunyLogger.LogWarning($"{nameof(Coroutine)} '{options.Name}' was finalized without any action blocks. " +
+				                      "It will run but perform no actions.", script);
+			}
+
+			var scriptInternal = (ILunyScriptInternal)script;
+			return scriptInternal.RuntimeContext.Coroutines.Register(script, in options);
+		}
+	}
+}
