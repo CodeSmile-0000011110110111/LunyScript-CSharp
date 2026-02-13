@@ -4,8 +4,12 @@ using LunyScript.Api;
 using LunyScript.Blocks;
 using LunyScript.Coroutines.Builders;
 using LunyScript.Events;
+using LunyScript.Exceptions;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace LunyScript
 {
@@ -13,8 +17,6 @@ namespace LunyScript
 	{
 		ScriptDefID ScriptDefId { get; }
 		ILunyObject LunyObject { get; }
-		//ITable GlobalVariables { get; }
-		//ITable LocalVariables { get; }
 		Boolean IsEditor { get; }
 
 		DebugApi Debug { get; }
@@ -37,6 +39,8 @@ namespace LunyScript
 	{
 		ScriptEventScheduler Scheduler { get; }
 		ScriptRuntimeContext RuntimeContext { get; }
+		BuilderToken CreateToken(String name, String type);
+		void FinalizeToken(BuilderToken token);
 	}
 
 	/// <summary>
@@ -59,6 +63,7 @@ namespace LunyScript
 	public abstract class Script : IScript, ILunyScriptInternal
 	{
 		private IScriptRuntimeContext _runtimeContext;
+		private List<BuilderToken> _pendingTokens;
 
 		/// <summary>
 		/// ScriptID of the script for identification.
@@ -155,6 +160,29 @@ namespace LunyScript
 		internal void Initialize(IScriptRuntimeContext runtimeContext) =>
 			_runtimeContext = runtimeContext ?? throw new ArgumentNullException(nameof(runtimeContext));
 
+		BuilderToken ILunyScriptInternal.CreateToken(String name, String type)
+		{
+#if DEBUG || LUNYSCRIPT_DEBUG
+			if (_pendingTokens == null)
+				_pendingTokens = new List<BuilderToken>();
+
+			var frame = new StackFrame(3, true);
+			var token = new BuilderToken(name, type, frame.GetFileName(), frame.GetFileLineNumber());
+			_pendingTokens.Add(token);
+			return token;
+#else
+			return null;
+#endif
+		}
+
+		void ILunyScriptInternal.FinalizeToken(BuilderToken token)
+		{
+#if DEBUG || LUNYSCRIPT_DEBUG
+			token?.MarkFinished();
+			_pendingTokens?.Remove(token);
+#endif
+		}
+
 		// Variables and Constants
 		public VariableBlock Const(String name, Variable value) =>
 			TableVariableBlock.Create(_runtimeContext.GlobalVariables.DefineConstant(name, value));
@@ -236,7 +264,11 @@ namespace LunyScript
 
 		~Script() => LunyTraceLogger.LogInfoFinalized(this);
 
-		internal void Shutdown() => GC.SuppressFinalize(this);
+		internal void Shutdown()
+		{
+			ReportPendingTokens();
+			GC.SuppressFinalize(this);
+		}
 
 		/// <summary>
 		/// Called once when the script is initialized.
@@ -247,5 +279,25 @@ namespace LunyScript
 		public abstract void Build(ScriptContext context);
 
 		public override String ToString() => _runtimeContext != null ? _runtimeContext.ToString() : GetType().FullName;
+
+		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
+		private void ReportPendingTokens()
+		{
+#if DEBUG || LUNYSCRIPT_DEBUG
+			if (_pendingTokens == null || _pendingTokens.Count == 0)
+				return;
+
+			foreach (var token in _pendingTokens)
+			{
+				BuilderToken.LogWarning(token);
+				token.MarkFinished();
+			}
+
+			if (_pendingTokens.Count > 0)
+				throw new LunyScriptException($"{GetType().Name}: Unfinished Coroutine builder(s): see warning messages for details.");
+
+			_pendingTokens.Clear();
+#endif
+		}
 	}
 }

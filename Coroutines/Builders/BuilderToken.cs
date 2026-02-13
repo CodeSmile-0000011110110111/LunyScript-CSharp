@@ -1,5 +1,6 @@
 using Luny;
 using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace LunyScript.Coroutines.Builders
@@ -12,12 +13,12 @@ namespace LunyScript.Coroutines.Builders
 		private readonly Int32 _line;
 		private Boolean _isFinished;
 
-		public BuilderToken(String name, String type, [CallerFilePath] String file = "", [CallerLineNumber] Int32 line = -1)
+		public BuilderToken(String name, String type, [CallerFilePath] String file = "", [CallerLineNumber] Int32 lineNumber = -1)
 		{
 			_name = name;
 			_type = type;
 			_file = file;
-			_line = line;
+			_line = lineNumber;
 		}
 
 		public void MarkFinished()
@@ -28,7 +29,7 @@ namespace LunyScript.Coroutines.Builders
 
 		public static void LogWarning(BuilderToken token)
 		{
-			LunyLogger.LogWarning($"{token._file}({token._line}): Unfinished {token._type} builder '{token._name}' detected. " +
+			LunyLogger.LogWarning($"{Path.GetFileName(token._file)}({token._line}): Unfinished {token._type} '{token._name}' => " +
 			                      "Did you forget to call a terminal method like .Do() or .WhenElapsed()?");
 		}
 

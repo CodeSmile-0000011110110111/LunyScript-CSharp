@@ -11,22 +11,24 @@ namespace LunyScript.Coroutines.Builders
 	{
 		private readonly IScript _script;
 		private readonly Int32 _interval;
+		private readonly BuilderToken _token;
 
 		internal EveryBuilder(IScript script, Int32 interval)
 		{
 			_script = script ?? throw new ArgumentNullException(nameof(script));
 			_interval = interval;
+			_token = ((ILunyScriptInternal)script).CreateToken($"Every({interval})", "Every");
 		}
 
 		/// <summary>
 		/// Selects frame-based execution.
 		/// </summary>
-		public EveryUnitBuilder Frames() => new(_script, _interval, Coroutine.Process.FrameUpdate);
+		public EveryUnitBuilder Frames() => new(_script, _token, _interval, Coroutine.Process.FrameUpdate);
 
 		/// <summary>
 		/// Selects heartbeat-based execution.
 		/// </summary>
-		public EveryUnitBuilder Heartbeats() => new(_script, _interval, Coroutine.Process.Heartbeat);
+		public EveryUnitBuilder Heartbeats() => new(_script, _token, _interval, Coroutine.Process.Heartbeat);
 	}
 
 	/// <summary>
@@ -35,13 +37,15 @@ namespace LunyScript.Coroutines.Builders
 	public readonly struct EveryUnitBuilder
 	{
 		private readonly IScript _script;
+		private readonly BuilderToken _token;
 		private readonly Int32 _interval;
 		private readonly Int32 _delay;
 		private readonly Coroutine.Process _process;
 
-		internal EveryUnitBuilder(IScript script, Int32 interval, Coroutine.Process process, Int32 delay = 0)
+		internal EveryUnitBuilder(IScript script, BuilderToken token, Int32 interval, Coroutine.Process process, Int32 delay = 0)
 		{
 			_script = script;
+			_token = token;
 			_interval = Math.Max(0, interval);
 			_delay = delay;
 			_process = process;
@@ -58,7 +62,7 @@ namespace LunyScript.Coroutines.Builders
 			if (_delay != 0)
 				throw new ArgumentException($"{nameof(DelayBy)}() can't be used twice");
 
-			return new EveryUnitBuilder(_script, _interval, _process, delay);
+			return new EveryUnitBuilder(_script, _token, _interval, _process, delay);
 		}
 
 		/// <summary>
@@ -68,9 +72,7 @@ namespace LunyScript.Coroutines.Builders
 		{
 			// name = null => generates a unique name for a time-sliced coroutine
 			var options = Coroutine.Options.ForEveryInterval(null, _interval, _delay, _process, blocks);
-			var scriptInternal = (ILunyScriptInternal)_script;
-			var coroutineBlock = scriptInternal.RuntimeContext.Coroutines.Register(_script, in options);
-			return (IScriptCounterCoroutineBlock)coroutineBlock;
+			return (IScriptCounterCoroutineBlock)BuilderUtility.Finalize(_script, in options, _token);
 		}
 	}
 }

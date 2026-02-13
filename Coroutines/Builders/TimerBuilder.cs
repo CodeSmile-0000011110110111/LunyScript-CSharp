@@ -11,22 +11,24 @@ namespace LunyScript.Coroutines.Builders
 	{
 		private readonly IScript _script;
 		private readonly String _name;
+		private readonly BuilderToken _token;
 
 		internal TimerBuilder(IScript script, String name)
 		{
 			_script = script ?? throw new ArgumentNullException(nameof(script));
 			_name = !String.IsNullOrWhiteSpace(name) ? name : throw new ArgumentException("Timer name is null or empty", nameof(name));
+			_token = ((ILunyScriptInternal)script).CreateToken(_name, "Timer");
 		}
 
 		/// <summary>
 		/// Sets the timer to fire once after the specified duration.
 		/// </summary>
-		public TimerDurationBuilder In(Double duration) => new(_script, _name, duration, Coroutine.Continuation.Finite);
+		public TimerDurationBuilder In(Double duration) => new(_script, _name, _token, duration, Coroutine.Continuation.Finite);
 
 		/// <summary>
 		/// Sets the timer to fire repeatedly at the specified interval.
 		/// </summary>
-		public TimerDurationBuilder Every(Double interval) => new(_script, _name, interval, Coroutine.Continuation.Repeating);
+		public TimerDurationBuilder Every(Double interval) => new(_script, _name, _token, interval, Coroutine.Continuation.Repeating);
 	}
 
 	/// <summary>
@@ -36,13 +38,15 @@ namespace LunyScript.Coroutines.Builders
 	{
 		private readonly IScript _script;
 		private readonly String _name;
+		private readonly BuilderToken _token;
 		private readonly Double _amount;
 		private readonly Coroutine.Continuation _continuation;
 
-		internal TimerDurationBuilder(IScript script, String name, Double amount, Coroutine.Continuation continuation)
+		internal TimerDurationBuilder(IScript script, String name, BuilderToken token, Double amount, Coroutine.Continuation continuation)
 		{
 			_script = script;
 			_name = name;
+			_token = token;
 			_amount = Math.Max(0, amount);
 			_continuation = continuation;
 
@@ -50,7 +54,7 @@ namespace LunyScript.Coroutines.Builders
 				throw new ArgumentException($"Timer duration must be 0 or greater, got: {amount}");
 		}
 
-		private TimerFinalBuilder CreateFinal(in Coroutine.Options options) => TimerFinalBuilder.FromOptions(_script, options);
+		private TimerFinalBuilder CreateFinal(in Coroutine.Options options) => TimerFinalBuilder.FromOptions(_script, _token, options);
 
 		/// <summary>
 		/// Duration in seconds (time-based).
@@ -77,15 +81,17 @@ namespace LunyScript.Coroutines.Builders
 	public readonly struct TimerFinalBuilder
 	{
 		private readonly IScript _script;
+		private readonly BuilderToken _token;
 		private readonly Coroutine.Options _options;
 
-		private TimerFinalBuilder(IScript script, in Coroutine.Options options)
+		private TimerFinalBuilder(IScript script, BuilderToken token, in Coroutine.Options options)
 		{
 			_script = script;
+			_token = token;
 			_options = options;
 		}
 
-		internal static TimerFinalBuilder FromOptions(IScript script, in Coroutine.Options options) => new(script, options);
+		internal static TimerFinalBuilder FromOptions(IScript script, BuilderToken token, in Coroutine.Options options) => new(script, token, options);
 
 		/// <summary>
 		/// Completes the timer and specifies blocks to run when elapsed.
@@ -93,9 +99,7 @@ namespace LunyScript.Coroutines.Builders
 		public IScriptTimerCoroutineBlock Do(params IScriptActionBlock[] blocks)
 		{
 			var options = _options with { OnElapsed = blocks };
-			var scriptInternal = (ILunyScriptInternal)_script;
-			var coroutineBlock = scriptInternal.RuntimeContext.Coroutines.Register(_script, in options);
-			return (IScriptTimerCoroutineBlock)coroutineBlock;
+			return (IScriptTimerCoroutineBlock)BuilderUtility.Finalize(_script, in options, _token);
 		}
 	}
 }

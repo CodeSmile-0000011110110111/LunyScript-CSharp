@@ -25,7 +25,7 @@ namespace LunyScript.Coroutines.Builders
 			return result;
 		}
 
-		public static IScriptCoroutineBlock Finalize(IScript script, in Coroutine.Options options)
+		public static IScriptCoroutineBlock Finalize(IScript script, in Coroutine.Options options, BuilderToken token)
 		{
 			if (options.OnFrameUpdate == null && options.OnHeartbeat == null && options.OnElapsed == null &&
 			    options.OnStarted == null && options.OnStopped == null && options.OnPaused == null && options.OnResumed == null)
@@ -35,7 +35,9 @@ namespace LunyScript.Coroutines.Builders
 			}
 
 			var scriptInternal = (ILunyScriptInternal)script;
-			return scriptInternal.RuntimeContext.Coroutines.Register(script, in options);
+			var block = scriptInternal.RuntimeContext.Coroutines.Register(script, in options);
+			scriptInternal.FinalizeToken(token);
+			return block;
 		}
 	}
 }
