@@ -63,7 +63,7 @@ namespace LunyScript
 	public abstract class Script : IScript, ILunyScriptInternal
 	{
 		private IScriptRuntimeContext _runtimeContext;
-		private List<BuilderToken> _pendingTokens;
+		private List<BuilderToken> _pendingBuilderTokens;
 
 		/// <summary>
 		/// ScriptID of the script for identification.
@@ -163,12 +163,12 @@ namespace LunyScript
 		BuilderToken ILunyScriptInternal.CreateToken(String name, String type)
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
-			if (_pendingTokens == null)
-				_pendingTokens = new List<BuilderToken>();
+			if (_pendingBuilderTokens == null)
+				_pendingBuilderTokens = new List<BuilderToken>();
 
 			var frame = new StackFrame(3, true);
 			var token = new BuilderToken(name, type, frame.GetFileName(), frame.GetFileLineNumber());
-			_pendingTokens.Add(token);
+			_pendingBuilderTokens.Add(token);
 			return token;
 #else
 			return null;
@@ -179,7 +179,7 @@ namespace LunyScript
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
 			token?.MarkFinished();
-			_pendingTokens?.Remove(token);
+			_pendingBuilderTokens?.Remove(token);
 #endif
 		}
 
@@ -266,7 +266,7 @@ namespace LunyScript
 
 		internal void Shutdown()
 		{
-			ReportPendingTokens();
+			ReportPendingBuilderTokens();
 			GC.SuppressFinalize(this);
 		}
 
@@ -281,22 +281,22 @@ namespace LunyScript
 		public override String ToString() => _runtimeContext != null ? _runtimeContext.ToString() : GetType().FullName;
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
-		private void ReportPendingTokens()
+		private void ReportPendingBuilderTokens()
 		{
 #if DEBUG || LUNYSCRIPT_DEBUG
-			if (_pendingTokens == null || _pendingTokens.Count == 0)
+			if (_pendingBuilderTokens == null || _pendingBuilderTokens.Count == 0)
 				return;
 
-			foreach (var token in _pendingTokens)
+			foreach (var token in _pendingBuilderTokens)
 			{
 				BuilderToken.LogWarning(token);
 				token.MarkFinished();
 			}
 
-			if (_pendingTokens.Count > 0)
+			if (_pendingBuilderTokens.Count > 0)
 				throw new LunyScriptException($"{GetType().Name}: Unfinished Coroutine builder(s): see warning messages for details.");
 
-			_pendingTokens.Clear();
+			_pendingBuilderTokens.Clear();
 #endif
 		}
 	}

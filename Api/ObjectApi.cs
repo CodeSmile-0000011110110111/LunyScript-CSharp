@@ -17,14 +17,12 @@ namespace LunyScript.Api
 		public IScriptActionBlock Disable(String name = null) =>
 			String.IsNullOrEmpty(name) ? ObjectDisableSelfBlock.Create() : ObjectDisableTargetBlock.Create(name);
 
-		public IScriptActionBlock Clone(String originalName) => ObjectCreateCloneBlock.Create(originalName);
-		public IScriptActionBlock Create(String name) => ObjectCreateEmptyBlock.Create(name);
-		public IScriptActionBlock CreateCube(String name = null) => ObjectCreateCubeBlock.Create(name);
-		public IScriptActionBlock CreateSphere(String name = null) => ObjectCreateSphereBlock.Create(name);
-		public IScriptActionBlock CreateCapsule(String name = null) => ObjectCreateCapsuleBlock.Create(name);
-		public IScriptActionBlock CreateCylinder(String name = null) => ObjectCreateCylinderBlock.Create(name);
-		public IScriptActionBlock CreatePlane(String name = null) => ObjectCreatePlaneBlock.Create(name);
-		public IScriptActionBlock CreateQuad(String name = null) => ObjectCreateQuadBlock.Create(name);
+		public ObjectBuilder<StateNameSet> Create(String name)
+		{
+			var options = new ObjectCreateOptions { Name = name, Mode = ObjectCreationMode.Empty };
+			var token = ((ILunyScriptInternal)_script).CreateToken(name, "ObjectCreate");
+			return new ObjectBuilder<StateNameSet>(_script, options, token);
+		}
 
 		public IScriptActionBlock Destroy(String name = null) =>
 			String.IsNullOrEmpty(name) ? ObjectDestroySelfBlock.Create() : ObjectDestroyTargetBlock.Create(name);

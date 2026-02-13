@@ -1,4 +1,6 @@
 using Luny;
+using Luny.Engine.Bridge.Enums;
+using LunyScript.Api;
 using LunyScript.Blocks;
 using System;
 
@@ -37,6 +39,30 @@ namespace LunyScript.Coroutines.Builders
 			var scriptInternal = (ILunyScriptInternal)script;
 			var block = scriptInternal.RuntimeContext.Coroutines.Register(script, in options);
 			scriptInternal.FinalizeToken(token);
+			return block;
+		}
+
+		public static IScriptActionBlock Finalize(IScript script, in ObjectCreateOptions options, BuilderToken token)
+		{
+			IScriptActionBlock block = options.Mode switch
+			{
+				ObjectCreationMode.Empty => ObjectCreateEmptyBlock.Create(options.Name),
+				ObjectCreationMode.Primitive => options.PrimitiveType switch
+				{
+					LunyPrimitiveType.Cube => ObjectCreateCubeBlock.Create(options.Name),
+					LunyPrimitiveType.Sphere => ObjectCreateSphereBlock.Create(options.Name),
+					LunyPrimitiveType.Capsule => ObjectCreateCapsuleBlock.Create(options.Name),
+					LunyPrimitiveType.Cylinder => ObjectCreateCylinderBlock.Create(options.Name),
+					LunyPrimitiveType.Plane => ObjectCreatePlaneBlock.Create(options.Name),
+					LunyPrimitiveType.Quad => ObjectCreateQuadBlock.Create(options.Name),
+					_ => ObjectCreateEmptyBlock.Create(options.Name)
+				},
+				ObjectCreationMode.Prefab => ObjectCreatePrefabBlock.Create(options.Name, options.AssetName),
+				ObjectCreationMode.Clone => ObjectCreateCloneBlock.Create(options.Name, options.AssetName),
+				_ => throw new NotImplementedException($"{nameof(ObjectBuilder<StateNameSet>)}: Mode {options.Mode} is not implemented.")
+			};
+
+			((ILunyScriptInternal)script).FinalizeToken(token);
 			return block;
 		}
 	}

@@ -1,12 +1,8 @@
 ﻿using LunyScript.Blocks;
 using System;
-using System.ComponentModel;
-
 
 namespace LunyScript.Coroutines
 {
-
-
 	internal partial class Coroutine
 	{
 		/// <summary>
@@ -24,8 +20,8 @@ namespace LunyScript.Coroutines
 			public Continuation ContinuationMode { get; init; } = Continuation.Finite;
 			public Process ProcessMode { get; init; } = Process.Always;
 
-			internal bool IsTimer => TimerDurationInSeconds > 0;
-			internal bool IsCounter => CounterTarget > 0;
+			internal Boolean IsTimer => TimerDurationInSeconds > 0;
+			internal Boolean IsCounter => CounterTarget > 0;
 
 			// Handlers
 			public IScriptActionBlock[] OnFrameUpdate { get; init; }

@@ -1,3 +1,4 @@
+using LunyScript.Api;
 using System;
 
 namespace LunyScript.SmokeTests
@@ -11,12 +12,12 @@ namespace LunyScript.SmokeTests
 
 		public override void Build(ScriptContext context)
 		{
-			On.Created(Object.Create(DestroyedObjectName));
+			On.Created(Object.Create(DestroyedObjectName).Do());
 			On.AfterFrameUpdate(Object.Destroy(DestroyedObjectName));
 
-			On.Ready(Object.Create(EmptyObjectName));
-			On.Ready(Object.CreateCube(CubeObjectName));
-			On.Ready(Object.CreateSphere(SphereObjectName));
+			On.Ready(Object.Create(EmptyObjectName).Do());
+			On.Ready(Object.Create(CubeObjectName).AsCube().Do());
+			On.Ready(Object.Create(SphereObjectName).AsSphere().Do());
 			On.Ready(Prefab.Instantiate("TestPrefab"));
 		}
 	}
