@@ -1,5 +1,5 @@
 using Luny;
-using Luny.Engine.Bridge.Enums;
+using Luny.Engine.Bridge;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

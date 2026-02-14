@@ -1,4 +1,5 @@
 using LunyScript.Blocks;
+using LunyScript.Blocks.Coroutines;
 using System;
 
 namespace LunyScript.Coroutines.Builders

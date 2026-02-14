@@ -1,4 +1,4 @@
-using Luny.Engine.Bridge.Enums;
+using Luny.Engine.Bridge;
 using LunyScript.Blocks;
 using LunyScript.Events;
 

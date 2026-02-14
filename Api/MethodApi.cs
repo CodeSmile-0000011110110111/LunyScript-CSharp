@@ -16,7 +16,7 @@ namespace LunyScript.Api
 		/// </remarks>
 		/// <param name="action"></param>
 		/// <returns></returns>
-		public ScriptActionBlock Run(Action<IScriptRuntimeContext> action) => RunActionBlock.Create(action);
+		public ScriptActionBlock Run(Action<IScriptRuntimeContext> action) => ExecuteBlock.Create(action);
 
 		/// <summary>
 		/// Executes Action (or: method).
@@ -59,7 +59,7 @@ namespace LunyScript.Api
 		/// </remarks>
 		/// <param name="action"></param>
 		/// <returns></returns>
-		public ScriptActionBlock Run(Action action) => RunActionBlock.Create(_ => action());
+		public ScriptActionBlock Run(Action action) => ExecuteBlock.Create(_ => action());
 
 		/// <summary>
 		/// Condition block that runs a Func (or: method) returning bool.
@@ -69,7 +69,7 @@ namespace LunyScript.Api
 		/// </remarks>
 		/// <param name="func"></param>
 		/// <returns></returns>
-		public ScriptConditionBlock IsTrue(Func<IScriptRuntimeContext, Boolean> func) => CheckConditionBlock.Create(func);
+		public ScriptConditionBlock IsTrue(Func<IScriptRuntimeContext, Boolean> func) => EvaluateBlock.Create(func);
 
 		/// <summary>
 		/// Condition block that runs a Func (or: method) returning bool.
@@ -79,6 +79,6 @@ namespace LunyScript.Api
 		/// </remarks>
 		/// <param name="func"></param>
 		/// <returns></returns>
-		public ScriptConditionBlock IsTrue(Func<Boolean> func) => CheckConditionBlock.Create(_ => func());
+		public ScriptConditionBlock IsTrue(Func<Boolean> func) => EvaluateBlock.Create(_ => func());
 	}
 }

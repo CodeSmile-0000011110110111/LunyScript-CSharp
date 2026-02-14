@@ -1,6 +1,5 @@
 using Luny;
 using Luny.Engine.Bridge;
-using Luny.Engine.Bridge.Identity;
 using LunyScript.Exceptions;
 using System;
 using System.Collections.Generic;

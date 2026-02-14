@@ -1,4 +1,4 @@
-namespace LunyScript.SmokeTests
+namespace LunyScript.SmokeTests.Lifecycle
 {
 	public sealed class Assert_Runs_OnCreated : LunyScriptSmokeTestBase
 	{

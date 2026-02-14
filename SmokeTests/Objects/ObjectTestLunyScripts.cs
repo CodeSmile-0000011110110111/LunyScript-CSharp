@@ -1,7 +1,7 @@
 using LunyScript.Api;
 using System;
 
-namespace LunyScript.SmokeTests
+namespace LunyScript.SmokeTests.Objects
 {
 	public sealed class ObjectTestScript : Script
 	{

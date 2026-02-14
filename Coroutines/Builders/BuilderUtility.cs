@@ -1,7 +1,8 @@
 using Luny;
-using Luny.Engine.Bridge.Enums;
+using Luny.Engine.Bridge;
 using LunyScript.Api;
 using LunyScript.Blocks;
+using LunyScript.Blocks.Coroutines;
 using System;
 
 namespace LunyScript.Coroutines.Builders
