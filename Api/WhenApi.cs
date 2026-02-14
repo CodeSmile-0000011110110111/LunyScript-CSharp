@@ -29,7 +29,7 @@ namespace LunyScript.Api
 			/// </summary>
 			/// <param name="blocks"></param>
 			/// <returns></returns>
-			public ScriptSequenceBlock Loads(params ScriptActionBlock[] blocks) =>
+			public SequenceBlock Loads(params ScriptActionBlock[] blocks) =>
 				Scheduler?.ScheduleSequence(blocks, LunySceneEvent.OnSceneLoaded);
 
 			/// <summary>
@@ -39,7 +39,7 @@ namespace LunyScript.Api
 			/// <param name="blocks"></param>
 			/// <returns></returns>
 			/// <exception cref="NotImplementedException"></exception>
-			public ScriptSequenceBlock Loads(String sceneName, params ScriptActionBlock[] blocks) =>
+			public SequenceBlock Loads(String sceneName, params ScriptActionBlock[] blocks) =>
 				throw new NotImplementedException(nameof(Loads));
 
 			/// <summary>
@@ -47,7 +47,7 @@ namespace LunyScript.Api
 			/// </summary>
 			/// <param name="blocks"></param>
 			/// <returns></returns>
-			public ScriptSequenceBlock Unloads(params ScriptActionBlock[] blocks) =>
+			public SequenceBlock Unloads(params ScriptActionBlock[] blocks) =>
 				Scheduler?.ScheduleSequence(blocks, LunySceneEvent.OnSceneUnloaded);
 
 			/// <summary>
@@ -57,7 +57,7 @@ namespace LunyScript.Api
 			/// <param name="blocks"></param>
 			/// <returns></returns>
 			/// <exception cref="NotImplementedException"></exception>
-			public ScriptSequenceBlock Unloads(String sceneName, params ScriptActionBlock[] blocks) =>
+			public SequenceBlock Unloads(String sceneName, params ScriptActionBlock[] blocks) =>
 				throw new NotImplementedException(nameof(Unloads));
 		}
 	}

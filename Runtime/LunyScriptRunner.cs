@@ -37,7 +37,7 @@ namespace LunyScript
 		internal ScriptLifecycle ScriptLifecycle => _scriptLifecycle;
 		internal ScriptSceneEventHandler SceneEventHandler => _sceneEventHandler;
 
-		internal static void Run(IEnumerable<ScriptSequenceBlock> sequences, ScriptRuntimeContext runtimeContext)
+		internal static void Run(IEnumerable<SequenceBlock> sequences, ScriptRuntimeContext runtimeContext)
 		{
 			if (sequences == null)
 				return;
@@ -46,7 +46,7 @@ namespace LunyScript
 				Run(sequence, runtimeContext);
 		}
 
-		internal static void Run(ScriptSequenceBlock sequence, ScriptRuntimeContext runtimeContext)
+		internal static void Run(SequenceBlock sequence, ScriptRuntimeContext runtimeContext)
 		{
 			if (sequence == null)
 				return;
