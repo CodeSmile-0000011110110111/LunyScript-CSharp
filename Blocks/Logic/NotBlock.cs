@@ -9,13 +9,13 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class NotBlock : VariableBlock
 	{
-		private readonly IScriptConditionBlock _condition;
+		private readonly ScriptConditionBlock _condition;
 
 		internal override Table.VarHandle TargetHandle => (_condition as VariableBlock)?.TargetHandle;
 
-		public static NotBlock Create(IScriptConditionBlock condition) => new(condition);
+		public static NotBlock Create(ScriptConditionBlock condition) => new(condition);
 
-		private NotBlock(IScriptConditionBlock condition) => _condition = condition;
+		private NotBlock(ScriptConditionBlock condition) => _condition = condition;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => Evaluate(runtimeContext);

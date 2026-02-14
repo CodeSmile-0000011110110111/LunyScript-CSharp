@@ -86,7 +86,7 @@ namespace LunyScript.Coroutines.Builders
 		/// <summary>
 		/// Completes the counter and specifies blocks to run when elapsed.
 		/// </summary>
-		public IScriptCounterCoroutineBlock Do(params IScriptActionBlock[] blocks)
+		public IScriptCounterCoroutineBlock Do(params ScriptActionBlock[] blocks)
 		{
 			var options = _options with { OnElapsed = blocks };
 			return (IScriptCounterCoroutineBlock)BuilderUtility.Finalize(_script, in options, _token);

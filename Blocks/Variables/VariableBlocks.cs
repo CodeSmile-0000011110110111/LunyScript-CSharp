@@ -23,7 +23,7 @@ namespace LunyScript.Blocks
 
 		public override String ToString() => _handle.ToString();
 
-		// IScriptVariableBlock
+		// VariableBlock
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => _handle.Value;
 	}

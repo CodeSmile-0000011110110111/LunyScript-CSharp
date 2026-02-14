@@ -10,8 +10,8 @@ namespace LunyScript.Blocks
 	{
 		private readonly Int32 _limit;
 		private readonly Int32 _step;
-		private IScriptActionBlock[] _blocks;
-		private IScriptActionBlock _cachedBlock;
+		private ScriptActionBlock[] _blocks;
+		private ScriptActionBlock _cachedBlock;
 
 		internal ForBlockBuilder(Int32 limit, Int32 step = 1)
 		{
@@ -21,13 +21,13 @@ namespace LunyScript.Blocks
 
 		public override void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
 
-		public IScriptActionBlock Do(params IScriptActionBlock[] blocks)
+		public ScriptActionBlock Do(params ScriptActionBlock[] blocks)
 		{
 			_blocks = blocks;
 			return Build();
 		}
 
-		private IScriptActionBlock Build() => ForBlock.Create(_limit, _step, _blocks);
+		private ScriptActionBlock Build() => ForBlock.Create(_limit, _step, _blocks);
 	}
 
 	/// <summary>
@@ -37,11 +37,11 @@ namespace LunyScript.Blocks
 	{
 		private readonly Int32 _limit;
 		private readonly Int32 _step;
-		private readonly IScriptActionBlock[] _blocks;
+		private readonly ScriptActionBlock[] _blocks;
 
-		public static ForBlock Create(Int32 limit, Int32 step, IScriptActionBlock[] blocks) => new(limit, step, blocks);
+		public static ForBlock Create(Int32 limit, Int32 step, ScriptActionBlock[] blocks) => new(limit, step, blocks);
 
-		private ForBlock(Int32 limit, Int32 step, IScriptActionBlock[] blocks)
+		private ForBlock(Int32 limit, Int32 step, ScriptActionBlock[] blocks)
 		{
 			_limit = limit;
 			_step = step == 0 ? 1 : step; // Prevent division by zero/infinite loop if step is 0

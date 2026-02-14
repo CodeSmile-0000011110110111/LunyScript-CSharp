@@ -9,11 +9,11 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class AndBlock : VariableBlock
 	{
-		private readonly IScriptConditionBlock[] _conditions;
+		private readonly ScriptConditionBlock[] _conditions;
 
-		public static AndBlock Create(params IScriptConditionBlock[] conditions) => new(conditions);
+		public static AndBlock Create(params ScriptConditionBlock[] conditions) => new(conditions);
 
-		private AndBlock(IScriptConditionBlock[] conditions) => _conditions = conditions ?? throw new ArgumentNullException(nameof(conditions));
+		private AndBlock(ScriptConditionBlock[] conditions) => _conditions = conditions ?? throw new ArgumentNullException(nameof(conditions));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => Evaluate(runtimeContext);

@@ -8,21 +8,21 @@ namespace LunyScript.Blocks
 	/// </summary>
 	public sealed class WhileBlockBuilder : ScriptActionBlock
 	{
-		private readonly IScriptConditionBlock[] _conditions;
-		private IScriptActionBlock[] _blocks;
-		private IScriptActionBlock _cachedBlock;
+		private readonly ScriptConditionBlock[] _conditions;
+		private ScriptActionBlock[] _blocks;
+		private ScriptActionBlock _cachedBlock;
 
-		internal WhileBlockBuilder(IScriptConditionBlock[] conditions) => _conditions = conditions;
+		internal WhileBlockBuilder(ScriptConditionBlock[] conditions) => _conditions = conditions;
 
 		public override void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
 
-		public IScriptActionBlock Do(params IScriptActionBlock[] blocks)
+		public ScriptActionBlock Do(params ScriptActionBlock[] blocks)
 		{
 			_blocks = blocks;
 			return Build();
 		}
 
-		private IScriptActionBlock Build() => WhileBlock.Create(_conditions, _blocks);
+		private ScriptActionBlock Build() => WhileBlock.Create(_conditions, _blocks);
 	}
 
 	/// <summary>
@@ -30,12 +30,12 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class WhileBlock : ScriptActionBlock
 	{
-		private readonly IScriptConditionBlock[] _conditions;
-		private readonly IScriptActionBlock[] _blocks;
+		private readonly ScriptConditionBlock[] _conditions;
+		private readonly ScriptActionBlock[] _blocks;
 
-		public static WhileBlock Create(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks) => new(conditions, blocks);
+		public static WhileBlock Create(ScriptConditionBlock[] conditions, ScriptActionBlock[] blocks) => new(conditions, blocks);
 
-		private WhileBlock(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)
+		private WhileBlock(ScriptConditionBlock[] conditions, ScriptActionBlock[] blocks)
 		{
 			_conditions = conditions;
 			_blocks = blocks;

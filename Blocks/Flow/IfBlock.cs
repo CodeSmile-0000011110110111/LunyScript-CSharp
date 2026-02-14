@@ -8,34 +8,34 @@ namespace LunyScript.Blocks
 	/// </summary>
 	public sealed class IfBlockBuilder : ScriptActionBlock
 	{
-		private readonly List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> _branches = new();
-		private IScriptActionBlock[] _elseBlocks;
-		private IScriptActionBlock _cachedBlock;
+		private readonly List<(ScriptConditionBlock[] conditions, ScriptActionBlock[] blocks)> _branches = new();
+		private ScriptActionBlock[] _elseBlocks;
+		private ScriptActionBlock _cachedBlock;
 
-		internal IfBlockBuilder(IScriptConditionBlock[] conditions) => _branches.Add((conditions, Array.Empty<IScriptActionBlock>()));
+		internal IfBlockBuilder(ScriptConditionBlock[] conditions) => _branches.Add((conditions, Array.Empty<ScriptActionBlock>()));
 
 		public override void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
 
-		public IfBlockBuilder Then(params IScriptActionBlock[] blocks)
+		public IfBlockBuilder Then(params ScriptActionBlock[] blocks)
 		{
 			var lastIndex = _branches.Count - 1;
 			_branches[lastIndex] = (_branches[lastIndex].conditions, blocks);
 			return this;
 		}
 
-		public IfBlockBuilder ElseIf(params IScriptConditionBlock[] conditions)
+		public IfBlockBuilder ElseIf(params ScriptConditionBlock[] conditions)
 		{
-			_branches.Add((conditions, Array.Empty<IScriptActionBlock>()));
+			_branches.Add((conditions, Array.Empty<ScriptActionBlock>()));
 			return this;
 		}
 
-		public IScriptActionBlock Else(params IScriptActionBlock[] blocks)
+		public ScriptActionBlock Else(params ScriptActionBlock[] blocks)
 		{
 			_elseBlocks = blocks;
 			return Build();
 		}
 
-		private IScriptActionBlock Build() => IfBlock.Create(_branches, _elseBlocks);
+		private ScriptActionBlock Build() => IfBlock.Create(_branches, _elseBlocks);
 	}
 
 	/// <summary>
@@ -43,13 +43,13 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class IfBlock : ScriptActionBlock
 	{
-		private readonly List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> _branches;
-		private readonly IScriptActionBlock[] _elseBlocks;
+		private readonly List<(ScriptConditionBlock[] conditions, ScriptActionBlock[] blocks)> _branches;
+		private readonly ScriptActionBlock[] _elseBlocks;
 
-		public static IfBlock Create(List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> branches,
-			IScriptActionBlock[] elseBlocks) => new(branches, elseBlocks);
+		public static IfBlock Create(List<(ScriptConditionBlock[] conditions, ScriptActionBlock[] blocks)> branches,
+			ScriptActionBlock[] elseBlocks) => new(branches, elseBlocks);
 
-		private IfBlock(List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> branches, IScriptActionBlock[] elseBlocks)
+		private IfBlock(List<(ScriptConditionBlock[] conditions, ScriptActionBlock[] blocks)> branches, ScriptActionBlock[] elseBlocks)
 		{
 			_branches = branches;
 			_elseBlocks = elseBlocks;
@@ -70,7 +70,7 @@ namespace LunyScript.Blocks
 				ExecuteAll(runtimeContext, _elseBlocks);
 		}
 
-		private Boolean EvaluateAll(IScriptRuntimeContext runtimeContext, IScriptConditionBlock[] conditions)
+		private Boolean EvaluateAll(IScriptRuntimeContext runtimeContext, ScriptConditionBlock[] conditions)
 		{
 			if (conditions == null || conditions.Length == 0)
 				return true;
@@ -84,7 +84,7 @@ namespace LunyScript.Blocks
 			return true;
 		}
 
-		private void ExecuteAll(IScriptRuntimeContext runtimeContext, IScriptActionBlock[] blocks)
+		private void ExecuteAll(IScriptRuntimeContext runtimeContext, ScriptActionBlock[] blocks)
 		{
 			if (blocks == null)
 				return;

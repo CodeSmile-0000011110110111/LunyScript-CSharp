@@ -1,4 +1,4 @@
-﻿using Luny;
+using Luny;
 using Luny.Engine.Services;
 using LunyScript.Blocks;
 using LunyScript.Blocks.Coroutines;
@@ -168,7 +168,7 @@ namespace LunyScript
 		private sealed class CoroutineEntry
 		{
 			public readonly Coroutine Coroutine;
-			public readonly IScriptSequenceBlock[] Sequences;
+			public readonly ScriptSequenceBlock[] Sequences;
 			public readonly Int32 TimeSliceInterval;
 			public readonly Int32 TimeSliceOffset;
 			public readonly Coroutine.Process ProcessMode;
@@ -181,7 +181,7 @@ namespace LunyScript
 				TimeSliceOffset = options.TimeSliceOffset;
 				ProcessMode = options.ProcessMode;
 
-				Sequences = new IScriptSequenceBlock[7];
+				Sequences = new ScriptSequenceBlock[7];
 				Sequences[0] = SequenceBlock.TryCreate(options.OnStarted);
 				Sequences[1] = SequenceBlock.TryCreate(options.OnResumed);
 				Sequences[2] = SequenceBlock.TryCreate(options.OnHeartbeat);

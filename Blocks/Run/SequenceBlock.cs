@@ -9,13 +9,13 @@ namespace LunyScript.Blocks
 	internal sealed class SequenceBlock : ScriptSequenceBlock
 	{
 		public override ScriptBlockID ID { get; }
-		public override IReadOnlyList<IScriptActionBlock> Blocks { get; }
+		public override IReadOnlyList<ScriptActionBlock> Blocks { get; }
 		public override Boolean IsEmpty => Blocks.Count == 0;
 
-		public static ScriptSequenceBlock TryCreate(IReadOnlyList<IScriptActionBlock> blocks) =>
+		public static ScriptSequenceBlock TryCreate(IReadOnlyList<ScriptActionBlock> blocks) =>
 			blocks?.Count > 0 ? new SequenceBlock(blocks) : null;
 
-		public SequenceBlock(IReadOnlyList<IScriptActionBlock> blocks)
+		public SequenceBlock(IReadOnlyList<ScriptActionBlock> blocks)
 		{
 			if (blocks == null || blocks.Count == 0)
 				throw new ArgumentException("Sequence must contain at least one block", nameof(blocks));

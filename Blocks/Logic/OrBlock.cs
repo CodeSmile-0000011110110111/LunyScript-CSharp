@@ -9,11 +9,11 @@ namespace LunyScript.Blocks
 	/// </summary>
 	internal sealed class OrBlock : VariableBlock
 	{
-		private readonly IScriptConditionBlock[] _conditions;
+		private readonly ScriptConditionBlock[] _conditions;
 
-		public static OrBlock Create(params IScriptConditionBlock[] conditions) => new(conditions);
+		public static OrBlock Create(params ScriptConditionBlock[] conditions) => new(conditions);
 
-		private OrBlock(IScriptConditionBlock[] conditions) => _conditions = conditions ?? throw new ArgumentNullException(nameof(conditions));
+		private OrBlock(ScriptConditionBlock[] conditions) => _conditions = conditions ?? throw new ArgumentNullException(nameof(conditions));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => Evaluate(runtimeContext);

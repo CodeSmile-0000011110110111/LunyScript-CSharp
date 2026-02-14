@@ -1,4 +1,4 @@
-﻿using LunyScript.Blocks;
+using LunyScript.Blocks;
 using System;
 
 namespace LunyScript.Coroutines
@@ -24,13 +24,13 @@ namespace LunyScript.Coroutines
 			internal Boolean IsCounter => CounterTarget > 0;
 
 			// Handlers
-			public IScriptActionBlock[] OnFrameUpdate { get; init; }
-			public IScriptActionBlock[] OnHeartbeat { get; init; }
-			public IScriptActionBlock[] OnElapsed { get; init; }
-			public IScriptActionBlock[] OnStarted { get; init; }
-			public IScriptActionBlock[] OnStopped { get; init; }
-			public IScriptActionBlock[] OnPaused { get; init; }
-			public IScriptActionBlock[] OnResumed { get; init; }
+			public ScriptActionBlock[] OnFrameUpdate { get; init; }
+			public ScriptActionBlock[] OnHeartbeat { get; init; }
+			public ScriptActionBlock[] OnElapsed { get; init; }
+			public ScriptActionBlock[] OnStarted { get; init; }
+			public ScriptActionBlock[] OnStopped { get; init; }
+			public ScriptActionBlock[] OnPaused { get; init; }
+			public ScriptActionBlock[] OnResumed { get; init; }
 
 			public static Options ForOpenEnded(String name, Process processMode) => new() { Name = name, ProcessMode = processMode };
 
@@ -51,7 +51,7 @@ namespace LunyScript.Coroutines
 			};
 
 			public static Options ForEveryInterval(String name, Int32 interval, Int32 offset, Process processMode,
-				IScriptActionBlock[] doBlocks) => new()
+				ScriptActionBlock[] doBlocks) => new()
 			{
 				Name = name ?? GenerateUniqueName(interval, offset, processMode),
 				CounterTarget = interval, // time-sliced intervals are always counters

@@ -200,13 +200,13 @@ namespace LunyScript
 		/// Conditional execution: If(conditions).Then(blocks).ElseIf(conditions).Then(blocks).Else(blocks);
 		/// Multiple conditions are implicitly AND combined.
 		/// </summary>
-		public IfBlockBuilder If(params IScriptConditionBlock[] conditions) => new(conditions);
+		public IfBlockBuilder If(params ScriptConditionBlock[] conditions) => new(conditions);
 
 		/// <summary>
 		/// Loop execution: While(conditions).Do(blocks);
 		/// Multiple conditions are implicitly AND combined.
 		/// </summary>
-		public WhileBlockBuilder While(params IScriptConditionBlock[] conditions) => new(conditions);
+		public WhileBlockBuilder While(params ScriptConditionBlock[] conditions) => new(conditions);
 
 		/// <summary>
 		/// For loop (1-based index): For(limit).Do(blocks);
@@ -226,17 +226,17 @@ namespace LunyScript
 		/// <summary>
 		/// Logical AND: Returns true if all conditions are true.
 		/// </summary>
-		public ScriptConditionBlock AND(params IScriptConditionBlock[] conditions) => AndBlock.Create(conditions);
+		public ScriptConditionBlock AND(params ScriptConditionBlock[] conditions) => AndBlock.Create(conditions);
 
 		/// <summary>
 		/// Logical OR: Returns true if at least one condition is true.
 		/// </summary>
-		public ScriptConditionBlock OR(params IScriptConditionBlock[] conditions) => OrBlock.Create(conditions);
+		public ScriptConditionBlock OR(params ScriptConditionBlock[] conditions) => OrBlock.Create(conditions);
 
 		/// <summary>
 		/// Logical NOT: Returns the inverse of the condition.
 		/// </summary>
-		public ScriptConditionBlock NOT(IScriptConditionBlock condition) => NotBlock.Create(condition);
+		public ScriptConditionBlock NOT(ScriptConditionBlock condition) => NotBlock.Create(condition);
 
 		// Coroutines & Timers
 

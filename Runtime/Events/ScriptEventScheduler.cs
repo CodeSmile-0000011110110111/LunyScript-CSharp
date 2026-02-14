@@ -15,16 +15,16 @@ namespace LunyScript.Events
 		private static readonly Int32 s_SceneEventCount = Enum.GetNames(typeof(LunySceneEvent)).Length;
 
 		// Fast array-based storage for lifecycle events (hot path)
-		private List<IScriptSequenceBlock>[] _objectEventSequences;
-		private List<IScriptSequenceBlock>[] _sceneEventSequences;
+		private List<ScriptSequenceBlock>[] _objectEventSequences;
+		private List<ScriptSequenceBlock>[] _sceneEventSequences;
 
-		private static IScriptSequenceBlock ScheduleSequence(ref List<IScriptSequenceBlock>[] sequencesRef, IScriptSequenceBlock sequence,
+		private static ScriptSequenceBlock ScheduleSequence(ref List<ScriptSequenceBlock>[] sequencesRef, ScriptSequenceBlock sequence,
 			Int32 eventIndex, Int32 eventCount)
 		{
 			if (sequence != null && !sequence.IsEmpty)
 			{
-				sequencesRef ??= new List<IScriptSequenceBlock>[eventCount];
-				sequencesRef[eventIndex] ??= new List<IScriptSequenceBlock>();
+				sequencesRef ??= new List<ScriptSequenceBlock>[eventCount];
+				sequencesRef[eventIndex] ??= new List<ScriptSequenceBlock>();
 				sequencesRef[eventIndex].Add(sequence);
 			}
 
@@ -33,22 +33,22 @@ namespace LunyScript.Events
 
 		~ScriptEventScheduler() => LunyTraceLogger.LogInfoFinalized(this);
 
-		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, LunyObjectEvent objectEvent) =>
+		internal ScriptSequenceBlock ScheduleSequence(ScriptActionBlock[] blocks, LunyObjectEvent objectEvent) =>
 			ScheduleSequence(ref _objectEventSequences, SequenceBlock.TryCreate(blocks), (Int32)objectEvent, s_ObjectEventCount);
 
-		internal IScriptSequenceBlock ScheduleSequence(IScriptActionBlock[] blocks, LunySceneEvent sceneEvent) =>
+		internal ScriptSequenceBlock ScheduleSequence(ScriptActionBlock[] blocks, LunySceneEvent sceneEvent) =>
 			ScheduleSequence(ref _sceneEventSequences, SequenceBlock.TryCreate(blocks), (Int32)sceneEvent, s_SceneEventCount);
 
 		/// <summary>
 		/// Gets all sequences scheduled for a specific lifecycle event.
 		/// </summary>
-		internal IEnumerable<IScriptSequenceBlock> GetSequences(LunyObjectEvent objectEvent) =>
+		internal IEnumerable<ScriptSequenceBlock> GetSequences(LunyObjectEvent objectEvent) =>
 			IsObserving((Int32)objectEvent, ref _objectEventSequences) ? _objectEventSequences[(Int32)objectEvent] : null;
 
-		internal IEnumerable<IScriptSequenceBlock> GetSequences(LunySceneEvent sceneEvent) =>
+		internal IEnumerable<ScriptSequenceBlock> GetSequences(LunySceneEvent sceneEvent) =>
 			IsObserving((Int32)sceneEvent, ref _objectEventSequences) ? _objectEventSequences[(Int32)sceneEvent] : null;
 
-		internal Boolean IsObserving(Int32 eventIndex, ref List<IScriptSequenceBlock>[] sequencesRef)
+		internal Boolean IsObserving(Int32 eventIndex, ref List<ScriptSequenceBlock>[] sequencesRef)
 		{
 			if (sequencesRef == null)
 				return false;
