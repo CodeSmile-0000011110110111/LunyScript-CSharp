@@ -13,11 +13,6 @@ namespace LunyScript.Blocks
 	{
 		internal virtual Table.VarHandle TargetHandle => null;
 
-		public override Boolean Evaluate(IScriptRuntimeContext runtimeContext) =>
-			GetValue(runtimeContext).AsBoolean();
-
-		public abstract Variable GetValue(IScriptRuntimeContext runtimeContext);
-
 		public static implicit operator VariableBlock(Variable value) => ConstantVariableBlock.Create(value);
 		public static implicit operator VariableBlock(Int32 value) => ConstantVariableBlock.Create(value);
 		public static implicit operator VariableBlock(Int64 value) => ConstantVariableBlock.Create(value);
@@ -28,77 +23,90 @@ namespace LunyScript.Blocks
 
 		// Arithmetic Operators
 		public static VariableBlock operator +(VariableBlock left, Variable right) =>
-			AddVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableAddBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator +(VariableBlock left, VariableBlock right) => AddVariableBlock.Create(left, right);
+		public static VariableBlock operator +(VariableBlock left, VariableBlock right) =>
+			VariableAddBlock.Create(left, right);
 
 		public static VariableBlock operator +(Variable left, VariableBlock right) =>
-			AddVariableBlock.Create(ConstantVariableBlock.Create(left), right);
+			VariableAddBlock.Create(ConstantVariableBlock.Create(left), right);
 
 		public static VariableBlock operator -(VariableBlock left, Variable right) =>
-			SubVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableSubtractBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator -(VariableBlock left, VariableBlock right) => SubVariableBlock.Create(left, right);
+		public static VariableBlock operator -(VariableBlock left, VariableBlock right) =>
+			VariableSubtractBlock.Create(left, right);
 
 		public static VariableBlock operator -(Variable left, VariableBlock right) =>
-			SubVariableBlock.Create(ConstantVariableBlock.Create(left), right);
+			VariableSubtractBlock.Create(ConstantVariableBlock.Create(left), right);
 
 		public static VariableBlock operator *(VariableBlock left, Variable right) =>
-			MulVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableMultiplyBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator *(VariableBlock left, VariableBlock right) => MulVariableBlock.Create(left, right);
+		public static VariableBlock operator *(VariableBlock left, VariableBlock right) =>
+			VariableMultiplyBlock.Create(left, right);
 
 		public static VariableBlock operator *(Variable left, VariableBlock right) =>
-			MulVariableBlock.Create(ConstantVariableBlock.Create(left), right);
+			VariableMultiplyBlock.Create(ConstantVariableBlock.Create(left), right);
 
 		public static VariableBlock operator /(VariableBlock left, Variable right) =>
-			DivVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableDivideBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator /(VariableBlock left, VariableBlock right) => DivVariableBlock.Create(left, right);
+		public static VariableBlock operator /(VariableBlock left, VariableBlock right) =>
+			VariableDivideBlock.Create(left, right);
 
 		public static VariableBlock operator /(Variable left, VariableBlock right) =>
-			DivVariableBlock.Create(ConstantVariableBlock.Create(left), right);
+			VariableDivideBlock.Create(ConstantVariableBlock.Create(left), right);
 
 		public static VariableBlock operator ++(VariableBlock a) => a + 1;
 		public static VariableBlock operator --(VariableBlock a) => a - 1;
 
 		// Comparison Operators
 		public static VariableBlock operator ==(VariableBlock left, Variable right) =>
-			IsEqualToVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableIsEqualToBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator ==(VariableBlock left, VariableBlock right) => IsEqualToVariableBlock.Create(left, right);
+		public static VariableBlock operator ==(VariableBlock left, VariableBlock right) =>
+			VariableIsEqualToBlock.Create(left, right);
 
 		public static VariableBlock operator !=(VariableBlock left, Variable right) =>
-			IsNotEqualToVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableIsNotEqualToBlock.Create(left, ConstantVariableBlock.Create(right));
 
 		public static VariableBlock operator !=(VariableBlock left, VariableBlock right) =>
-			IsNotEqualToVariableBlock.Create(left, right);
+			VariableIsNotEqualToBlock.Create(left, right);
 
 		public static VariableBlock operator >(VariableBlock left, Variable right) =>
-			IsGreaterThanVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableIsGreaterThanBlock.Create(left, ConstantVariableBlock.Create(right));
 
 		public static VariableBlock operator >(VariableBlock left, VariableBlock right) =>
-			IsGreaterThanVariableBlock.Create(left, right);
+			VariableIsGreaterThanBlock.Create(left, right);
 
 		public static VariableBlock operator >=(VariableBlock left, Variable right) =>
-			IsAtLeastVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableIsAtLeastBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator >=(VariableBlock left, VariableBlock right) => IsAtLeastVariableBlock.Create(left, right);
+		public static VariableBlock operator >=(VariableBlock left, VariableBlock right) =>
+			VariableIsAtLeastBlock.Create(left, right);
 
 		public static VariableBlock operator <(VariableBlock left, Variable right) =>
-			IsLessThanVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableIsLessThanBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator <(VariableBlock left, VariableBlock right) => IsLessThanVariableBlock.Create(left, right);
+		public static VariableBlock operator <(VariableBlock left, VariableBlock right) =>
+			VariableIsLessThanBlock.Create(left, right);
 
 		public static VariableBlock operator <=(VariableBlock left, Variable right) =>
-			IsAtMostVariableBlock.Create(left, ConstantVariableBlock.Create(right));
+			VariableIsAtMostBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator <=(VariableBlock left, VariableBlock right) => IsAtMostVariableBlock.Create(left, right);
+		public static VariableBlock operator <=(VariableBlock left, VariableBlock right) =>
+			VariableIsAtMostBlock.Create(left, right);
 
 		// Unary Operators
 		public static VariableBlock operator !(VariableBlock operand) => NotBlock.Create(operand);
 
-		private Boolean Equals(VariableBlock other) => throw new NotImplementedException($"{nameof(VariableBlock)}.{nameof(Equals)}()");
+		public override Boolean Evaluate(IScriptRuntimeContext runtimeContext) => GetValue(runtimeContext).AsBoolean();
+
+		public abstract Variable GetValue(IScriptRuntimeContext runtimeContext);
+
+		private Boolean Equals(VariableBlock other) =>
+			throw new NotImplementedException($"{nameof(VariableBlock)}.{nameof(Equals)}()");
 
 		public override Boolean Equals(Object obj)
 		{
@@ -127,9 +135,9 @@ namespace LunyScript.Blocks
 		}
 
 		public ScriptActionBlock Set(Variable value) =>
-			AssignmentVariableBlock.Create(GetHandleOrThrow(), ConstantVariableBlock.Create(value));
+			VariableSetValueBlock.Create(GetHandleOrThrow(), ConstantVariableBlock.Create(value));
 
-		public ScriptActionBlock Set(VariableBlock value) => AssignmentVariableBlock.Create(GetHandleOrThrow(), value);
+		public ScriptActionBlock Set(VariableBlock value) => VariableSetValueBlock.Create(GetHandleOrThrow(), value);
 
 		public ScriptActionBlock Inc() => Add(1);
 		public ScriptActionBlock Dec() => Sub(1);
@@ -147,6 +155,5 @@ namespace LunyScript.Blocks
 		public ScriptActionBlock Div(VariableBlock value) => Set(this / value);
 
 		public ScriptActionBlock Toggle() => Set(!this);
-
 	}
 }

@@ -1,0 +1,17 @@
+using Luny;
+using System.Runtime.CompilerServices;
+
+namespace LunyScript.Blocks
+{
+	/// <summary>
+	/// Block that returns the current loop counter from the context stack.
+	/// </summary>
+	internal sealed class LoopCounterVariableBlock : VariableBlock
+	{
+		public static readonly LoopCounterVariableBlock Instance = new();
+		private LoopCounterVariableBlock() {}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public override Variable GetValue(IScriptRuntimeContext runtimeContext) => runtimeContext.LoopCount;
+	}
+}

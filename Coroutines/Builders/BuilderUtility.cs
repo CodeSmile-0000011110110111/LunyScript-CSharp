@@ -27,7 +27,7 @@ namespace LunyScript.Coroutines.Builders
 			return result;
 		}
 
-		public static IScriptCoroutineBlock Finalize(IScript script, in Coroutine.Options options, BuilderToken token)
+		public static ICoroutineBlock Finalize(IScript script, in Coroutine.Options options, BuilderToken token)
 		{
 			if (options.OnFrameUpdate == null && options.OnHeartbeat == null && options.OnElapsed == null &&
 			    options.OnStarted == null && options.OnStopped == null && options.OnPaused == null && options.OnResumed == null)

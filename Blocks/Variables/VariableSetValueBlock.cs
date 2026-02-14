@@ -4,14 +4,14 @@ using System.Runtime.CompilerServices;
 
 namespace LunyScript.Blocks
 {
-	internal sealed class AssignmentVariableBlock : ScriptActionBlock
+	internal sealed class VariableSetValueBlock : ScriptActionBlock
 	{
 		private readonly Table.VarHandle _handle;
 		private readonly VariableBlock _value;
 
-		public static AssignmentVariableBlock Create(Table.VarHandle handle, VariableBlock value) => new(handle, value);
+		public static VariableSetValueBlock Create(Table.VarHandle handle, VariableBlock value) => new(handle, value);
 
-		private AssignmentVariableBlock(Table.VarHandle handle, VariableBlock value)
+		private VariableSetValueBlock(Table.VarHandle handle, VariableBlock value)
 		{
 			_handle = handle ?? throw new ArgumentNullException(nameof(handle));
 			_value = value ?? throw new ArgumentNullException(nameof(value));

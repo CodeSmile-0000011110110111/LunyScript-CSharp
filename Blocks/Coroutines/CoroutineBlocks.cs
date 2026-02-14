@@ -7,11 +7,11 @@ namespace LunyScript.Blocks.Coroutines
 	/// Wraps a CoroutineInstance as a block for use in script sequences.
 	/// Provides control methods (Start, Stop, Pause, Resume) as action blocks.
 	/// </summary>
-	internal class CoroutineBlock : ScriptCoroutineBlock
+	internal class CoroutineBlock : Blocks.CoroutineBlock
 	{
 		protected readonly Coroutine _coroutine;
 
-		internal static ScriptCoroutineBlock Create(Coroutine coroutine) => coroutine switch
+		internal static Blocks.CoroutineBlock Create(Coroutine coroutine) => coroutine switch
 		{
 			TimerCoroutine timer => new TimerCoroutineBlock(timer),
 			CounterCoroutine counter => new CounterCoroutineBlock(counter),
@@ -29,7 +29,7 @@ namespace LunyScript.Blocks.Coroutines
 		public override ScriptActionBlock Resume() => new CoroutineResumeBlock(_coroutine);
 	}
 
-	internal sealed class TimerCoroutineBlock : CoroutineBlock, IScriptTimerCoroutineBlock
+	internal sealed class TimerCoroutineBlock : CoroutineBlock, ITimerCoroutineBlock
 	{
 		internal TimerCoroutineBlock(TimerCoroutine coroutine)
 			: base(coroutine) {}
@@ -37,7 +37,7 @@ namespace LunyScript.Blocks.Coroutines
 		public ScriptActionBlock TimeScale(Double scale) => new TimerCoroutineSetTimeScaleBlock((TimerCoroutine)_coroutine, scale);
 	}
 
-	internal sealed class CounterCoroutineBlock : CoroutineBlock, IScriptCounterCoroutineBlock
+	internal sealed class CounterCoroutineBlock : CoroutineBlock, ICounterCoroutineBlock
 	{
 		internal CounterCoroutineBlock(CounterCoroutine coroutine)
 			: base(coroutine) {}

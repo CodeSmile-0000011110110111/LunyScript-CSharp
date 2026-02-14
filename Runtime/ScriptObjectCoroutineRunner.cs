@@ -1,10 +1,11 @@
-using Luny;
+﻿using Luny;
 using Luny.Engine.Services;
 using LunyScript.Blocks;
 using LunyScript.Blocks.Coroutines;
 using LunyScript.Coroutines;
 using System;
 using System.Collections.Generic;
+using CoroutineBlock = LunyScript.Blocks.Coroutines.CoroutineBlock;
 
 namespace LunyScript
 {
@@ -70,7 +71,7 @@ namespace LunyScript
 		/// <summary>
 		/// Registers a new coroutine. Throws if name already exists.
 		/// </summary>
-		internal IScriptCoroutineBlock Register(IScript script, in Coroutine.Options options)
+		internal ICoroutineBlock Register(IScript script, in Coroutine.Options options)
 		{
 			if (_registry.ContainsKey(options.Name))
 				throw new InvalidOperationException($"Coroutine '{options.Name}' already exists. Duplicate names are not allowed.");
