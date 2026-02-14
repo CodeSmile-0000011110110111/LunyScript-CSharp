@@ -29,10 +29,9 @@ namespace LunyScript
 		SceneApi Scene { get; }
 		WhenApi When { get; }
 
-		VariableBlock Const(String name, Variable value);
-		VariableBlock Const(Variable value);
-		VariableBlock Var(String name);
-		VariableBlock GVar(String name);
+		VariableBlock Define(String name, Variable value);
+		VarAccessor Var { get; }
+		VarAccessor GVar { get; }
 	}
 
 	internal interface ILunyScriptInternal
@@ -184,12 +183,10 @@ namespace LunyScript
 		}
 
 		// Variables and Constants
-		public VariableBlock Const(String name, Variable value) =>
+		public VariableBlock Define(String name, Variable value) =>
 			TableVariableBlock.Create(_runtimeContext.GlobalVariables.DefineConstant(name, value));
-
-		public VariableBlock Const(Variable value) => ConstantVariableBlock.Create(value);
-		public VariableBlock GVar(String name) => TableVariableBlock.Create(_runtimeContext.GlobalVariables.GetHandle(name));
-		public VariableBlock Var(String name) => TableVariableBlock.Create(_runtimeContext.LocalVariables.GetHandle(name));
+		public VarAccessor GVar => new(_runtimeContext.GlobalVariables);
+		public VarAccessor Var => new(_runtimeContext.LocalVariables);
 
 		// Logic Flow API
 

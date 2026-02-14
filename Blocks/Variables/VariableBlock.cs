@@ -8,6 +8,8 @@ namespace LunyScript.Blocks
 	{
 		internal virtual Table.VarHandle TargetHandle => null;
 
+		public static implicit operator VariableBlock(Variable value) => ConstantVariableBlock.Create(value);
+
 		// Arithmetic Operators
 		public static VariableBlock operator +(VariableBlock left, Variable right) =>
 			AddVariableBlock.Create(left, ConstantVariableBlock.Create(right));
@@ -132,26 +134,5 @@ namespace LunyScript.Blocks
 
 		public IScriptActionBlock Toggle() => Set(!this);
 
-		// Conditions
-		public IScriptConditionBlock IsTrue() => this;
-		public IScriptConditionBlock IsFalse() => !this;
-
-		public IScriptConditionBlock IsEqualTo(Variable value) => this == value;
-		public IScriptConditionBlock IsEqualTo(IScriptVariableBlock value) => this == value;
-
-		public IScriptConditionBlock IsNotEqualTo(Variable value) => this != value;
-		public IScriptConditionBlock IsNotEqualTo(IScriptVariableBlock value) => this != value;
-
-		public IScriptConditionBlock IsGreaterThan(Variable value) => this > value;
-		public IScriptConditionBlock IsGreaterThan(IScriptVariableBlock value) => this > value;
-
-		public IScriptConditionBlock IsLessThan(Variable value) => this < value;
-		public IScriptConditionBlock IsLessThan(IScriptVariableBlock value) => this < value;
-
-		public IScriptConditionBlock IsAtLeast(Variable value) => this >= value;
-		public IScriptConditionBlock IsAtLeast(IScriptVariableBlock value) => this >= value;
-
-		public IScriptConditionBlock IsAtMost(Variable value) => this <= value;
-		public IScriptConditionBlock IsAtMost(IScriptVariableBlock value) => this <= value;
 	}
 }

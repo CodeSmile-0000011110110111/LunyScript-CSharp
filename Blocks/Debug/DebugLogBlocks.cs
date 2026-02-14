@@ -7,14 +7,14 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Debug-only logging block base class.
 	/// </summary>
-	internal class DebugLogBlockBase : IScriptActionBlock
+	internal class DebugLogBlock : IScriptActionBlock
 	{
 		protected String _message;
 		private LogLevel _logLevel;
 
-		private DebugLogBlockBase() {}
+		private DebugLogBlock() {}
 
-		protected DebugLogBlockBase(String message, LogLevel logLevel)
+		protected DebugLogBlock(String message, LogLevel logLevel)
 		{
 			_message = message;
 			_logLevel = logLevel;
@@ -50,7 +50,7 @@ namespace LunyScript.Blocks
 	/// Debug-only logging block for "info" messages (gray/white text).
 	/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 	/// </summary>
-	internal sealed class DebugLogInfoBlock : DebugLogBlockBase
+	internal sealed class DebugLogInfoBlock : DebugLogBlock
 	{
 		public static IScriptActionBlock Create(String message)
 		{
@@ -69,7 +69,7 @@ namespace LunyScript.Blocks
 	/// Debug-only logging block for "warning" messages (yellow text).
 	/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 	/// </summary>
-	internal sealed class DebugLogWarningBlock : DebugLogBlockBase
+	internal sealed class DebugLogWarningBlock : DebugLogBlock
 	{
 		public static IScriptActionBlock Create(String message)
 		{
@@ -88,7 +88,7 @@ namespace LunyScript.Blocks
 	/// Debug-only logging block for "error" messages (red text).
 	/// Only logs when DEBUG or LUNYSCRIPT_DEBUG is defined.
 	/// </summary>
-	internal sealed class DebugLogErrorBlock : DebugLogBlockBase
+	internal sealed class DebugLogErrorBlock : DebugLogBlock
 	{
 		public static IScriptActionBlock Create(String message)
 		{
