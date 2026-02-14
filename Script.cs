@@ -62,6 +62,8 @@ namespace LunyScript
 	public abstract class Script : IScript, ILunyScriptInternal
 	{
 		private IScriptRuntimeContext _runtimeContext;
+		private VarAccessor _gVar;
+		private VarAccessor _var;
 		private List<BuilderToken> _pendingBuilderTokens;
 
 		/// <summary>
@@ -156,8 +158,12 @@ namespace LunyScript
 		public ApiPlaceholders.VFXApi VFX => new(this);
 		public ApiPlaceholders.VideoApi Video => new(this);
 
-		internal void Initialize(IScriptRuntimeContext runtimeContext) =>
+		internal void Initialize(IScriptRuntimeContext runtimeContext)
+		{
 			_runtimeContext = runtimeContext ?? throw new ArgumentNullException(nameof(runtimeContext));
+			_gVar = new VarAccessor(_runtimeContext.GlobalVariables);
+			_var = new VarAccessor(_runtimeContext.LocalVariables);
+		}
 
 		BuilderToken ILunyScriptInternal.CreateToken(String name, String type)
 		{
@@ -185,8 +191,8 @@ namespace LunyScript
 		// Variables and Constants
 		public VariableBlock Define(String name, Variable value) =>
 			TableVariableBlock.Create(_runtimeContext.GlobalVariables.DefineConstant(name, value));
-		public VarAccessor GVar => new(_runtimeContext.GlobalVariables);
-		public VarAccessor Var => new(_runtimeContext.LocalVariables);
+		public VarAccessor GVar => _gVar;
+		public VarAccessor Var => _var;
 
 		// Logic Flow API
 
@@ -220,17 +226,17 @@ namespace LunyScript
 		/// <summary>
 		/// Logical AND: Returns true if all conditions are true.
 		/// </summary>
-		public IScriptConditionBlock AND(params IScriptConditionBlock[] conditions) => AndBlock.Create(conditions);
+		public ScriptConditionBlock AND(params IScriptConditionBlock[] conditions) => AndBlock.Create(conditions);
 
 		/// <summary>
 		/// Logical OR: Returns true if at least one condition is true.
 		/// </summary>
-		public IScriptConditionBlock OR(params IScriptConditionBlock[] conditions) => OrBlock.Create(conditions);
+		public ScriptConditionBlock OR(params IScriptConditionBlock[] conditions) => OrBlock.Create(conditions);
 
 		/// <summary>
 		/// Logical NOT: Returns the inverse of the condition.
 		/// </summary>
-		public IScriptConditionBlock NOT(IScriptConditionBlock condition) => NotBlock.Create(condition);
+		public ScriptConditionBlock NOT(IScriptConditionBlock condition) => NotBlock.Create(condition);
 
 		// Coroutines & Timers
 

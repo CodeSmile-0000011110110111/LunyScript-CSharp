@@ -12,6 +12,6 @@ namespace LunyScript.Api
 		/// Logs a message that appears in both debug and release builds.
 		/// Posts to both Luny internal log (if enabled) and engine logging.
 		/// </summary>
-		public IScriptActionBlock Log(String message) => EngineLogBlock.Create(message);
+		public ScriptActionBlock Log(String message) => EngineLogBlock.Create(message);
 	}
 }

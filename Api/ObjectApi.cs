@@ -11,10 +11,10 @@ namespace LunyScript.Api
 		private readonly IScript _script;
 		internal ObjectApi(IScript script) => _script = script;
 
-		public IScriptActionBlock Enable(String name = null) =>
+		public ScriptActionBlock Enable(String name = null) =>
 			String.IsNullOrEmpty(name) ? ObjectEnableSelfBlock.Create() : ObjectEnableTargetBlock.Create(name);
 
-		public IScriptActionBlock Disable(String name = null) =>
+		public ScriptActionBlock Disable(String name = null) =>
 			String.IsNullOrEmpty(name) ? ObjectDisableSelfBlock.Create() : ObjectDisableTargetBlock.Create(name);
 
 		public ObjectBuilder<StateNameSet> Create(String name)
@@ -24,7 +24,7 @@ namespace LunyScript.Api
 			return new ObjectBuilder<StateNameSet>(_script, options, token);
 		}
 
-		public IScriptActionBlock Destroy(String name = null) =>
+		public ScriptActionBlock Destroy(String name = null) =>
 			String.IsNullOrEmpty(name) ? ObjectDestroySelfBlock.Create() : ObjectDestroyTargetBlock.Create(name);
 	}
 }

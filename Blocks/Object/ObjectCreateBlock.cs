@@ -22,19 +22,17 @@ namespace LunyScript.Blocks
 		public String AssetName;
 	}
 
-	internal abstract class ObjectCreateBlock : IScriptActionBlock
+	internal abstract class ObjectCreateBlock : ScriptActionBlock
 	{
 		protected readonly String Name;
 		protected static ILunyObjectService Object => LunyEngine.Instance.Object;
 
 		protected ObjectCreateBlock(String name) => Name = name;
-
-		public abstract void Execute(IScriptRuntimeContext runtimeContext);
 	}
 
 	internal sealed class ObjectCreateEmptyBlock : ObjectCreateBlock
 	{
-		public static IScriptActionBlock Create(String name) => new ObjectCreateEmptyBlock(name);
+		public static ScriptActionBlock Create(String name) => new ObjectCreateEmptyBlock(name);
 
 		private ObjectCreateEmptyBlock(String name)
 			: base(name) {}
@@ -44,7 +42,7 @@ namespace LunyScript.Blocks
 
 	internal sealed class ObjectCreateCubeBlock : ObjectCreateBlock
 	{
-		public static IScriptActionBlock Create(String name) => new ObjectCreateCubeBlock(name);
+		public static ScriptActionBlock Create(String name) => new ObjectCreateCubeBlock(name);
 
 		private ObjectCreateCubeBlock(String name)
 			: base(name) {}
@@ -54,7 +52,7 @@ namespace LunyScript.Blocks
 
 	internal sealed class ObjectCreateSphereBlock : ObjectCreateBlock
 	{
-		public static IScriptActionBlock Create(String name) => new ObjectCreateSphereBlock(name);
+		public static ScriptActionBlock Create(String name) => new ObjectCreateSphereBlock(name);
 
 		private ObjectCreateSphereBlock(String name)
 			: base(name) {}
@@ -64,7 +62,7 @@ namespace LunyScript.Blocks
 
 	internal sealed class ObjectCreateCapsuleBlock : ObjectCreateBlock
 	{
-		public static IScriptActionBlock Create(String name) => new ObjectCreateCapsuleBlock(name);
+		public static ScriptActionBlock Create(String name) => new ObjectCreateCapsuleBlock(name);
 
 		private ObjectCreateCapsuleBlock(String name)
 			: base(name) {}
@@ -74,7 +72,7 @@ namespace LunyScript.Blocks
 
 	internal sealed class ObjectCreateCylinderBlock : ObjectCreateBlock
 	{
-		public static IScriptActionBlock Create(String name) => new ObjectCreateCylinderBlock(name);
+		public static ScriptActionBlock Create(String name) => new ObjectCreateCylinderBlock(name);
 
 		private ObjectCreateCylinderBlock(String name)
 			: base(name) {}
@@ -84,7 +82,7 @@ namespace LunyScript.Blocks
 
 	internal sealed class ObjectCreatePlaneBlock : ObjectCreateBlock
 	{
-		public static IScriptActionBlock Create(String name) => new ObjectCreatePlaneBlock(name);
+		public static ScriptActionBlock Create(String name) => new ObjectCreatePlaneBlock(name);
 
 		private ObjectCreatePlaneBlock(String name)
 			: base(name) {}
@@ -94,7 +92,7 @@ namespace LunyScript.Blocks
 
 	internal sealed class ObjectCreateQuadBlock : ObjectCreateBlock
 	{
-		public static IScriptActionBlock Create(String name) => new ObjectCreateQuadBlock(name);
+		public static ScriptActionBlock Create(String name) => new ObjectCreateQuadBlock(name);
 
 		private ObjectCreateQuadBlock(String name)
 			: base(name) {}
@@ -106,7 +104,7 @@ namespace LunyScript.Blocks
 	{
 		private readonly String _assetName;
 
-		public static IScriptActionBlock Create(String instanceName, String assetName) => new ObjectCreatePrefabBlock(instanceName, assetName);
+		public static ScriptActionBlock Create(String instanceName, String assetName) => new ObjectCreatePrefabBlock(instanceName, assetName);
 
 		private ObjectCreatePrefabBlock(String instanceName, String assetName)
 			: base(instanceName) => _assetName = assetName;
@@ -126,7 +124,7 @@ namespace LunyScript.Blocks
 	{
 		private readonly String _sourceName;
 
-		public static IScriptActionBlock Create(String instanceName, String sourceName) => new ObjectCreateCloneBlock(instanceName, sourceName);
+		public static ScriptActionBlock Create(String instanceName, String sourceName) => new ObjectCreateCloneBlock(instanceName, sourceName);
 
 		private ObjectCreateCloneBlock(String instanceName, String sourceName)
 			: base(instanceName) => _sourceName = sourceName;

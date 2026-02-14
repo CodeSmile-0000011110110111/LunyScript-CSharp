@@ -6,7 +6,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Builder for 'For' loops.
 	/// </summary>
-	public sealed class ForBlockBuilder : IScriptActionBlock
+	public sealed class ForBlockBuilder : ScriptActionBlock
 	{
 		private readonly Int32 _limit;
 		private readonly Int32 _step;
@@ -19,7 +19,7 @@ namespace LunyScript.Blocks
 			_step = step;
 		}
 
-		public void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
 
 		public IScriptActionBlock Do(params IScriptActionBlock[] blocks)
 		{
@@ -33,7 +33,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// For loop execution block with 1-based indexing and safety limits.
 	/// </summary>
-	internal sealed class ForBlock : IScriptActionBlock
+	internal sealed class ForBlock : ScriptActionBlock
 	{
 		private readonly Int32 _limit;
 		private readonly Int32 _step;
@@ -48,7 +48,7 @@ namespace LunyScript.Blocks
 			_blocks = blocks;
 		}
 
-		public void Execute(IScriptRuntimeContext runtimeContext)
+		public override void Execute(IScriptRuntimeContext runtimeContext)
 		{
 #if DEBUG || UNITY_EDITOR
 			var iterations = 0;

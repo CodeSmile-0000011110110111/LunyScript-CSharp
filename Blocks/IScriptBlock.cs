@@ -53,22 +53,22 @@ namespace LunyScript.Blocks
 		/// <summary>
 		/// Starts or restarts the coroutine.
 		/// </summary>
-		IScriptActionBlock Start();
+		ScriptActionBlock Start();
 
 		/// <summary>
 		/// Stops the coroutine and resets its state.
 		/// </summary>
-		IScriptActionBlock Stop();
+		ScriptActionBlock Stop();
 
 		/// <summary>
 		/// Pauses the coroutine, preserving current state.
 		/// </summary>
-		IScriptActionBlock Pause();
+		ScriptActionBlock Pause();
 
 		/// <summary>
 		/// Resumes a paused coroutine.
 		/// </summary>
-		IScriptActionBlock Resume();
+		ScriptActionBlock Resume();
 	}
 
 	/// <summary>
@@ -79,7 +79,7 @@ namespace LunyScript.Blocks
 		/// <summary>
 		/// Sets the time scale. Values >= 0; negative values are clamped to 0.
 		/// </summary>
-		IScriptActionBlock TimeScale(Double scale);
+		ScriptActionBlock TimeScale(Double scale);
 	}
 
 	/// <summary>
@@ -140,9 +140,9 @@ namespace LunyScript.Blocks
 	/// </summary>
 	public abstract class ScriptCoroutineBlock : ScriptActionBlock, IScriptCoroutineBlock
 	{
-		public abstract IScriptActionBlock Start();
-		public abstract IScriptActionBlock Stop();
-		public abstract IScriptActionBlock Pause();
-		public abstract IScriptActionBlock Resume();
+		public abstract ScriptActionBlock Start();
+		public abstract ScriptActionBlock Stop();
+		public abstract ScriptActionBlock Pause();
+		public abstract ScriptActionBlock Resume();
 	}
 }

@@ -3,14 +3,12 @@ using System;
 
 namespace LunyScript.Blocks.Coroutines
 {
-	internal abstract class CoroutineControlBlock : IScriptActionBlock
+	internal abstract class CoroutineControlBlock : ScriptActionBlock
 	{
 		protected readonly Coroutine _coroutine;
 
 		protected CoroutineControlBlock(Coroutine coroutine) =>
 			_coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
-
-		public abstract void Execute(IScriptRuntimeContext runtimeContext);
 	}
 
 	internal sealed class CoroutineStartBlock : CoroutineControlBlock

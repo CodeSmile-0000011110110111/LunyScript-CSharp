@@ -42,9 +42,9 @@ namespace LunyScript.Coroutines.Builders
 			return block;
 		}
 
-		public static IScriptActionBlock Finalize(IScript script, in ObjectCreateOptions options, BuilderToken token)
+		public static ScriptActionBlock Finalize(IScript script, in ObjectCreateOptions options, BuilderToken token)
 		{
-			IScriptActionBlock block = options.Mode switch
+			ScriptActionBlock block = options.Mode switch
 			{
 				ObjectCreationMode.Empty => ObjectCreateEmptyBlock.Create(options.Name),
 				ObjectCreationMode.Primitive => options.PrimitiveType switch

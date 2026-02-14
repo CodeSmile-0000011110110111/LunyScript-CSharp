@@ -18,7 +18,7 @@ namespace LunyScript.Blocks
 		}
 	}
 
-	internal sealed class AssignmentVariableBlock : IScriptActionBlock, IScriptVariableBlock
+	internal sealed class AssignmentVariableBlock : ScriptActionBlock, IScriptVariableBlock
 	{
 		private readonly Table.VarHandle _handle;
 		private readonly IScriptVariableBlock _value;
@@ -32,7 +32,7 @@ namespace LunyScript.Blocks
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Execute(IScriptRuntimeContext runtimeContext) => _handle.Value = GetValue(runtimeContext);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => _handle.Value = GetValue(runtimeContext);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public Variable GetValue(IScriptRuntimeContext runtimeContext) => _value.GetValue(runtimeContext);

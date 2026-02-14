@@ -4,11 +4,17 @@ using System;
 
 namespace LunyScript.Blocks
 {
-	public abstract class VariableBlock : IScriptVariableBlock, IScriptConditionBlock
+	public abstract class VariableBlock : ScriptVariableBlock
 	{
 		internal virtual Table.VarHandle TargetHandle => null;
 
 		public static implicit operator VariableBlock(Variable value) => ConstantVariableBlock.Create(value);
+		public static implicit operator VariableBlock(Int32 value) => ConstantVariableBlock.Create(value);
+		public static implicit operator VariableBlock(Int64 value) => ConstantVariableBlock.Create(value);
+		public static implicit operator VariableBlock(Single value) => ConstantVariableBlock.Create(value);
+		public static implicit operator VariableBlock(Double value) => ConstantVariableBlock.Create(value);
+		public static implicit operator VariableBlock(Boolean value) => ConstantVariableBlock.Create(value);
+		public static implicit operator VariableBlock(String value) => ConstantVariableBlock.Create(value);
 
 		// Arithmetic Operators
 		public static VariableBlock operator +(VariableBlock left, Variable right) =>
@@ -82,8 +88,7 @@ namespace LunyScript.Blocks
 		// Unary Operators
 		public static VariableBlock operator !(VariableBlock operand) => NotBlock.Create(operand);
 
-		public virtual Boolean Evaluate(IScriptRuntimeContext runtimeContext) => GetValue(runtimeContext).AsBoolean();
-		public abstract Variable GetValue(IScriptRuntimeContext runtimeContext);
+		public override abstract Variable GetValue(IScriptRuntimeContext runtimeContext);
 		private Boolean Equals(VariableBlock other) => throw new NotImplementedException($"{nameof(VariableBlock)}.{nameof(Equals)}()");
 
 		public override Boolean Equals(Object obj)
@@ -112,27 +117,27 @@ namespace LunyScript.Blocks
 			return handle;
 		}
 
-		public IScriptActionBlock Set(Variable value) =>
+		public ScriptActionBlock Set(Variable value) =>
 			AssignmentVariableBlock.Create(GetHandleOrThrow(), ConstantVariableBlock.Create(value));
 
-		public IScriptActionBlock Set(IScriptVariableBlock value) => AssignmentVariableBlock.Create(GetHandleOrThrow(), value);
+		public ScriptActionBlock Set(IScriptVariableBlock value) => AssignmentVariableBlock.Create(GetHandleOrThrow(), value);
 
-		public IScriptActionBlock Inc() => Add(1);
-		public IScriptActionBlock Dec() => Sub(1);
+		public ScriptActionBlock Inc() => Add(1);
+		public ScriptActionBlock Dec() => Sub(1);
 
-		public IScriptActionBlock Add(Variable value) => Set(this + value);
-		public IScriptActionBlock Add(IScriptVariableBlock value) => Set(this + value);
+		public ScriptActionBlock Add(Variable value) => Set(this + value);
+		public ScriptActionBlock Add(IScriptVariableBlock value) => Set(this + value);
 
-		public IScriptActionBlock Sub(Variable value) => Set(this - value);
-		public IScriptActionBlock Sub(IScriptVariableBlock value) => Set(this - value);
+		public ScriptActionBlock Sub(Variable value) => Set(this - value);
+		public ScriptActionBlock Sub(IScriptVariableBlock value) => Set(this - value);
 
-		public IScriptActionBlock Mul(Variable value) => Set(this * value);
-		public IScriptActionBlock Mul(IScriptVariableBlock value) => Set(this * value);
+		public ScriptActionBlock Mul(Variable value) => Set(this * value);
+		public ScriptActionBlock Mul(IScriptVariableBlock value) => Set(this * value);
 
-		public IScriptActionBlock Div(Variable value) => Set(this / value);
-		public IScriptActionBlock Div(IScriptVariableBlock value) => Set(this / value);
+		public ScriptActionBlock Div(Variable value) => Set(this / value);
+		public ScriptActionBlock Div(IScriptVariableBlock value) => Set(this / value);
 
-		public IScriptActionBlock Toggle() => Set(!this);
+		public ScriptActionBlock Toggle() => Set(!this);
 
 	}
 }

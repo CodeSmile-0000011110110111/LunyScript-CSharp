@@ -6,7 +6,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Builder for constructing 'If' blocks with 'ElseIf' and 'Else' branches.
 	/// </summary>
-	public sealed class IfBlockBuilder : IScriptActionBlock
+	public sealed class IfBlockBuilder : ScriptActionBlock
 	{
 		private readonly List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> _branches = new();
 		private IScriptActionBlock[] _elseBlocks;
@@ -14,7 +14,7 @@ namespace LunyScript.Blocks
 
 		internal IfBlockBuilder(IScriptConditionBlock[] conditions) => _branches.Add((conditions, Array.Empty<IScriptActionBlock>()));
 
-		public void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
 
 		public IfBlockBuilder Then(params IScriptActionBlock[] blocks)
 		{
@@ -41,7 +41,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Conditional execution block.
 	/// </summary>
-	internal sealed class IfBlock : IScriptActionBlock
+	internal sealed class IfBlock : ScriptActionBlock
 	{
 		private readonly List<(IScriptConditionBlock[] conditions, IScriptActionBlock[] blocks)> _branches;
 		private readonly IScriptActionBlock[] _elseBlocks;
@@ -55,7 +55,7 @@ namespace LunyScript.Blocks
 			_elseBlocks = elseBlocks;
 		}
 
-		public void Execute(IScriptRuntimeContext runtimeContext)
+		public override void Execute(IScriptRuntimeContext runtimeContext)
 		{
 			foreach (var (conditions, blocks) in _branches)
 			{

@@ -1,13 +1,13 @@
-﻿using Luny;
+using Luny;
 
 namespace LunyScript.Blocks
 {
-	internal sealed class SceneReloadBlock : IScriptActionBlock
+	internal sealed class SceneReloadBlock : ScriptActionBlock
 	{
-		public static IScriptActionBlock Create() => new SceneReloadBlock();
+		public static ScriptActionBlock Create() => new SceneReloadBlock();
 
 		private SceneReloadBlock() {}
 
-		public void Execute(IScriptRuntimeContext runtimeContext) => LunyEngine.Instance.Scene.ReloadScene();
+		public override void Execute(IScriptRuntimeContext runtimeContext) => LunyEngine.Instance.Scene.ReloadScene();
 	}
 }

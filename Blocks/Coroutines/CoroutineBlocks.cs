@@ -7,11 +7,11 @@ namespace LunyScript.Blocks.Coroutines
 	/// Wraps a CoroutineInstance as a block for use in script sequences.
 	/// Provides control methods (Start, Stop, Pause, Resume) as action blocks.
 	/// </summary>
-	internal class CoroutineBlock : IScriptCoroutineBlock
+	internal class CoroutineBlock : ScriptCoroutineBlock
 	{
 		protected readonly Coroutine _coroutine;
 
-		internal static IScriptCoroutineBlock Create(Coroutine coroutine) => coroutine switch
+		internal static ScriptCoroutineBlock Create(Coroutine coroutine) => coroutine switch
 		{
 			TimerCoroutine timer => new TimerCoroutineBlock(timer),
 			CounterCoroutine counter => new CounterCoroutineBlock(counter),
@@ -20,13 +20,13 @@ namespace LunyScript.Blocks.Coroutines
 
 		protected CoroutineBlock(Coroutine coroutine) => _coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
 
-		public virtual void Execute(IScriptRuntimeContext runtimeContext) =>
+		public override void Execute(IScriptRuntimeContext runtimeContext) =>
 			throw new NotImplementedException($"{nameof(CoroutineBlock)} cannot be used in a block sequence");
 
-		public IScriptActionBlock Start() => new CoroutineStartBlock(_coroutine);
-		public IScriptActionBlock Stop() => new CoroutineStopBlock(_coroutine);
-		public IScriptActionBlock Pause() => new CoroutinePauseBlock(_coroutine);
-		public IScriptActionBlock Resume() => new CoroutineResumeBlock(_coroutine);
+		public override ScriptActionBlock Start() => new CoroutineStartBlock(_coroutine);
+		public override ScriptActionBlock Stop() => new CoroutineStopBlock(_coroutine);
+		public override ScriptActionBlock Pause() => new CoroutinePauseBlock(_coroutine);
+		public override ScriptActionBlock Resume() => new CoroutineResumeBlock(_coroutine);
 	}
 
 	internal sealed class TimerCoroutineBlock : CoroutineBlock, IScriptTimerCoroutineBlock
@@ -34,7 +34,7 @@ namespace LunyScript.Blocks.Coroutines
 		internal TimerCoroutineBlock(TimerCoroutine coroutine)
 			: base(coroutine) {}
 
-		public IScriptActionBlock TimeScale(Double scale) => new TimerCoroutineSetTimeScaleBlock((TimerCoroutine)_coroutine, scale);
+		public ScriptActionBlock TimeScale(Double scale) => new TimerCoroutineSetTimeScaleBlock((TimerCoroutine)_coroutine, scale);
 	}
 
 	internal sealed class CounterCoroutineBlock : CoroutineBlock, IScriptCounterCoroutineBlock

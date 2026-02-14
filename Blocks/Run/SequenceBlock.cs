@@ -6,13 +6,13 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Executes child blocks in sequential order.
 	/// </summary>
-	internal sealed class SequenceBlock : IScriptSequenceBlock
+	internal sealed class SequenceBlock : ScriptSequenceBlock
 	{
-		public ScriptBlockID ID { get; }
-		public IReadOnlyList<IScriptActionBlock> Blocks { get; }
-		public Boolean IsEmpty => Blocks.Count == 0;
+		public override ScriptBlockID ID { get; }
+		public override IReadOnlyList<IScriptActionBlock> Blocks { get; }
+		public override Boolean IsEmpty => Blocks.Count == 0;
 
-		public static IScriptSequenceBlock TryCreate(IReadOnlyList<IScriptActionBlock> blocks) =>
+		public static ScriptSequenceBlock TryCreate(IReadOnlyList<IScriptActionBlock> blocks) =>
 			blocks?.Count > 0 ? new SequenceBlock(blocks) : null;
 
 		public SequenceBlock(IReadOnlyList<IScriptActionBlock> blocks)
@@ -24,7 +24,7 @@ namespace LunyScript.Blocks
 			Blocks = blocks;
 		}
 
-		public void Execute(IScriptRuntimeContext runtimeContext)
+		public override void Execute(IScriptRuntimeContext runtimeContext)
 		{
 			if (runtimeContext == null)
 				return;

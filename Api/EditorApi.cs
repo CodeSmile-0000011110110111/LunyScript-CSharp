@@ -15,6 +15,6 @@ namespace LunyScript.Api
 		/// <summary>
 		/// Pauses playmode.
 		/// </summary>
-		public IScriptActionBlock PausePlayer(String message = null) => EditorPausePlayerBlock.Create(message);
+		public ScriptActionBlock PausePlayer(String message = null) => EditorPausePlayerBlock.Create(message);
 	}
 }

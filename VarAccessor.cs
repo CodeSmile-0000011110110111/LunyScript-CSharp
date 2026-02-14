@@ -1,4 +1,4 @@
-using Luny;
+﻿using Luny;
 using LunyScript.Blocks;
 using System;
 
@@ -9,7 +9,7 @@ namespace LunyScript
 	/// Getter returns a VariableBlock for use in script expressions and conditions.
 	/// Setter performs immediate variable assignment during Build().
 	/// </summary>
-	public readonly struct VarAccessor
+	public sealed class VarAccessor
 	{
 		private readonly ITable _table;
 

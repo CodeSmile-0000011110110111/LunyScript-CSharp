@@ -8,16 +8,16 @@ namespace LunyScript.Blocks
 	/// Debug-only block that triggers a breakpoint when hit.
 	/// Completely stripped in release builds unless DEBUG or LUNYSCRIPT_DEBUG defined.
 	/// </summary>
-	internal sealed class DebugBreakBlock : IScriptActionBlock
+	internal sealed class DebugBreakBlock : ScriptActionBlock
 	{
 		private readonly String _message;
 
-		public static IScriptActionBlock Create(String message) => new DebugBreakBlock(message);
+		public static ScriptActionBlock Create(String message) => new DebugBreakBlock(message);
 
 		private DebugBreakBlock() {}
 		private DebugBreakBlock(String message = null) => _message = message;
 
-		public void Execute(IScriptRuntimeContext runtimeContext) => DoBreak(runtimeContext);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => DoBreak(runtimeContext);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		private void DoBreak(IScriptRuntimeContext runtimeContext)

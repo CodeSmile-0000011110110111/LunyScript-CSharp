@@ -29,7 +29,7 @@ namespace LunyScript.Api
 		/// <summary>
 		/// Completes the builder and returns the executable block.
 		/// </summary>
-		public IScriptActionBlock Do() => BuilderUtility.Finalize(Script, Options, Token);
+		public ScriptActionBlock Do() => BuilderUtility.Finalize(Script, Options, Token);
 	}
 
 	public static class ObjectBuilderExtensions

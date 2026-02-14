@@ -1,4 +1,4 @@
-﻿using Luny;
+using Luny;
 using System;
 using System.Diagnostics;
 
@@ -8,17 +8,17 @@ namespace LunyScript.Blocks
 	/// Debug-only block that pauses the player (Editor-only).
 	/// Completely stripped in release builds unless DEBUG or LUNYSCRIPT_DEBUG defined.
 	/// </summary>
-	internal sealed class EditorPausePlayerBlock : IScriptActionBlock
+	internal sealed class EditorPausePlayerBlock : ScriptActionBlock
 	{
 		private readonly String _message;
 
-		public static IScriptActionBlock Create(String message) =>
+		public static ScriptActionBlock Create(String message) =>
 			LunyEngine.Instance.Application.IsEditor ? new EditorPausePlayerBlock(message) : null;
 
 		private EditorPausePlayerBlock() {}
 		private EditorPausePlayerBlock(String message = null) => _message = message;
 
-		public void Execute(IScriptRuntimeContext runtimeContext) => DoPausePlayer(runtimeContext);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => DoPausePlayer(runtimeContext);
 
 		[Conditional("DEBUG")] [Conditional("LUNYSCRIPT_DEBUG")]
 		private void DoPausePlayer(IScriptRuntimeContext runtimeContext)

@@ -6,7 +6,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// Builder for 'While' loops.
 	/// </summary>
-	public sealed class WhileBlockBuilder : IScriptActionBlock
+	public sealed class WhileBlockBuilder : ScriptActionBlock
 	{
 		private readonly IScriptConditionBlock[] _conditions;
 		private IScriptActionBlock[] _blocks;
@@ -14,7 +14,7 @@ namespace LunyScript.Blocks
 
 		internal WhileBlockBuilder(IScriptConditionBlock[] conditions) => _conditions = conditions;
 
-		public void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
+		public override void Execute(IScriptRuntimeContext runtimeContext) => (_cachedBlock ??= Build()).Execute(runtimeContext);
 
 		public IScriptActionBlock Do(params IScriptActionBlock[] blocks)
 		{
@@ -28,7 +28,7 @@ namespace LunyScript.Blocks
 	/// <summary>
 	/// While loop execution block with safety limits.
 	/// </summary>
-	internal sealed class WhileBlock : IScriptActionBlock
+	internal sealed class WhileBlock : ScriptActionBlock
 	{
 		private readonly IScriptConditionBlock[] _conditions;
 		private readonly IScriptActionBlock[] _blocks;
@@ -41,7 +41,7 @@ namespace LunyScript.Blocks
 			_blocks = blocks;
 		}
 
-		public void Execute(IScriptRuntimeContext runtimeContext)
+		public override void Execute(IScriptRuntimeContext runtimeContext)
 		{
 #if DEBUG || UNITY_EDITOR
 			var iterations = 0;

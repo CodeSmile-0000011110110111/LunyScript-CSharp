@@ -8,6 +8,6 @@ namespace LunyScript.Api
 		private readonly IScript _script;
 		internal PrefabApi(IScript script) => _script = script;
 
-		public IScriptActionBlock Instantiate(String prefabName) => _script.Object.Create(prefabName).From(prefabName).Do();
+		public ScriptActionBlock Instantiate(String prefabName) => _script.Object.Create(prefabName).From(prefabName).Do();
 	}
 }

@@ -10,6 +10,6 @@ namespace LunyScript.Api
 		private readonly IScript _script;
 		internal SceneApi(IScript script) => _script = script;
 
-		public IScriptActionBlock Reload() => SceneReloadBlock.Create();
+		public ScriptActionBlock Reload() => SceneReloadBlock.Create();
 	}
 }
