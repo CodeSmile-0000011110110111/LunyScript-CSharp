@@ -45,7 +45,7 @@ namespace LunyScript.Coroutines.Builders
 
 		public static ScriptActionBlock Finalize(IScript script, in ObjectCreateOptions options, BuilderToken token)
 		{
-			ScriptActionBlock block = options.Mode switch
+			var block = options.Mode switch
 			{
 				ObjectCreationMode.Empty => ObjectCreateEmptyBlock.Create(options.Name),
 				ObjectCreationMode.Primitive => options.PrimitiveType switch
@@ -56,11 +56,11 @@ namespace LunyScript.Coroutines.Builders
 					LunyPrimitiveType.Cylinder => ObjectCreateCylinderBlock.Create(options.Name),
 					LunyPrimitiveType.Plane => ObjectCreatePlaneBlock.Create(options.Name),
 					LunyPrimitiveType.Quad => ObjectCreateQuadBlock.Create(options.Name),
-					_ => ObjectCreateEmptyBlock.Create(options.Name)
+					var _ => ObjectCreateEmptyBlock.Create(options.Name),
 				},
 				ObjectCreationMode.Prefab => ObjectCreatePrefabBlock.Create(options.Name, options.AssetName),
 				ObjectCreationMode.Clone => ObjectCreateCloneBlock.Create(options.Name, options.AssetName),
-				_ => throw new NotImplementedException($"{nameof(ObjectBuilder<StateNameSet>)}: Mode {options.Mode} is not implemented.")
+				var _ => throw new NotImplementedException($"{nameof(ObjectBuilder<StateNameSet>)}: Mode {options.Mode} is not implemented."),
 			};
 
 			((ILunyScriptInternal)script).FinalizeToken(token);

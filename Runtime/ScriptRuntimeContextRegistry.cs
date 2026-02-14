@@ -106,9 +106,7 @@ namespace LunyScript
 			ScriptRuntimeContext.ClearGlobalVariables();
 
 			foreach (var context in AllContexts)
-			{
 				context.Shutdown();
-			}
 
 			_contextsByObjectID.Clear();
 			_contextsByNativeID.Clear();

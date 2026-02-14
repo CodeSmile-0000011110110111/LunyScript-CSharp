@@ -45,8 +45,9 @@ namespace LunyScript.Events
 		internal IEnumerable<SequenceBlock> GetSequences(LunyObjectEvent objectEvent) =>
 			IsObserving((Int32)objectEvent, ref _objectEventSequences) ? _objectEventSequences[(Int32)objectEvent] : null;
 
-		internal IEnumerable<SequenceBlock> GetSequences(LunySceneEvent sceneEvent) =>
-			IsObserving((Int32)sceneEvent, ref _objectEventSequences) ? _objectEventSequences[(Int32)sceneEvent] : null;
+		internal IEnumerable<SequenceBlock> GetSequences(LunySceneEvent sceneEvent) => IsObserving((Int32)sceneEvent, ref _objectEventSequences)
+			? _objectEventSequences[(Int32)sceneEvent]
+			: null;
 
 		internal Boolean IsObserving(Int32 eventIndex, ref List<SequenceBlock>[] sequencesRef)
 		{

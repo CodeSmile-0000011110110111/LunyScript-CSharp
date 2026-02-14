@@ -29,8 +29,7 @@ namespace LunyScript.Api
 			/// </summary>
 			/// <param name="blocks"></param>
 			/// <returns></returns>
-			public SequenceBlock Loads(params ScriptActionBlock[] blocks) =>
-				Scheduler?.ScheduleSequence(blocks, LunySceneEvent.OnSceneLoaded);
+			public SequenceBlock Loads(params ScriptActionBlock[] blocks) => Scheduler?.ScheduleSequence(blocks, LunySceneEvent.OnSceneLoaded);
 
 			/// <summary>
 			/// Runs when a scene has loaded.
@@ -39,8 +38,7 @@ namespace LunyScript.Api
 			/// <param name="blocks"></param>
 			/// <returns></returns>
 			/// <exception cref="NotImplementedException"></exception>
-			public SequenceBlock Loads(String sceneName, params ScriptActionBlock[] blocks) =>
-				throw new NotImplementedException(nameof(Loads));
+			public SequenceBlock Loads(String sceneName, params ScriptActionBlock[] blocks) => throw new NotImplementedException(nameof(Loads));
 
 			/// <summary>
 			/// Runs when a scene has unloaded.

@@ -13,6 +13,10 @@ namespace LunyScript.Coroutines.Builders
 		private readonly Int32 _line;
 		private Boolean _isFinished;
 
+		public static void LogWarning(BuilderToken token) => LunyLogger.LogWarning(
+			$"{Path.GetFileName(token._file)}({token._line}): Unfinished {token._type} '{token._name}' => " +
+			"Did you forget to call a terminal method like .Do() or .WhenElapsed()?");
+
 		public BuilderToken(String name, String type, [CallerFilePath] String file = "", [CallerLineNumber] Int32 lineNumber = -1)
 		{
 			_name = name;
@@ -27,18 +31,10 @@ namespace LunyScript.Coroutines.Builders
 			GC.SuppressFinalize(this);
 		}
 
-		public static void LogWarning(BuilderToken token)
-		{
-			LunyLogger.LogWarning($"{Path.GetFileName(token._file)}({token._line}): Unfinished {token._type} '{token._name}' => " +
-			                      "Did you forget to call a terminal method like .Do() or .WhenElapsed()?");
-		}
-
 		~BuilderToken()
 		{
 			if (!_isFinished)
-			{
 				LogWarning(this);
-			}
 		}
 	}
 }

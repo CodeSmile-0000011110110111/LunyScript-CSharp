@@ -5,13 +5,13 @@ using System;
 
 namespace LunyScript.Api
 {
-	public interface IObjectBuilderState { }
-	public interface IStart : IObjectBuilderState { }
-	public interface IStateNameSet : IObjectBuilderState, ICanBuild { }
-	public interface ICanBuild { }
+	public interface IObjectBuilderState {}
+	public interface IStart : IObjectBuilderState {}
+	public interface IStateNameSet : IObjectBuilderState, ICanBuild {}
+	public interface ICanBuild {}
 
-	public struct Start : IStart { }
-	public struct StateNameSet : IStateNameSet { }
+	public struct Start : IStart {}
+	public struct StateNameSet : IStateNameSet {}
 
 	public readonly struct ObjectBuilder<T> where T : struct, IObjectBuilderState
 	{
@@ -52,14 +52,6 @@ namespace LunyScript.Api
 		public static ObjectBuilder<StateNameSet> AsQuad<T>(this ObjectBuilder<T> b) where T : struct, IStateNameSet =>
 			b.WithPrimitive(LunyPrimitiveType.Quad);
 
-		private static ObjectBuilder<StateNameSet> WithPrimitive<T>(this ObjectBuilder<T> b, LunyPrimitiveType type) where T : struct, IStateNameSet
-		{
-			var options = b.Options;
-			options.Mode = ObjectCreationMode.Primitive;
-			options.PrimitiveType = type;
-			return new ObjectBuilder<StateNameSet>(b.Script, options, b.Token);
-		}
-
 		public static ObjectBuilder<StateNameSet> From<T>(this ObjectBuilder<T> b, String prefabName) where T : struct, IStateNameSet
 		{
 			var options = b.Options;
@@ -73,6 +65,15 @@ namespace LunyScript.Api
 			var options = b.Options;
 			options.Mode = ObjectCreationMode.Clone;
 			options.AssetName = existingName;
+			return new ObjectBuilder<StateNameSet>(b.Script, options, b.Token);
+		}
+
+		private static ObjectBuilder<StateNameSet> WithPrimitive<T>(this ObjectBuilder<T> b, LunyPrimitiveType type)
+			where T : struct, IStateNameSet
+		{
+			var options = b.Options;
+			options.Mode = ObjectCreationMode.Primitive;
+			options.PrimitiveType = type;
 			return new ObjectBuilder<StateNameSet>(b.Script, options, b.Token);
 		}
 	}

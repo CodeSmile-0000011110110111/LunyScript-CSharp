@@ -92,7 +92,8 @@ namespace LunyScript.Coroutines.Builders
 			_options = options;
 		}
 
-		internal static TimerFinalBuilder FromOptions(IScript script, BuilderToken token, in Coroutine.Options options) => new(script, token, options);
+		internal static TimerFinalBuilder FromOptions(IScript script, BuilderToken token, in Coroutine.Options options) =>
+			new(script, token, options);
 
 		/// <summary>
 		/// Completes the timer and specifies blocks to run when elapsed.

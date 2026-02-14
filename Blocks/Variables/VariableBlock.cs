@@ -25,8 +25,7 @@ namespace LunyScript.Blocks
 		public static VariableBlock operator +(VariableBlock left, Variable right) =>
 			VariableAddBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator +(VariableBlock left, VariableBlock right) =>
-			VariableAddBlock.Create(left, right);
+		public static VariableBlock operator +(VariableBlock left, VariableBlock right) => VariableAddBlock.Create(left, right);
 
 		public static VariableBlock operator +(Variable left, VariableBlock right) =>
 			VariableAddBlock.Create(ConstantVariableBlock.Create(left), right);
@@ -34,8 +33,7 @@ namespace LunyScript.Blocks
 		public static VariableBlock operator -(VariableBlock left, Variable right) =>
 			VariableSubtractBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator -(VariableBlock left, VariableBlock right) =>
-			VariableSubtractBlock.Create(left, right);
+		public static VariableBlock operator -(VariableBlock left, VariableBlock right) => VariableSubtractBlock.Create(left, right);
 
 		public static VariableBlock operator -(Variable left, VariableBlock right) =>
 			VariableSubtractBlock.Create(ConstantVariableBlock.Create(left), right);
@@ -43,8 +41,7 @@ namespace LunyScript.Blocks
 		public static VariableBlock operator *(VariableBlock left, Variable right) =>
 			VariableMultiplyBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator *(VariableBlock left, VariableBlock right) =>
-			VariableMultiplyBlock.Create(left, right);
+		public static VariableBlock operator *(VariableBlock left, VariableBlock right) => VariableMultiplyBlock.Create(left, right);
 
 		public static VariableBlock operator *(Variable left, VariableBlock right) =>
 			VariableMultiplyBlock.Create(ConstantVariableBlock.Create(left), right);
@@ -52,8 +49,7 @@ namespace LunyScript.Blocks
 		public static VariableBlock operator /(VariableBlock left, Variable right) =>
 			VariableDivideBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator /(VariableBlock left, VariableBlock right) =>
-			VariableDivideBlock.Create(left, right);
+		public static VariableBlock operator /(VariableBlock left, VariableBlock right) => VariableDivideBlock.Create(left, right);
 
 		public static VariableBlock operator /(Variable left, VariableBlock right) =>
 			VariableDivideBlock.Create(ConstantVariableBlock.Create(left), right);
@@ -65,38 +61,32 @@ namespace LunyScript.Blocks
 		public static VariableBlock operator ==(VariableBlock left, Variable right) =>
 			VariableIsEqualToBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator ==(VariableBlock left, VariableBlock right) =>
-			VariableIsEqualToBlock.Create(left, right);
+		public static VariableBlock operator ==(VariableBlock left, VariableBlock right) => VariableIsEqualToBlock.Create(left, right);
 
 		public static VariableBlock operator !=(VariableBlock left, Variable right) =>
 			VariableIsNotEqualToBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator !=(VariableBlock left, VariableBlock right) =>
-			VariableIsNotEqualToBlock.Create(left, right);
+		public static VariableBlock operator !=(VariableBlock left, VariableBlock right) => VariableIsNotEqualToBlock.Create(left, right);
 
 		public static VariableBlock operator >(VariableBlock left, Variable right) =>
 			VariableIsGreaterThanBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator >(VariableBlock left, VariableBlock right) =>
-			VariableIsGreaterThanBlock.Create(left, right);
+		public static VariableBlock operator >(VariableBlock left, VariableBlock right) => VariableIsGreaterThanBlock.Create(left, right);
 
 		public static VariableBlock operator >=(VariableBlock left, Variable right) =>
 			VariableIsAtLeastBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator >=(VariableBlock left, VariableBlock right) =>
-			VariableIsAtLeastBlock.Create(left, right);
+		public static VariableBlock operator >=(VariableBlock left, VariableBlock right) => VariableIsAtLeastBlock.Create(left, right);
 
 		public static VariableBlock operator <(VariableBlock left, Variable right) =>
 			VariableIsLessThanBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator <(VariableBlock left, VariableBlock right) =>
-			VariableIsLessThanBlock.Create(left, right);
+		public static VariableBlock operator <(VariableBlock left, VariableBlock right) => VariableIsLessThanBlock.Create(left, right);
 
 		public static VariableBlock operator <=(VariableBlock left, Variable right) =>
 			VariableIsAtMostBlock.Create(left, ConstantVariableBlock.Create(right));
 
-		public static VariableBlock operator <=(VariableBlock left, VariableBlock right) =>
-			VariableIsAtMostBlock.Create(left, right);
+		public static VariableBlock operator <=(VariableBlock left, VariableBlock right) => VariableIsAtMostBlock.Create(left, right);
 
 		// Unary Operators
 		public static VariableBlock operator !(VariableBlock operand) => NotBlock.Create(operand);
@@ -105,8 +95,7 @@ namespace LunyScript.Blocks
 
 		public abstract Variable GetValue(IScriptRuntimeContext runtimeContext);
 
-		private Boolean Equals(VariableBlock other) =>
-			throw new NotImplementedException($"{nameof(VariableBlock)}.{nameof(Equals)}()");
+		private Boolean Equals(VariableBlock other) => throw new NotImplementedException($"{nameof(VariableBlock)}.{nameof(Equals)}()");
 
 		public override Boolean Equals(Object obj)
 		{
@@ -134,8 +123,7 @@ namespace LunyScript.Blocks
 			return handle;
 		}
 
-		public ScriptActionBlock Set(Variable value) =>
-			VariableSetValueBlock.Create(GetHandleOrThrow(), ConstantVariableBlock.Create(value));
+		public ScriptActionBlock Set(Variable value) => VariableSetValueBlock.Create(GetHandleOrThrow(), ConstantVariableBlock.Create(value));
 
 		public ScriptActionBlock Set(VariableBlock value) => VariableSetValueBlock.Create(GetHandleOrThrow(), value);
 

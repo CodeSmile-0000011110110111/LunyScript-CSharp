@@ -9,7 +9,7 @@ namespace LunyScript.Blocks
 		protected readonly VariableBlock _left;
 		protected readonly VariableBlock _right;
 
-		internal override Table.VarHandle TargetHandle => (_left as VariableBlock)?.TargetHandle ?? (_right as VariableBlock)?.TargetHandle;
+		internal override Table.VarHandle TargetHandle => _left?.TargetHandle ?? _right?.TargetHandle;
 
 		protected VariableArithmeticBlock(VariableBlock left, VariableBlock right)
 		{

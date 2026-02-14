@@ -58,14 +58,14 @@ namespace LunyScript.Coroutines.Builders
 		/// <summary>
 		/// Duration in frames (count-based).
 		/// </summary>
-		public CounterFinalBuilder Frames() =>
-			new(_script, _token, Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.FrameUpdate));
+		public CounterFinalBuilder Frames() => new(_script, _token,
+			Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.FrameUpdate));
 
 		/// <summary>
 		/// Duration in heartbeats (count-based).
 		/// </summary>
-		public CounterFinalBuilder Heartbeats() =>
-			new(_script, _token, Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.Heartbeat));
+		public CounterFinalBuilder Heartbeats() => new(_script, _token,
+			Coroutine.Options.ForCounter(_name, _amount, _continuation, Coroutine.Process.Heartbeat));
 	}
 
 	/// <summary>

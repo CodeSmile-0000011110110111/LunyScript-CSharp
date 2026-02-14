@@ -13,12 +13,12 @@ namespace LunyScript
 	{
 		private readonly ITable _table;
 
-		internal VarAccessor(ITable table) => _table = table;
-
 		public VariableBlock this[String name]
 		{
 			get => TableVariableBlock.Create(_table.GetHandle(name));
 			set => _table.GetHandle(name).Value = value.GetValue(null);
 		}
+
+		internal VarAccessor(ITable table) => _table = table;
 	}
 }

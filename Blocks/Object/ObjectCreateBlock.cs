@@ -10,7 +10,7 @@ namespace LunyScript.Blocks
 		Empty,
 		Primitive,
 		Prefab,
-		Clone
+		Clone,
 	}
 
 	internal struct ObjectCreateOptions
@@ -113,9 +113,7 @@ namespace LunyScript.Blocks
 			var prefab = LunyEngine.Instance.Asset.Load<ILunyPrefab>(_assetName);
 			var instance = Object.CreateFromPrefab(prefab);
 			if (instance != null)
-			{
 				instance.Name = Name;
-			}
 		}
 	}
 

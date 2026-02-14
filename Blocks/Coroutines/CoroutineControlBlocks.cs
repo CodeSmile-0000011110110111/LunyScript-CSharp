@@ -7,8 +7,7 @@ namespace LunyScript.Blocks.Coroutines
 	{
 		protected readonly Coroutine _coroutine;
 
-		protected CoroutineControlBlock(Coroutine coroutine) =>
-			_coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
+		protected CoroutineControlBlock(Coroutine coroutine) => _coroutine = coroutine ?? throw new ArgumentNullException(nameof(coroutine));
 	}
 
 	internal sealed class CoroutineStartBlock : CoroutineControlBlock

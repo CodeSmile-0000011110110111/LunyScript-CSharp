@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
 namespace LunyScript
 {
@@ -28,10 +27,10 @@ namespace LunyScript
 		PrefabApi Prefab { get; }
 		SceneApi Scene { get; }
 		WhenApi When { get; }
-
-		VariableBlock Define(String name, Variable value);
 		VarAccessor Var { get; }
 		VarAccessor GVar { get; }
+
+		VariableBlock Define(String name, Variable value);
 	}
 
 	internal interface ILunyScriptInternal
@@ -157,6 +156,8 @@ namespace LunyScript
 		public ApiPlaceholders.UIApi UI => new(this);
 		public ApiPlaceholders.VFXApi VFX => new(this);
 		public ApiPlaceholders.VideoApi Video => new(this);
+		public VarAccessor GVar => _gVar;
+		public VarAccessor Var => _var;
 
 		internal void Initialize(IScriptRuntimeContext runtimeContext)
 		{
@@ -191,8 +192,6 @@ namespace LunyScript
 		// Variables and Constants
 		public VariableBlock Define(String name, Variable value) =>
 			TableVariableBlock.Create(_runtimeContext.GlobalVariables.DefineConstant(name, value));
-		public VarAccessor GVar => _gVar;
-		public VarAccessor Var => _var;
 
 		// Logic Flow API
 
